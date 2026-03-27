@@ -193,7 +193,11 @@
             <span class="back-btn-text">❮ Trở lại</span>
         </div>
         <h3 id="inner-folder-title" class="inner-folder-title">Tên Nhóm</h3>
-        <button id="btn-sort-az" class="btn-sort-az" onclick="sortContactsAZ()">A-Z ↓</button>
+        <div style="display: flex; gap: 8px;">
+            <!-- NÚT THÊM NGAY TỪ TRONG NHÓM -->
+            <button class="btn-sort-az" style="background: rgba(52, 199, 89, 0.15); color: var(--tint-green);" onclick="openPendingModal()">📥 Thêm</button>
+            <button id="btn-sort-az" class="btn-sort-az" onclick="sortContactsAZ()">A-Z ↓</button>
+        </div>
       </div>
       <div id="inner-contact-list"></div>
     </div>
@@ -378,10 +382,9 @@
       return cleaned;
   }
   
-  // TÁCH NHIỀU SĐT TRONG 1 Ô
   window.extractAllPhones = function(str) {
       if (!str) return [];
-      let parts = String(str).split(/[,/;|:]+/); // Tách theo các dấu phân cách phổ biến
+      let parts = String(str).split(/[,/;|:]+/);
       let valid = [];
       parts.forEach(p => {
           let norm = window.normalizePhone(p);
@@ -416,7 +419,6 @@
       }
   }
 
-  // HỎI CHUYỂN XUỐNG CUỐI
   window.promptMoveToBottom = function(evt, id, groupName) {
       evt.stopPropagation();
       showDialog('Sắp xếp', 'Chuyển liên hệ này xuống cuối danh sách?', 'confirm', () => {
@@ -469,7 +471,18 @@
   };
 
   window.updateDataLists = function() { const datalist = document.getElementById('group-suggestions'); if(datalist) datalist.innerHTML = STATE.groups.map(g => `<option value="${g}">`).join(''); }
-  window.updatePendingBadge = function() { let badge = document.getElementById('pending-badge'); if (STATE.pending.length > 0) { badge.innerText = STATE.pending.length > 99 ? '99+' : STATE.pending.length; badge.style.display = 'block'; } else { badge.style.display = 'none'; } }
+  
+  // TỐI ƯU: HIỆN CHÍNH XÁC SỐ LƯỢNG
+  window.updatePendingBadge = function() { 
+      let badge = document.getElementById('pending-badge'); 
+      if (STATE.pending.length > 0) { 
+          badge.innerText = STATE.pending.length; 
+          badge.style.display = 'block'; 
+      } else { 
+          badge.style.display = 'none'; 
+      } 
+  }
+  
   window.updateStats = function() {
       let elC = document.getElementById('stat-contacts'), elG = document.getElementById('stat-groups');
       if(elC) elC.innerText = STATE.contacts.length; if(elG) elG.innerText = STATE.groups.length;
@@ -570,8 +583,11 @@
       let contactsInGroup = STATE.contacts.filter(c => c.group === groupName);
       let listContainer = document.getElementById('inner-contact-list');
       
-      if (contactsInGroup.length === 0) { listContainer.innerHTML = `<div style="text-align:center; padding:40px; color:var(--text-muted); font-style:italic;">Nhóm trống</div>`; } 
-      else { listContainer.innerHTML = contactsInGroup.map(c => renderContactCardHTML(c, true)).join(''); }
+      if (contactsInGroup.length === 0) { 
+          listContainer.innerHTML = `<div style="text-align:center; padding:40px; color:var(--text-muted); font-style:italic;">Nhóm trống</div>`; 
+      } else { 
+          listContainer.innerHTML = contactsInGroup.map(c => renderContactCardHTML(c, true)).join(''); 
+      }
       document.getElementById('search-contact').value = ''; 
 
       if (window.currentSortable) window.currentSortable.destroy();
@@ -718,6 +734,7 @@
       }, oldName);
   }
 
+  // XÓA NHÓM LÀ CHO TOÀN BỘ NGƯỜI VÀO KHO CHỜ
   window.deleteGroupItem = function(idx) {
       idx = parseInt(idx); let groupName = STATE.groups[idx]; if(!groupName) return;
       let orphanedContacts = STATE.contacts.filter(c => c.group === groupName), count = orphanedContacts.length, msg = `Xóa nhóm "<b>${groupName}</b>"?`;
@@ -726,12 +743,22 @@
           STATE.groups.splice(idx, 1);
           if(count > 0) {
               let remainingContacts = [];
-              STATE.contacts.forEach(c => { if(c.group === groupName) { c.group = ''; STATE.pending.push(c); } else { remainingContacts.push(c); } });
+              STATE.contacts.forEach(c => { 
+                  if(c.group === groupName) { 
+                      c.group = ''; 
+                      STATE.pending.push(c); 
+                  } else { 
+                      remainingContacts.push(c); 
+                  } 
+              });
               STATE.contacts = remainingContacts;
-              localStorage.setItem('appContactsStandalone', JSON.stringify(STATE.contacts)); localStorage.setItem('appPendingContacts', JSON.stringify(STATE.pending)); updatePendingBadge();
+              localStorage.setItem('appContactsStandalone', JSON.stringify(STATE.contacts)); 
+              localStorage.setItem('appPendingContacts', JSON.stringify(STATE.pending)); 
+              updatePendingBadge();
           }
           if(STATE.currentFolder === groupName) STATE.currentFolder = null;
-          localStorage.setItem('appGroupsStandalone', JSON.stringify(STATE.groups)); updateDataLists(); updateStats(); renderGroupSettingsList();
+          localStorage.setItem('appGroupsStandalone', JSON.stringify(STATE.groups)); 
+          updateDataLists(); updateStats(); renderGroupSettingsList();
       });
   }
 
@@ -810,8 +837,14 @@
   }
 
   window.openPendingModal = function() {
-      STATE.selectedPendingIds = []; document.getElementById('search-pending').value = ''; document.getElementById('pending-group-input').value = '';
-      renderPendingList(STATE.pending); updatePendingSelectedCountText();
+      STATE.selectedPendingIds = []; 
+      document.getElementById('search-pending').value = ''; 
+      
+      let groupInput = document.getElementById('pending-group-input');
+      groupInput.value = STATE.currentFolder ? STATE.currentFolder : '';
+
+      renderPendingList(STATE.pending); 
+      updatePendingSelectedCountText();
       let modal = document.getElementById('pending-modal'); modal.style.display = 'flex'; setTimeout(() => modal.classList.add('show'), 10);
   }
 
@@ -826,7 +859,7 @@
       if (dataArr.length === 0) { container.innerHTML = '<div style="text-align:center; padding:30px; color:var(--text-muted); font-style:italic;">Kho chờ trống.</div>'; document.getElementById('chk-select-all-pending').checked = false; return; }
       let html = dataArr.map(p => {
           let isChecked = STATE.selectedPendingIds.includes(p.id.toString()) ? 'checked' : '';
-          return `<label class="pending-card"><input type="checkbox" class="custom-checkbox chk-pending-item" value="${p.id}" onchange="handlePendingCheck('${p.id}', this.checked)" ${isChecked}><div style="flex:1;"><span class="p-name">${p.name}</span><div class="contact-phone-group"><span class="p-phone">${p.phone}</span>${p.phone2 ? `<span class="p-phone">${p.phone2}</span>` : ''}</div></div></label>`;
+          return `<label class="pending-card"><input type="checkbox" class="custom-checkbox chk-pending-item" value="${p.id}" onchange="handlePendingCheck('${p.id}', this.checked)" ${isChecked}><div style="flex:1;"><span class="p-name">${p.name}</span><div class="contact-phone-group" style="display:flex; flex-direction:column; gap:2px;"><span class="p-phone">${p.phone}</span>${p.phone2 ? `<span class="p-phone">${p.phone2}</span>` : ''}</div></div></label>`;
       }).join('');
       container.innerHTML = html;
       let allCheckedInView = dataArr.every(p => STATE.selectedPendingIds.includes(p.id.toString()));
@@ -933,15 +966,18 @@
       document.getElementById('search-contact').value = '';
   }
 
+  // TỐI ƯU: ĐƯA VỀ KHO CHỜ THAY VÌ THÙNG RÁC
   window.deleteContact = function() {
       let id = document.getElementById('contact-id').value;
-      showDialog('Xác nhận xóa', 'Liên hệ này sẽ được đưa vào Thùng rác.', 'confirm', () => {
+      showDialog('Xác nhận xóa', 'Liên hệ này sẽ được đưa về Kho chờ duyệt.', 'confirm', () => {
           let idx = STATE.contacts.findIndex(x => x.id.toString() === id.toString());
           if(idx > -1) {
               let deleted = STATE.contacts.splice(idx, 1)[0];
-              deleted.deletedAt = Date.now(); STATE.trash.push(deleted); 
-              localStorage.setItem('appTrashStandalone', JSON.stringify(STATE.trash));
+              deleted.group = ''; 
+              STATE.pending.push(deleted); 
+              localStorage.setItem('appPendingContacts', JSON.stringify(STATE.pending));
               localStorage.setItem('appContactsStandalone', JSON.stringify(STATE.contacts));
+              updatePendingBadge();
           }
           closeContactModal();
           if(STATE.currentFolder) openFolderView(STATE.currentFolder); else renderMainView();

@@ -63,17 +63,31 @@
       background: var(--bg-body); padding-bottom: 40px; color: var(--text-main);
     }
 
-    /* Đảm bảo không lẹm "tai thỏ" (Notch) trên iPhone */
     .container { 
       max-width: 600px; margin: 0 auto; 
       padding: calc(env(safe-area-inset-top) + 15px) 16px calc(env(safe-area-inset-bottom) + 20px) 16px; 
+    }
+
+    /* ================== STICKY ZONE (Không bị trôi) ================== */
+    .sticky-zone {
+      position: sticky;
+      top: 0;
+      background: var(--bg-body);
+      z-index: 100;
+      padding-top: calc(env(safe-area-inset-top) + 15px);
+      margin-top: calc(-1 * (env(safe-area-inset-top) + 15px));
+      margin-left: -16px;
+      margin-right: -16px;
+      padding-left: 16px;
+      padding-right: 16px;
+      padding-bottom: 5px;
     }
     
     .dash-header { padding: 5px 0 20px 0; text-align: left; display: flex; align-items: center; gap: 10px;}
     .dash-header h2 { color: var(--text-main); margin: 0; font-size: 28px; font-weight: 800; letter-spacing: -0.5px;}
 
     /* ================== TÌM KIẾM & NÚT THÊM ================== */
-    .top-controls { margin-bottom: 20px; }
+    .top-controls { margin-bottom: 10px; }
     
     .search-row { display: flex; gap: 8px; margin-bottom: 16px; align-items: center;}
     .search-input { 
@@ -93,10 +107,9 @@
 
     .action-buttons-row { 
       display: flex; gap: 12px; justify-content: space-between; align-items: center;
-      transition: all 0.3s ease; overflow: hidden; max-height: 100px; margin-bottom: 20px;
+      transition: all 0.3s ease; overflow: hidden; max-height: 100px; margin-bottom: 10px;
     }
     
-    /* Giao diện nút bấm chuẩn màu Pastel iOS */
     .btn-act {
       flex: 1; height: 50px; border-radius: 14px; border: none; font-size: 22px; 
       cursor: pointer; display: flex; align-items: center; justify-content: center; 
@@ -133,7 +146,7 @@
     }
     .unit-chevron { color: var(--border); font-weight: 700; font-size: 15px;}
 
-    /* ================== CHI TIẾT THƯ MỤC ================== */
+    /* ================== CHI TIẾT THƯ MỤC & KẾT QUẢ TÌM KIẾM ================== */
     .back-header {
       display: flex; align-items: center; justify-content: space-between; padding: 5px 0 20px 0; margin-bottom: 10px;
     }
@@ -157,6 +170,7 @@
     
     .contact-info { flex: 1; display: flex; flex-direction: column; gap: 3px; }
     .contact-name { font-size: 17px; font-weight: 600; color: var(--text-main); letter-spacing: -0.3px;}
+    .contact-phone-group { display: flex; flex-direction: column; gap: 3px; }
     .contact-phone { font-size: 15px; color: var(--text-sub); }
     .contact-group-label { font-size: 12px; color: var(--text-muted); font-weight: 500; margin-top: 2px;}
     
@@ -309,29 +323,31 @@
   <datalist id="group-suggestions"></datalist>
 
   <div class="container">
-    <div class="dash-header">
-      <h2>Danh Bạ</h2>
-    </div>
-
-    <!-- TÌM KIẾM & NÚT THÊM -->
-    <div class="top-controls">
-      <div class="search-row">
-        <input type="text" id="search-contact" class="search-input" placeholder="Tìm kiếm tên, SĐT..." onkeyup="searchContacts()">
-        <button class="btn-toggle-menu" onclick="toggleContactToolbar()">⚏</button>
+    <div class="sticky-zone">
+      <div class="dash-header">
+        <h2>Danh Bạ</h2>
       </div>
 
-      <div class="action-buttons-row" id="contact-action-toolbar">
-        <button class="btn-act btn-setting" onclick="openGroupSettingsModal()" title="Cài đặt Nhóm">⚙️</button>
-        <div style="position: relative; flex: 1;">
-          <button class="btn-act btn-pending" style="width:100%;" onclick="openPendingModal()" title="Kho chờ duyệt">📥</button>
-          <span id="pending-badge" class="pending-badge">0</span>
+      <!-- TÌM KIẾM & NÚT THÊM -->
+      <div class="top-controls">
+        <div class="search-row">
+          <input type="text" id="search-contact" class="search-input" placeholder="Tìm kiếm tên, SĐT..." onkeyup="searchContacts()">
+          <button class="btn-toggle-menu" onclick="toggleContactToolbar()">⚏</button>
         </div>
-        <button class="btn-act btn-file" onclick="document.getElementById('contact-file-upload').click()" title="Nhập từ file">📁</button>
-        <button class="btn-act btn-device" onclick="importFromContacts()" title="Nhập từ điện thoại">📇</button>
-        <button class="btn-act btn-add-manual" onclick="openContactModal()" title="Thêm thủ công">+</button>
+
+        <div class="action-buttons-row" id="contact-action-toolbar">
+          <button class="btn-act btn-setting" onclick="openGroupSettingsModal()" title="Cài đặt Nhóm">⚙️</button>
+          <div style="position: relative; flex: 1;">
+            <button class="btn-act btn-pending" style="width:100%;" onclick="openPendingModal()" title="Kho chờ duyệt">📥</button>
+            <span id="pending-badge" class="pending-badge">0</span>
+          </div>
+          <button class="btn-act btn-file" onclick="document.getElementById('contact-file-upload').click()" title="Nhập từ file">📁</button>
+          <button class="btn-act btn-device" onclick="importFromContacts()" title="Nhập từ điện thoại">📇</button>
+          <button class="btn-act btn-add-manual" onclick="openContactModal()" title="Thêm thủ công">+</button>
+        </div>
+        
+        <input type="file" id="contact-file-upload" style="display:none;" accept=".csv, .vcf, text/csv, text/vcard, application/json, .json" onchange="handleContactFileUpload(event)">
       </div>
-      
-      <input type="file" id="contact-file-upload" style="display:none;" accept=".csv, .vcf, text/csv, text/vcard, application/json, .json" onchange="handleContactFileUpload(event)">
     </div>
 
     <!-- KHU VỰC HIỂN THỊ ĐỘNG -->
@@ -348,7 +364,15 @@
       <div id="inner-contact-list"></div>
     </div>
     
-    <div id="view-search-results" style="display:none;"></div>
+    <div id="view-search-results" style="display:none;">
+      <div class="back-header">
+        <div onclick="cancelSearch()" style="display:flex; align-items:center; gap:5px; cursor:pointer;">
+            <span class="back-btn-text">❮ Trở lại</span>
+        </div>
+        <h3 class="inner-folder-title">Kết quả tìm kiếm</h3>
+      </div>
+      <div id="search-contact-list"></div>
+    </div>
   </div>
 
   <!-- ======================================================= -->
@@ -476,8 +500,11 @@
       <label class="input-label">Họ và tên</label>
       <input type="text" id="contact-name" class="smart-input" style="margin-bottom:15px;" placeholder="Ví dụ: Nguyễn Văn A" />
       
-      <label class="input-label">Số điện thoại</label>
+      <label class="input-label">Số điện thoại 1</label>
       <input type="tel" id="contact-phone" class="smart-input" style="margin-bottom:15px;" placeholder="Ví dụ: 0987654321" />
+
+      <label class="input-label">Số điện thoại 2 (Tùy chọn)</label>
+      <input type="tel" id="contact-phone2" class="smart-input" style="margin-bottom:15px;" placeholder="Ví dụ: 0123456789" />
       
       <label class="input-label">Nhóm / Đơn vị</label>
       <div class="smart-input-container" style="margin-bottom:0;">
@@ -597,6 +624,45 @@
       }
   }
 
+  // Hỏi xác nhận trước khi đưa xuống cuối
+  window.promptMoveToBottom = function(evt, id, groupName) {
+      evt.stopPropagation();
+      showDialog('Sắp xếp', 'Bạn có muốn chuyển liên hệ này xuống cuối danh sách?', 'confirm', () => {
+          let groupContacts = STATE.contacts.filter(c => c.group === groupName);
+          let idx = groupContacts.findIndex(c => c.id.toString() === id.toString());
+          if (idx > -1) {
+              let movedItem = groupContacts.splice(idx, 1)[0];
+              groupContacts.push(movedItem);
+              
+              let newContacts = [];
+              STATE.groups.forEach(g => {
+                  if (g === groupName) newContacts.push(...groupContacts);
+                  else newContacts.push(...STATE.contacts.filter(c => c.group === g));
+              });
+              let accountedIds = new Set(newContacts.map(c => c.id));
+              STATE.contacts.forEach(c => { if(!accountedIds.has(c.id)) newContacts.push(c); });
+
+              STATE.contacts = newContacts;
+              localStorage.setItem('appContactsStandalone', JSON.stringify(STATE.contacts));
+              openFolderView(groupName);
+          }
+      });
+  }
+
+  window.promptMoveGroupToBottom = function(evt, groupName) {
+      evt.stopPropagation();
+      showDialog('Sắp xếp', 'Bạn có muốn chuyển nhóm này xuống cuối danh sách?', 'confirm', () => {
+          let idx = STATE.groups.indexOf(groupName);
+          if (idx > -1) {
+              let movedItem = STATE.groups.splice(idx, 1)[0];
+              STATE.groups.push(movedItem);
+              localStorage.setItem('appGroupsStandalone', JSON.stringify(STATE.groups));
+              updateDataLists();
+              renderMainView();
+          }
+      });
+  }
+
   // ================== STATE MANAGEMENT ==================
   const STATE = {
     contacts: [], 
@@ -692,7 +758,7 @@
       STATE.activeDropdownId = null;
   }
 
-  // ================== KIẾN TRÚC ĐIỀU HƯỚNG MỚI (FOLDERS & SEARCH) ==================
+  // ================== KIẾN TRÚC ĐIỀU HƯỚNG MỚI ==================
   window.renderMainView = function() {
       updateStats();
       STATE.contacts.forEach(c => {
@@ -727,7 +793,7 @@
                   <div class="unit-right-info">
                       <span class="unit-count" style="cursor:pointer;" onclick="openFolderView('${g.replace(/'/g, "\\'")}')">${count}</span>
                       <span class="unit-chevron" style="cursor:pointer; margin-right: 5px;" onclick="openFolderView('${g.replace(/'/g, "\\'")}')">❯</span>
-                      <div class="drag-handle drag-handle-group">≡</div>
+                      <div class="drag-handle drag-handle-group" onclick="promptMoveGroupToBottom(event, '${g.replace(/'/g, "\\'")}')">≡</div>
                   </div>
               </div>
           `;
@@ -750,7 +816,7 @@
       let avatarColor = getAvatarColor(c.name);
       let initials = getInitials(c.name);
       let folderLabel = !inFolder ? `<span class="contact-group-label">🏢 ${c.group || 'Khác'}</span>` : '';
-      let dragHandle = inFolder ? `<div class="drag-handle">≡</div>` : '';
+      let dragHandle = inFolder ? `<div class="drag-handle" onclick="promptMoveToBottom(event, '${c.id}', '${c.group.replace(/'/g, "\\'")}')">≡</div>` : '';
       
       return `
       <div class="contact-card" data-id="${c.id}">
@@ -758,7 +824,10 @@
               <div class="contact-avatar" style="background:${avatarColor}" onclick="showQRCode('${c.name.replace(/'/g, "\\'")}', '${c.phone}'); event.stopPropagation();" title="Quét mã QR">${initials}</div>
               <div class="contact-info">
                   <span class="contact-name">${c.name}</span>
-                  <span class="contact-phone">${c.phone}</span>
+                  <div class="contact-phone-group">
+                     <a href="tel:${c.phone}" style="color:inherit; text-decoration:none;" onclick="event.stopPropagation()">${c.phone}</a>
+                     ${c.phone2 ? `<a href="tel:${c.phone2}" style="color:inherit; text-decoration:none;" onclick="event.stopPropagation()">${c.phone2}</a>` : ''}
+                  </div>
                   ${folderLabel}
               </div>
           </div>
@@ -829,26 +898,42 @@
       let keyword = document.getElementById('search-contact').value.toLowerCase();
       let viewFolders = document.getElementById('view-folder-list'), viewInner = document.getElementById('view-inner-folder'), viewSearch = document.getElementById('view-search-results');
 
-      if (!keyword) { if (STATE.currentFolder) openFolderView(STATE.currentFolder); else renderMainView(); return; }
+      if (!keyword) { 
+          if (STATE.currentFolder) openFolderView(STATE.currentFolder); 
+          else renderMainView(); 
+          return; 
+      }
       viewFolders.style.display = 'none'; viewInner.style.display = 'none'; viewSearch.style.display = 'block';
 
       let listToSearch = STATE.currentFolder ? STATE.contacts.filter(c => c.group === STATE.currentFolder) : STATE.contacts;
-      let filtered = listToSearch.filter(c => (c.name && c.name.toLowerCase().includes(keyword)) || (c.phone && c.phone.includes(keyword)) || (!STATE.currentFolder && c.group && c.group.toLowerCase().includes(keyword)));
+      let filtered = listToSearch.filter(c => 
+          (c.name && c.name.toLowerCase().includes(keyword)) || 
+          (c.phone && c.phone.includes(keyword)) || 
+          (c.phone2 && c.phone2.includes(keyword)) || 
+          (!STATE.currentFolder && c.group && c.group.toLowerCase().includes(keyword))
+      );
 
-      if (filtered.length === 0) { viewSearch.innerHTML = '<div style="text-align:center; padding: 40px; color:var(--text-muted);">Không tìm thấy kết quả.</div>'; } 
-      else { viewSearch.innerHTML = filtered.map(c => renderContactCardHTML(c, false)).join(''); }
+      let listContainer = document.getElementById('search-contact-list');
+      if (filtered.length === 0) { listContainer.innerHTML = '<div style="text-align:center; padding: 40px; color:var(--text-muted);">Không tìm thấy kết quả.</div>'; } 
+      else { listContainer.innerHTML = filtered.map(c => renderContactCardHTML(c, false)).join(''); }
+  }
+
+  window.cancelSearch = function() {
+      document.getElementById('search-contact').value = '';
+      searchContacts();
   }
 
   // ================== CÀI ĐẶT NHÓM & XUẤT DỮ LIỆU ==================
   window.exportContactsCSV = function() {
       if(STATE.contacts.length === 0) { showDialog("Lỗi", "Chưa có dữ liệu để xuất!", "alert"); return; }
       let csvContent = "data:text/csv;charset=utf-8,\uFEFF"; 
-      csvContent += "Họ và Tên,Số Điện Thoại,Nhóm\n";
+      csvContent += "Họ và Tên,Số Điện Thoại 1,Số Điện Thoại 2,Nhóm\n";
       STATE.contacts.forEach(c => {
           let name = `"${(c.name || '').replace(/"/g, '""')}"`;
           let phone = `"${c.phone || ''}"`;
+          let phone2 = `"${c.phone2 || ''}"`;
           let group = `"${(c.group || 'Khác').replace(/"/g, '""')}"`;
-          csvContent += `${name},${phone},${group}\n`;
+          csvContent += `${name},${phone},${phone2},${group}\n`;
       });
       let encodedUri = encodeURI(csvContent); let link = document.createElement("a"); link.setAttribute("href", encodedUri);
       link.setAttribute("download", `DanhBa_${new Date().toLocaleDateString('vi-VN').replace(/\//g,'-')}.csv`);
@@ -940,7 +1025,13 @@
       let unique = [], phones = new Set(), dups = 0;
       STATE.contacts.forEach(c => {
           let normPhone = window.normalizePhone(c.phone);
-          if (!phones.has(normPhone)) { unique.push(c); phones.add(normPhone); } 
+          let normPhone2 = window.normalizePhone(c.phone2);
+          
+          if (!phones.has(normPhone) && (!normPhone2 || !phones.has(normPhone2))) { 
+              unique.push(c); 
+              if(normPhone) phones.add(normPhone); 
+              if(normPhone2) phones.add(normPhone2);
+          } 
           else { c.deletedAt = Date.now(); STATE.trash.push(c); dups++; }
       });
       if (dups > 0) {
@@ -965,7 +1056,7 @@
           <div class="group-item-card" style="margin-bottom: 10px; border-radius: 12px; border: 1px solid var(--border);">
               <div>
                  <div style="font-weight:600; font-size:15px; color:var(--text-main);">${c.name}</div>
-                 <div style="font-size:14px; color:var(--text-sub);">${c.phone}</div>
+                 <div style="font-size:14px; color:var(--text-sub);">${c.phone} ${c.phone2 ? ' - ' + c.phone2 : ''}</div>
               </div>
               <button onclick="restoreTrash(${i})" style="background:rgba(52,199,89,0.15); color:var(--tint-green); border:none; padding:8px 12px; border-radius:8px; font-weight:bold; cursor:pointer;">Khôi phục</button>
           </div>
@@ -1020,7 +1111,7 @@
       if (dataArr.length === 0) { container.innerHTML = '<div style="text-align:center; padding:30px; color:var(--text-muted); font-style:italic;">Kho chờ trống.</div>'; document.getElementById('chk-select-all-pending').checked = false; return; }
       let html = dataArr.map(p => {
           let isChecked = STATE.selectedPendingIds.includes(p.id.toString()) ? 'checked' : '';
-          return `<label class="pending-card"><input type="checkbox" class="custom-checkbox chk-pending-item" value="${p.id}" onchange="handlePendingCheck('${p.id}', this.checked)" ${isChecked}><div style="flex:1;"><span class="p-name">${p.name}</span><span class="p-phone">${p.phone}</span></div></label>`;
+          return `<label class="pending-card"><input type="checkbox" class="custom-checkbox chk-pending-item" value="${p.id}" onchange="handlePendingCheck('${p.id}', this.checked)" ${isChecked}><div style="flex:1;"><span class="p-name">${p.name}</span><div class="contact-phone-group"><span class="p-phone">${p.phone}</span>${p.phone2 ? `<span class="p-phone">${p.phone2}</span>` : ''}</div></div></label>`;
       }).join('');
       container.innerHTML = html;
       let allCheckedInView = dataArr.every(p => STATE.selectedPendingIds.includes(p.id.toString()));
@@ -1031,7 +1122,7 @@
       id = id.toString();
       if (isChecked) { if (!STATE.selectedPendingIds.includes(id)) STATE.selectedPendingIds.push(id); } else { STATE.selectedPendingIds = STATE.selectedPendingIds.filter(x => x !== id); }
       let kw = document.getElementById('search-pending').value.toLowerCase();
-      let currentViewData = kw ? STATE.pending.filter(p => (p.name && p.name.toLowerCase().includes(kw)) || (p.phone && p.phone.includes(kw))) : STATE.pending;
+      let currentViewData = kw ? STATE.pending.filter(p => (p.name && p.name.toLowerCase().includes(kw)) || (p.phone && p.phone.includes(kw)) || (p.phone2 && p.phone2.includes(kw))) : STATE.pending;
       let allCheckedInView = currentViewData.length > 0 && currentViewData.every(p => STATE.selectedPendingIds.includes(p.id.toString()));
       document.getElementById('chk-select-all-pending').checked = allCheckedInView; updatePendingSelectedCountText();
   }
@@ -1048,7 +1139,7 @@
   window.searchPending = function() {
       let kw = document.getElementById('search-pending').value.toLowerCase();
       if (!kw) { renderPendingList(STATE.pending); return; }
-      let filtered = STATE.pending.filter(p => (p.name && p.name.toLowerCase().includes(kw)) || (p.phone && p.phone.includes(kw)));
+      let filtered = STATE.pending.filter(p => (p.name && p.name.toLowerCase().includes(kw)) || (p.phone && p.phone.includes(kw)) || (p.phone2 && p.phone2.includes(kw)));
       renderPendingList(filtered);
   }
 
@@ -1080,15 +1171,20 @@
   window.openContactModal = function(id = null) {
       let title = document.getElementById('contact-modal-title'), inputId = document.getElementById('contact-id');
       let inputName = document.getElementById('contact-name'), inputPhone = document.getElementById('contact-phone');
+      let inputPhone2 = document.getElementById('contact-phone2');
       let inputGroup = document.getElementById('manual-group-input'), btnDelete = document.getElementById('btn-delete-contact');
 
       if (id) {
           let c = STATE.contacts.find(x => x.id.toString() === id.toString());
           if(c) {
-              title.innerText = 'Sửa Liên Hệ'; inputId.value = c.id; inputName.value = c.name || ''; inputPhone.value = c.phone || ''; inputGroup.value = c.group || ''; btnDelete.style.display = 'block';
+              title.innerText = 'Sửa Liên Hệ'; inputId.value = c.id; inputName.value = c.name || ''; 
+              inputPhone.value = c.phone || ''; inputPhone2.value = c.phone2 || '';
+              inputGroup.value = c.group || ''; btnDelete.style.display = 'block';
           }
       } else {
-          title.innerText = 'Thêm Liên Hệ'; inputId.value = ''; inputName.value = ''; inputPhone.value = ''; inputGroup.value = STATE.currentFolder ? STATE.currentFolder : ''; btnDelete.style.display = 'none';
+          title.innerText = 'Thêm Liên Hệ'; inputId.value = ''; inputName.value = ''; 
+          inputPhone.value = ''; inputPhone2.value = '';
+          inputGroup.value = STATE.currentFolder ? STATE.currentFolder : ''; btnDelete.style.display = 'none';
       }
       let modal = document.getElementById('contact-modal'); modal.style.display = 'flex'; setTimeout(() => modal.classList.add('show'), 10);
   }
@@ -1098,19 +1194,23 @@
   }
 
   window.saveContact = function() {
-      let id = document.getElementById('contact-id').value, name = document.getElementById('contact-name').value.trim(), phone = document.getElementById('contact-phone').value.trim();
+      let id = document.getElementById('contact-id').value, name = document.getElementById('contact-name').value.trim();
+      let phone = document.getElementById('contact-phone').value.trim();
+      let phone2 = document.getElementById('contact-phone2').value.trim();
       let finalGroup = document.getElementById('manual-group-input').value.trim() || 'Khác';
-      if(!name || !phone) { showDialog("Lỗi", "Vui lòng nhập Tên và Số điện thoại!", "alert"); return; }
+      
+      if(!name || !phone) { showDialog("Lỗi", "Vui lòng nhập Tên và Số điện thoại 1!", "alert"); return; }
       phone = window.normalizePhone(phone); 
+      phone2 = window.normalizePhone(phone2); 
 
       if (finalGroup !== 'Khác' && !STATE.groups.includes(finalGroup)) { STATE.groups.unshift(finalGroup); localStorage.setItem('appGroupsStandalone', JSON.stringify(STATE.groups)); updateDataLists(); }
 
       if (id) { 
           let idx = STATE.contacts.findIndex(x => x.id.toString() === id.toString());
-          if(idx !== -1) STATE.contacts[idx] = { id: id, name, phone, group: finalGroup };
+          if(idx !== -1) STATE.contacts[idx] = { id: id, name, phone, phone2, group: finalGroup };
       } else { 
-          if (STATE.contacts.some(c => window.normalizePhone(c.phone) === phone)) { showDialog("Cảnh báo", "SĐT đã có trong Danh bạ chính!", "alert"); return; }
-          STATE.contacts.push({ id: genId(), name, phone, group: finalGroup });
+          if (STATE.contacts.some(c => window.normalizePhone(c.phone) === phone)) { showDialog("Cảnh báo", "SĐT 1 đã có trong Danh bạ chính!", "alert"); return; }
+          STATE.contacts.push({ id: genId(), name, phone, phone2, group: finalGroup });
       }
 
       localStorage.setItem('appContactsStandalone', JSON.stringify(STATE.contacts)); closeContactModal();
@@ -1144,21 +1244,41 @@
 
   function pushToPending(rawContacts, source) {
       let addedCount = 0, sessionPhones = new Set(), existingPhones = new Set();
-      STATE.contacts.forEach(c => existingPhones.add(window.normalizePhone(c.phone)));
-      STATE.pending.forEach(p => existingPhones.add(window.normalizePhone(p.phone)));
+      STATE.contacts.forEach(c => {
+          if(c.phone) existingPhones.add(window.normalizePhone(c.phone));
+          if(c.phone2) existingPhones.add(window.normalizePhone(c.phone2));
+      });
+      STATE.pending.forEach(p => {
+          if(p.phone) existingPhones.add(window.normalizePhone(p.phone));
+          if(p.phone2) existingPhones.add(window.normalizePhone(p.phone2));
+      });
 
       rawContacts.forEach(c => {
           let name = 'Không tên', phones = [];
           if (source === 'device' || source === 'file') { name = c.name && c.name.length > 0 ? c.name[0] : 'Không tên'; phones = c.tel || []; }
+          
+          let validPhones = [];
           phones.forEach(rawPhone => {
               let normPhone = window.normalizePhone(rawPhone);
               if (normPhone && /\d/.test(normPhone) && !sessionPhones.has(normPhone)) {
                   if (!existingPhones.has(normPhone)) {
-                      STATE.pending.push({ id: genId(), name, phone: normPhone, group: '' }); addedCount++; existingPhones.add(normPhone);
+                      validPhones.push(normPhone);
+                      existingPhones.add(normPhone);
                   }
                   sessionPhones.add(normPhone);
               }
           });
+
+          if (validPhones.length > 0) {
+              STATE.pending.push({ 
+                  id: genId(), 
+                  name, 
+                  phone: validPhones[0], 
+                  phone2: validPhones[1] || '', 
+                  group: '' 
+              });
+              addedCount++;
+          }
       });
 
       if (addedCount > 0) {
@@ -1189,11 +1309,25 @@
           data.groups.forEach(g => { if (!STATE.groups.includes(g)) STATE.groups.push(g); });
           localStorage.setItem('appGroupsStandalone', JSON.stringify(STATE.groups));
 
-          let existingPhones = new Set(STATE.contacts.map(c => window.normalizePhone(c.phone)));
+          let existingPhones = new Set();
+          STATE.contacts.forEach(c => {
+             if(c.phone) existingPhones.add(window.normalizePhone(c.phone));
+             if(c.phone2) existingPhones.add(window.normalizePhone(c.phone2));
+          });
+
           let addedCount = 0;
           data.contacts.forEach(c => {
               let normPhone = window.normalizePhone(c.phone);
-              if (!existingPhones.has(normPhone)) { c.id = genId(); c.phone = normPhone; STATE.contacts.push(c); existingPhones.add(normPhone); addedCount++; }
+              let normPhone2 = window.normalizePhone(c.phone2);
+              if (!existingPhones.has(normPhone) && (!normPhone2 || !existingPhones.has(normPhone2))) { 
+                  c.id = genId(); 
+                  c.phone = normPhone; 
+                  c.phone2 = normPhone2;
+                  STATE.contacts.push(c); 
+                  if(normPhone) existingPhones.add(normPhone); 
+                  if(normPhone2) existingPhones.add(normPhone2);
+                  addedCount++; 
+              }
           });
           localStorage.setItem('appContactsStandalone', JSON.stringify(STATE.contacts));
           updateDataLists(); renderMainView(); showDialog("Thành công", `Đã khôi phục an toàn.`, "alert");

@@ -9,310 +9,143 @@
   <meta name="mobile-web-app-capable" content="yes" />
   <title>Danh Bạ Nội Bộ</title>
   
-  <!-- Thư viện Kéo thả -->
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
-  <!-- Thư viện tạo mã QR Code -->
   <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
 
   <style>
-    /* ================== BIẾN MÀU SẮC CHUẨN IOS (LIGHT/DARK) ================== */
     :root {
-      --bg-body: #F2F2F7;
-      --bg-card: #FFFFFF;
-      --bg-hover: #E5E5EA;
-      --text-main: #000000;
-      --text-sub: #3C3C43;
-      --text-muted: #8E8E93;
-      --border: #C6C6C8;
-      --border-light: #E5E5EA;
-      --search-bg: rgba(118, 118, 128, 0.12);
-      --tint-blue: #007AFF;
-      --tint-green: #34C759;
-      --tint-red: #FF3B30;
-      --tint-orange: #FF9500;
-      --tint-purple: #AF52DE;
-      --shadow: 0 1px 4px rgba(0,0,0,0.06);
-      --shadow-lg: 0 4px 15px rgba(0,0,0,0.08);
+      --bg-body: #F2F2F7; --bg-card: #FFFFFF; --bg-hover: #E5E5EA;
+      --text-main: #000000; --text-sub: #3C3C43; --text-muted: #8E8E93;
+      --border: #C6C6C8; --border-light: #E5E5EA; --search-bg: rgba(118, 118, 128, 0.12);
+      --tint-blue: #007AFF; --tint-green: #34C759; --tint-red: #FF3B30; --tint-orange: #FF9500; --tint-purple: #AF52DE;
+      --shadow: 0 1px 4px rgba(0,0,0,0.06); --shadow-lg: 0 4px 15px rgba(0,0,0,0.08);
     }
-
     @media (prefers-color-scheme: dark) {
       :root {
-        --bg-body: #000000;
-        --bg-card: #1C1C1E;
-        --bg-hover: #2C2C2E;
-        --text-main: #FFFFFF;
-        --text-sub: #EBEBF5;
-        --text-muted: #8E8E93;
-        --border: #38383A;
-        --border-light: #2C2C2E;
-        --search-bg: rgba(118, 118, 128, 0.24);
-        --tint-blue: #0A84FF;
-        --tint-green: #30D158;
-        --tint-red: #FF453A;
-        --tint-orange: #FF9F0A;
-        --tint-purple: #BF5AF2;
-        --shadow: 0 1px 4px rgba(0,0,0,0.3);
-        --shadow-lg: 0 4px 15px rgba(0,0,0,0.4);
+        --bg-body: #000000; --bg-card: #1C1C1E; --bg-hover: #2C2C2E;
+        --text-main: #FFFFFF; --text-sub: #EBEBF5; --text-muted: #8E8E93;
+        --border: #38383A; --border-light: #2C2C2E; --search-bg: rgba(118, 118, 128, 0.24);
+        --tint-blue: #0A84FF; --tint-green: #30D158; --tint-red: #FF453A; --tint-orange: #FF9F0A; --tint-purple: #BF5AF2;
+        --shadow: 0 1px 4px rgba(0,0,0,0.3); --shadow-lg: 0 4px 15px rgba(0,0,0,0.4);
       }
     }
-
-    /* ================== CƠ BẢN ================== */
     * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
-    body { 
-      margin: 0; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", sans-serif; 
-      background: var(--bg-body); padding-bottom: 40px; color: var(--text-main);
-    }
+    body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif; background: var(--bg-body); padding-bottom: 40px; color: var(--text-main); }
+    .container { max-width: 600px; margin: 0 auto; padding: calc(env(safe-area-inset-top) + 15px) 16px calc(env(safe-area-inset-bottom) + 20px) 16px; }
 
-    .container { 
-      max-width: 600px; margin: 0 auto; 
-      padding: calc(env(safe-area-inset-top) + 15px) 16px calc(env(safe-area-inset-bottom) + 20px) 16px; 
-    }
-
-    /* ================== STICKY ZONE (Không bị trôi) ================== */
-    .sticky-zone {
-      position: sticky;
-      top: 0;
-      background: var(--bg-body);
-      z-index: 100;
-      padding-top: calc(env(safe-area-inset-top) + 15px);
-      margin-top: calc(-1 * (env(safe-area-inset-top) + 15px));
-      margin-left: -16px;
-      margin-right: -16px;
-      padding-left: 16px;
-      padding-right: 16px;
-      padding-bottom: 5px;
-    }
-    
+    .sticky-zone { position: sticky; top: 0; background: var(--bg-body); z-index: 100; padding-top: calc(env(safe-area-inset-top) + 15px); margin-top: calc(-1 * (env(safe-area-inset-top) + 15px)); margin-left: -16px; margin-right: -16px; padding-left: 16px; padding-right: 16px; padding-bottom: 5px; }
     .dash-header { padding: 5px 0 20px 0; text-align: left; display: flex; align-items: center; gap: 10px;}
     .dash-header h2 { color: var(--text-main); margin: 0; font-size: 28px; font-weight: 800; letter-spacing: -0.5px;}
 
-    /* ================== TÌM KIẾM & NÚT THÊM ================== */
     .top-controls { margin-bottom: 10px; }
-    
     .search-row { display: flex; gap: 8px; margin-bottom: 16px; align-items: center;}
-    .search-input { 
-      flex: 1; padding: 10px 16px; font-size: 17px; border-radius: 10px; 
-      border: none; background: var(--search-bg); color: var(--text-main);
-      outline: none; transition: 0.2s;
-    }
+    .search-input { flex: 1; padding: 10px 16px; font-size: 17px; border-radius: 10px; border: none; background: var(--search-bg); color: var(--text-main); outline: none; transition: 0.2s; }
     .search-input::placeholder { color: var(--text-muted); }
     .search-input:focus { box-shadow: 0 0 0 2px rgba(10,132,255,0.3); }
-
-    .btn-toggle-menu { 
-      width: 40px; height: 40px; border-radius: 50%; font-size: 20px; font-weight: bold; 
-      color: var(--tint-blue); display: flex; align-items: center; justify-content: center; 
-      cursor: pointer; border: none; background: transparent; transition: 0.2s;
-    }
+    .btn-toggle-menu { width: 40px; height: 40px; border-radius: 50%; font-size: 20px; font-weight: bold; color: var(--tint-blue); display: flex; align-items: center; justify-content: center; cursor: pointer; border: none; background: transparent; transition: 0.2s; }
     .btn-toggle-menu:active { background: var(--bg-hover); }
 
-    .action-buttons-row { 
-      display: flex; gap: 12px; justify-content: space-between; align-items: center;
-      transition: all 0.3s ease; overflow: hidden; max-height: 100px; margin-bottom: 10px;
-    }
-    
-    .btn-act {
-      flex: 1; height: 50px; border-radius: 14px; border: none; font-size: 22px; 
-      cursor: pointer; display: flex; align-items: center; justify-content: center; 
-      transition: 0.2s; font-weight: bold;
-    }
+    .action-buttons-row { display: flex; gap: 12px; justify-content: space-between; align-items: center; transition: all 0.3s ease; overflow: hidden; max-height: 100px; margin-bottom: 10px; }
+    .btn-act { flex: 1; height: 50px; border-radius: 14px; border: none; font-size: 22px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; font-weight: bold; }
     .btn-act:active { transform: scale(0.92); opacity: 0.8;}
-
     .btn-setting { background: rgba(142, 142, 147, 0.15); color: var(--text-muted); }
     .btn-pending { background: rgba(0, 122, 255, 0.15); color: var(--tint-blue); position: relative; }
     .btn-file { background: rgba(175, 82, 222, 0.15); color: var(--tint-purple); }
     .btn-device { background: rgba(255, 149, 0, 0.15); color: var(--tint-orange); }
     .btn-add-manual { background: rgba(52, 199, 89, 0.15); color: var(--tint-green); }
 
-    /* ================== BADGE KHO CHỜ ================== */
-    .pending-badge {
-      position: absolute; top: -4px; right: -4px; background: var(--tint-red); color: white;
-      font-size: 11px; font-weight: bold; padding: 2px 6px; border-radius: 10px;
-      border: 2px solid var(--bg-body); display: none; pointer-events: none;
-    }
+    .pending-badge { position: absolute; top: -4px; right: -4px; background: var(--tint-red); color: white; font-size: 11px; font-weight: bold; padding: 2px 6px; border-radius: 10px; border: 2px solid var(--bg-body); display: none; pointer-events: none; }
 
-    /* ================== DANH SÁCH THƯ MỤC ================== */
-    .unit-card {
-      background: var(--bg-card); border-radius: 14px; padding: 16px 18px; margin-bottom: 12px;
-      display: flex; justify-content: space-between; align-items: center;
-      box-shadow: var(--shadow); cursor: pointer; transition: 0.2s; border: none;
-    }
+    .unit-card { background: var(--bg-card); border-radius: 14px; padding: 16px 18px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; box-shadow: var(--shadow); cursor: pointer; transition: 0.2s; border: none; }
     .unit-card:active { transform: scale(0.98); background: var(--bg-hover); }
     .unit-left-info { display: flex; align-items: center; gap: 12px; }
     .unit-icon-build { font-size: 22px; }
     .unit-name { font-size: 17px; font-weight: 600; color: var(--text-main); letter-spacing: -0.3px;}
     .unit-right-info { display: flex; align-items: center; gap: 8px; }
-    .unit-count { 
-      font-size: 15px; color: var(--text-muted); font-weight: 500; text-align: center;
-    }
+    .unit-count { font-size: 15px; color: var(--text-muted); font-weight: 500; text-align: center; }
     .unit-chevron { color: var(--border); font-weight: 700; font-size: 15px;}
 
-    /* ================== CHI TIẾT THƯ MỤC & KẾT QUẢ TÌM KIẾM ================== */
-    .back-header {
-      display: flex; align-items: center; justify-content: space-between; padding: 5px 0 20px 0; margin-bottom: 10px;
-    }
+    .back-header { display: flex; align-items: center; justify-content: space-between; padding: 5px 0 20px 0; margin-bottom: 10px; }
     .back-btn-text { color: var(--tint-blue); font-size: 17px; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 4px; letter-spacing: -0.3px;}
     .back-btn-text:active { opacity: 0.5; }
     .inner-folder-title { font-size: 17px; font-weight: 600; margin: 0; color: var(--text-main); text-align: center; flex: 1;}
     .btn-sort-az { background: none; border: none; color: var(--tint-blue); font-size: 15px; font-weight: 600; cursor: pointer; padding: 6px 12px; background: rgba(0, 122, 255, 0.1); border-radius: 20px; transition: 0.2s;}
     .btn-sort-az:active { transform: scale(0.95); }
 
-    .contact-card {
-      background: var(--bg-card); border-radius: 14px; padding: 10px 8px 10px 14px; margin-bottom: 12px;
-      display: flex; justify-content: space-between; align-items: center; gap: 12px;
-      box-shadow: var(--shadow); border: none;
-    }
-    
-    .contact-avatar {
-      width: 44px; height: 44px; border-radius: 50%; flex-shrink: 0;
-      display: flex; align-items: center; justify-content: center;
-      color: #fff; font-weight: 600; font-size: 16px;
-    }
-    
+    .contact-card { background: var(--bg-card); border-radius: 14px; padding: 10px 8px 10px 14px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; gap: 12px; box-shadow: var(--shadow); border: none; }
+    .contact-avatar { width: 44px; height: 44px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 600; font-size: 16px; }
     .contact-info { flex: 1; display: flex; flex-direction: column; gap: 3px; }
     .contact-name { font-size: 17px; font-weight: 600; color: var(--text-main); letter-spacing: -0.3px;}
     
-    .contact-phone-group { display: flex; flex-direction: column; gap: 3px; }
-    .contact-phone { font-size: 15px; color: var(--tint-blue); }
+    .contact-phone-group { display: flex; flex-direction: column; gap: 4px; }
+    .contact-phone { font-size: 15px; color: var(--tint-blue); line-height: 1.2;}
     
     .contact-group-label { font-size: 12px; color: var(--text-muted); font-weight: 500; margin-top: 2px;}
     
     .action-buttons-card { display: flex; align-items: center; gap: 6px; flex-shrink: 0;}
-    .btn-action-circle {
-      width: 36px; height: 36px; border-radius: 50%;
-      display: flex; align-items: center; justify-content: center; font-size: 16px;
-      text-decoration: none; transition: 0.2s; border: none; cursor: pointer;
-    }
-    
+    .btn-action-circle { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; text-decoration: none; transition: 0.2s; border: none; cursor: pointer; }
     .btn-zalo { background: rgba(0, 122, 255, 0.1); color: var(--tint-blue); font-family: Arial, sans-serif; font-weight: bold;}
     .btn-sms { background: var(--bg-hover); color: var(--text-main); }
     .btn-call { background: rgba(52, 199, 89, 0.15); color: var(--tint-green); }
     .btn-action-circle:active { transform: scale(0.85); opacity: 0.8;}
 
-    .drag-handle {
-      padding: 5px; color: var(--border); font-size: 22px; font-weight: 400;
-      cursor: grab; display: flex; align-items: center; justify-content: center; touch-action: none; width: 30px;
-    }
+    .drag-handle { padding: 5px; color: var(--border); font-size: 22px; font-weight: 400; cursor: grab; display: flex; align-items: center; justify-content: center; touch-action: none; width: 30px; }
     .drag-handle:active { cursor: grabbing; color: var(--tint-blue); }
     .sortable-ghost { opacity: 0.4; background: var(--bg-hover); border-radius: 14px;}
     .sortable-chosen { transform: scale(1.03); box-shadow: var(--shadow-lg); z-index: 10; background: var(--bg-card); }
 
-    /* ================== MODAL CHUNG ================== */
-    .modal-overlay {
-      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,0.4); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);
-      z-index: 1000; display: none; align-items: flex-end; justify-content: center;
-      opacity: 0; transition: opacity 0.3s ease;
-    }
+    .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); z-index: 1000; display: none; align-items: flex-end; justify-content: center; opacity: 0; transition: opacity 0.3s ease; }
     .modal-overlay.show { opacity: 1; }
-    .modal-content {
-      background: var(--bg-body); width: 100%; max-height: 92vh; max-width: 600px;
-      border-radius: 20px 20px 0 0; padding: 15px 20px calc(env(safe-area-inset-bottom) + 20px) 20px; overflow-y: auto;
-      transform: translateY(100%); transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
-      box-shadow: 0 -10px 25px rgba(0,0,0,0.2); display: flex; flex-direction: column;
-    }
+    .modal-content { background: var(--bg-body); width: 100%; max-height: 92vh; max-width: 600px; border-radius: 20px 20px 0 0; padding: 15px 20px calc(env(safe-area-inset-bottom) + 20px) 20px; overflow-y: auto; transform: translateY(100%); transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1); box-shadow: 0 -10px 25px rgba(0,0,0,0.2); display: flex; flex-direction: column; }
     .modal-overlay.show .modal-content { transform: translateY(0); }
-    
     .pull-bar { width: 36px; height: 5px; background: var(--text-muted); border-radius: 3px; margin: 0 auto 15px auto; opacity: 0.5;}
     .modal-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; position: relative;}
     .modal-title { font-size: 22px; font-weight: 800; margin: 0; color: var(--text-main); letter-spacing: -0.5px;}
     .btn-close-modal { background: var(--bg-hover); border: none; width: 30px; height: 30px; border-radius: 50%; font-size: 14px; font-weight: bold; color: var(--text-muted); cursor: pointer; display: flex; align-items: center; justify-content: center;}
 
-    /* ================== UI CÀI ĐẶT NHÓM ================== */
-    .group-input-wrapper { 
-      display: flex; background: var(--bg-input); border-radius: 12px; border: none; 
-      overflow: hidden; margin-bottom: 20px; box-shadow: var(--shadow);
-    }
+    .group-input-wrapper { display: flex; background: var(--bg-input); border-radius: 12px; border: none; overflow: hidden; margin-bottom: 20px; box-shadow: var(--shadow); }
     .group-input-wrapper input { border: none; padding: 14px 15px; font-size: 16px; flex: 1; outline: none; background: transparent; color: var(--text-main); }
-    .group-input-wrapper button { 
-      background: var(--tint-blue); color: white; border: none; padding: 0 20px; 
-      font-weight: 700; font-size: 15px; cursor: pointer; transition: 0.2s;
-    }
+    .group-input-wrapper button { background: var(--tint-blue); color: white; border: none; padding: 0 20px; font-weight: 700; font-size: 15px; cursor: pointer; transition: 0.2s; }
     .group-input-wrapper button:active { opacity: 0.8; }
     
-    .setting-list-box {
-      background: var(--bg-card); border-radius: 14px; border: none;
-      overflow: hidden; box-shadow: var(--shadow); margin-bottom: 24px;
-    }
-    .group-item-card {
-      padding: 14px 16px; display: flex; justify-content: space-between; align-items: center;
-      border-bottom: 1px solid var(--border-light); background: var(--bg-card);
-    }
+    .setting-list-box { background: var(--bg-card); border-radius: 14px; border: none; overflow: hidden; box-shadow: var(--shadow); margin-bottom: 24px; }
+    .group-item-card { padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-light); background: var(--bg-card); }
     .group-item-card:last-child { border-bottom: none; }
     .group-item-name { font-weight: 600; font-size: 16px; color: var(--text-main); }
     .group-actions { display: flex; gap: 8px; align-items: center; }
-    
-    .btn-sq {
-      width: 32px; height: 32px; border-radius: 8px; border: none; 
-      display: flex; align-items: center; justify-content: center; 
-      font-size: 14px; cursor: pointer; transition: 0.2s;
-    }
+    .btn-sq { width: 32px; height: 32px; border-radius: 8px; border: none; display: flex; align-items: center; justify-content: center; font-size: 14px; cursor: pointer; transition: 0.2s; }
     .btn-edit { background: rgba(255,149,0,0.15); color: var(--tint-orange);}
     .btn-del { background: rgba(255,59,48,0.15); color: var(--tint-red);}
     .btn-sq:active { transform: scale(0.9); }
 
-    /* ================== KHO CHỜ DUYỆT ================== */
     .pending-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding: 0 5px; border-bottom: 1px solid var(--border-light); padding-bottom: 15px;}
-    .custom-checkbox {
-      appearance: none; width: 24px; height: 24px; border: 1px solid var(--border); border-radius: 6px;
-      outline: none; cursor: pointer; position: relative; background: var(--bg-input); transition: 0.2s; margin:0;
-    }
+    .custom-checkbox { appearance: none; width: 24px; height: 24px; border: 1px solid var(--border); border-radius: 6px; outline: none; cursor: pointer; position: relative; background: var(--bg-input); transition: 0.2s; margin:0; }
     .custom-checkbox:checked { background: var(--tint-blue); border-color: var(--tint-blue); }
-    .custom-checkbox:checked::after {
-      content: '✔'; position: absolute; color: white; font-size: 15px;
-      top: 50%; left: 50%; transform: translate(-50%, -50%); font-weight: bold;
-    }
-    
+    .custom-checkbox:checked::after { content: '✔'; position: absolute; color: white; font-size: 15px; top: 50%; left: 50%; transform: translate(-50%, -50%); font-weight: bold; }
     .text-blue-bold { color: var(--tint-blue); font-weight: 600; font-size: 16px; cursor: pointer; }
     .text-red-bold { color: var(--tint-red); font-weight: 600; font-size: 15px; cursor: pointer; background: none; border: none; padding:0;}
 
     .pending-list { flex: 1; overflow-y: auto; padding-bottom: 10px; margin-bottom: 10px; }
-    .pending-card {
-      background: var(--bg-card); border-radius: 14px; padding: 14px 16px; margin-bottom: 10px;
-      display: flex; align-items: center; gap: 16px; border: none; box-shadow: var(--shadow);
-    }
+    .pending-card { background: var(--bg-card); border-radius: 14px; padding: 14px 16px; margin-bottom: 10px; display: flex; align-items: center; gap: 16px; border: none; box-shadow: var(--shadow); }
     .p-name { font-weight: 600; color: var(--text-main); font-size: 16px; margin-bottom: 2px; display: block;}
     .p-phone { font-weight: 500; color: var(--tint-blue); font-size: 15px; display: block;}
 
-    .bottom-action-card {
-      background: var(--bg-card); padding: 16px; border-radius: 16px; margin-top: 5px;
-      box-shadow: var(--shadow-lg); border: none;
-    }
+    .bottom-action-card { background: var(--bg-card); padding: 16px; border-radius: 16px; margin-top: 5px; box-shadow: var(--shadow-lg); border: none; }
     .bottom-action-title { font-size: 15px; font-weight: 600; color: var(--text-main); margin-bottom: 12px; }
 
-    /* ================== Ô NHẬP LIỆU CHUNG & DROPDOWN ================== */
     .smart-input-container { position: relative; margin-bottom: 16px; }
-    .smart-input {
-      width: 100%; padding: 14px 16px; font-size: 16px; border: none; border-radius: 12px;
-      outline: none; box-sizing: border-box; background: var(--bg-input); color: var(--text-main); transition: 0.2s;
-    }
+    .smart-input { width: 100%; padding: 14px 16px; font-size: 16px; border: none; border-radius: 12px; outline: none; box-sizing: border-box; background: var(--bg-input); color: var(--text-main); transition: 0.2s; }
     .smart-input:focus { box-shadow: 0 0 0 2px rgba(10,132,255,0.3);}
-    
-    .smart-dropdown {
-      position: absolute; top: 100%; left: 0; right: 0; background: var(--bg-card); border: 1px solid var(--border-light);
-      border-radius: 12px; max-height: 180px; overflow-y: auto; z-index: 100; display: none;
-      box-shadow: var(--shadow-lg); margin-top: 5px;
-    }
-    .smart-dropdown-item {
-      padding: 14px 16px; border-bottom: 1px solid var(--border-light); cursor: pointer; 
-      font-size: 16px; font-weight: 500; color: var(--text-main); text-align: left;
-    }
+    .smart-dropdown { position: absolute; top: 100%; left: 0; right: 0; background: var(--bg-card); border: 1px solid var(--border-light); border-radius: 12px; max-height: 180px; overflow-y: auto; z-index: 100; display: none; box-shadow: var(--shadow-lg); margin-top: 5px; }
+    .smart-dropdown-item { padding: 14px 16px; border-bottom: 1px solid var(--border-light); cursor: pointer; font-size: 16px; font-weight: 500; color: var(--text-main); text-align: left; }
     .smart-dropdown-item:last-child { border-bottom: none; }
     .smart-dropdown-item:active { background: var(--bg-hover); }
     
-    .btn-green-large {
-      width: 100%; background: var(--tint-blue); color: white; padding: 16px; border: none;
-      border-radius: 14px; font-size: 16px; font-weight: 600; cursor: pointer; transition: 0.2s; letter-spacing: -0.3px;
-    }
+    .btn-green-large { width: 100%; background: var(--tint-blue); color: white; padding: 16px; border: none; border-radius: 14px; font-size: 16px; font-weight: 600; cursor: pointer; transition: 0.2s; letter-spacing: -0.3px; }
     .btn-green-large:active { opacity: 0.8; transform: scale(0.98);}
-
     .input-label { font-size: 14px; font-weight: 600; color: var(--text-sub); margin-bottom: 8px; display: block;}
 
-    /* ================== THÔNG BÁO TỰ TẠO (CUSTOM DIALOG) ================== */
-    .custom-dialog-box {
-      background: var(--bg-card); width: 85%; max-width: 300px; border-radius: 18px; padding: 24px 20px 20px 20px;
-      text-align: center; box-shadow: var(--shadow-lg); transform: scale(0.9); opacity: 0;
-      transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1); margin: auto; border: none;
-    }
+    .custom-dialog-box { background: var(--bg-card); width: 85%; max-width: 300px; border-radius: 18px; padding: 24px 20px 20px 20px; text-align: center; box-shadow: var(--shadow-lg); transform: scale(0.9); opacity: 0; transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1); margin: auto; border: none; }
     #custom-dialog-wrapper.show .custom-dialog-box { transform: scale(1); opacity: 1; }
     .dialog-title { font-size: 18px; font-weight: 600; color: var(--text-main); margin: 0 0 10px 0; letter-spacing: -0.3px;}
     .dialog-message { font-size: 14px; color: var(--text-sub); margin: 0 0 20px 0; line-height: 1.4; }
@@ -330,7 +163,6 @@
         <h2>Danh Bạ</h2>
       </div>
 
-      <!-- TÌM KIẾM & NÚT THÊM -->
       <div class="top-controls">
         <div class="search-row">
           <input type="text" id="search-contact" class="search-input" placeholder="Tìm kiếm tên, SĐT..." onkeyup="searchContacts()">
@@ -377,9 +209,7 @@
     </div>
   </div>
 
-  <!-- ======================================================= -->
-  <!-- MODAL CÀI ĐẶT NHÓM & QUẢN TRỊ DỮ LIỆU -->
-  <!-- ======================================================= -->
+  <!-- MODAL CÀI ĐẶT NHÓM -->
   <div id="group-settings-modal" class="modal-overlay" onclick="if(event.target === this) closeGroupSettingsModal()">
     <div class="modal-content">
       <div class="pull-bar"></div>
@@ -418,9 +248,7 @@
     </div>
   </div>
 
-  <!-- ======================================================= -->
   <!-- MODAL THÙNG RÁC -->
-  <!-- ======================================================= -->
   <div id="trash-modal" class="modal-overlay" onclick="if(event.target === this) closeTrashModal()">
     <div class="modal-content">
       <div class="pull-bar"></div>
@@ -436,9 +264,7 @@
     </div>
   </div>
 
-  <!-- ======================================================= -->
   <!-- MODAL MÃ QR CODE -->
-  <!-- ======================================================= -->
   <div id="qr-modal" class="modal-overlay" onclick="if(event.target === this) closeQRModal()">
     <div class="modal-content" style="align-items:center; padding-bottom:40px;">
       <div class="pull-bar"></div>
@@ -449,9 +275,7 @@
     </div>
   </div>
 
-  <!-- ======================================================= -->
   <!-- MODAL KHO CHỜ DUYỆT -->
-  <!-- ======================================================= -->
   <div id="pending-modal" class="modal-overlay" onclick="if(event.target === this) closePendingModal()">
     <div class="modal-content" style="max-height: 95vh; padding-bottom: 20px;">
       <div class="pull-bar"></div>
@@ -486,9 +310,7 @@
     </div>
   </div>
 
-  <!-- ======================================================= -->
-  <!-- MODAL THÊM/SỬA LIÊN HỆ THỦ CÔNG -->
-  <!-- ======================================================= -->
+  <!-- MODAL THÊM/SỬA LIÊN HỆ -->
   <div id="contact-modal" class="modal-overlay" onclick="if(event.target === this) closeContactModal()">
     <div class="modal-content">
       <div class="pull-bar"></div>
@@ -524,28 +346,7 @@
     </div>
   </div>
 
-  <!-- ======================================================= -->
-  <!-- MODAL CẢNH BÁO IOS -->
-  <!-- ======================================================= -->
-  <div id="ios-warning-modal" class="modal-overlay" onclick="if(event.target === this) closeIosWarningModal()">
-    <div class="modal-content" style="text-align: center;">
-      <div class="pull-bar"></div>
-      <div style="font-size: 50px; margin-bottom: 10px;">🍎</div>
-      <h3 style="color: var(--text-main); margin: 0 0 15px 0; font-size: 20px; font-weight: 800;">Hạn Chế Của iOS</h3>
-      <p style="color: var(--text-sub); font-size: 15px; line-height: 1.5; margin-bottom: 25px; padding: 0 10px;">
-        Apple hiện <b>chưa cho phép</b> trình duyệt Web truy cập tự động vào Danh bạ thiết bị để bảo vệ quyền riêng tư.<br><br>
-        Vui lòng tải tệp <b>.VCF / .CSV</b> lên hoặc nhập thủ công!
-      </p>
-      <div style="display:flex; gap:10px; flex-wrap: wrap; justify-content: center;">
-        <button onclick="closeIosWarningModal()" class="btn-green-large" style="background:var(--bg-hover); color: var(--text-main); flex: 1; margin-top:0;">Đóng</button>
-        <button onclick="closeIosWarningModal(); document.getElementById('contact-file-upload').click();" class="btn-green-large" style="background:var(--tint-purple); flex: 1; margin-top:0;">Tải file</button>
-        <button onclick="closeIosWarningModal(); openContactModal();" class="btn-green-large" style="min-width: 100%; margin-top:0;">+ Thêm thủ công</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ======================================================= -->
-  <!-- HỘP THOẠI THÔNG BÁO TỰ TẠO (CUSTOM DIALOG) -->
+  <!-- CUSTOM DIALOG -->
   <div id="custom-dialog-wrapper" class="modal-overlay" style="z-index: 10005;">
     <div class="custom-dialog-box">
       <h3 id="dialog-title" class="dialog-title">Thông báo</h3>
@@ -556,24 +357,19 @@
   </div>
 
 <script>
-  // ================== HÀM TIỆN ÍCH ==================
   function genId() { return Date.now().toString() + Math.floor(Math.random() * 1000000).toString(); }
 
   window.getAvatarColor = function(str) {
-      let hash = 0;
-      for (let i = 0; i < str.length; i++) hash = str.charCodeAt(i) + ((hash << 5) - hash);
-      let c = (hash & 0x00FFFFFF).toString(16).toUpperCase();
-      return '#' + '00000'.substring(0, 6 - c.length) + c;
+      let hash = 0; for (let i = 0; i < str.length; i++) hash = str.charCodeAt(i) + ((hash << 5) - hash);
+      let c = (hash & 0x00FFFFFF).toString(16).toUpperCase(); return '#' + '00000'.substring(0, 6 - c.length) + c;
   };
   
   window.getInitials = function(name) {
-      if(!name) return '?';
-      let parts = name.trim().split(' ');
+      if(!name) return '?'; let parts = name.trim().split(' ');
       if(parts.length >= 2) return (parts[0][0] + parts[parts.length-1][0]).toUpperCase();
       return name.substring(0, 2).toUpperCase();
   };
 
-  // Nâng cấp: Tự động tách các SĐT nếu người dùng nhập dính (VD: "0912... , 0987...")
   window.normalizePhone = function(phone) {
       if (!phone) return '';
       let cleaned = String(phone).replace(/[^\d+]/g, '');
@@ -582,9 +378,10 @@
       return cleaned;
   }
   
+  // TÁCH NHIỀU SĐT TRONG 1 Ô
   window.extractAllPhones = function(str) {
       if (!str) return [];
-      let parts = String(str).split(/[,/;|:]+/);
+      let parts = String(str).split(/[,/;|:]+/); // Tách theo các dấu phân cách phổ biến
       let valid = [];
       parts.forEach(p => {
           let norm = window.normalizePhone(p);
@@ -595,53 +392,34 @@
 
   window.capNhatApp = function() {
       showDialog("Cập nhật", "Làm mới ứng dụng để nhận phiên bản mới nhất?<br><br><span style='font-size:12px'>(Quá trình này không làm mất dữ liệu)</span>", "confirm", () => {
-          const url = new URL(window.location.href);
-          url.searchParams.set('v', Date.now()); 
-          window.location.replace(url.toString());
+          const url = new URL(window.location.href); url.searchParams.set('v', Date.now()); window.location.replace(url.toString());
       });
   }
 
   window.showDialog = function(title, message, type, confirmCallback, defaultValue = '') {
-      document.getElementById('dialog-title').innerText = title;
-      document.getElementById('dialog-message').innerHTML = message; 
+      document.getElementById('dialog-title').innerText = title; document.getElementById('dialog-message').innerHTML = message; 
+      let btnContainer = document.getElementById('dialog-buttons'); let promptInput = document.getElementById('dialog-prompt-input');
       
-      let btnContainer = document.getElementById('dialog-buttons');
-      let promptInput = document.getElementById('dialog-prompt-input');
-      
-      if (type === 'prompt') { promptInput.style.display = 'block'; promptInput.value = defaultValue; } 
-      else { promptInput.style.display = 'none'; }
-      
+      if (type === 'prompt') { promptInput.style.display = 'block'; promptInput.value = defaultValue; } else { promptInput.style.display = 'none'; }
       btnContainer.innerHTML = '';
-      let wrapper = document.getElementById('custom-dialog-wrapper');
-      wrapper.style.display = 'flex';
-      setTimeout(() => wrapper.classList.add('show'), 10);
-
-      window.closeDialog = function() {
-          wrapper.classList.remove('show');
-          setTimeout(() => wrapper.style.display = 'none', 300);
-      };
+      let wrapper = document.getElementById('custom-dialog-wrapper'); wrapper.style.display = 'flex'; setTimeout(() => wrapper.classList.add('show'), 10);
+      window.closeDialog = function() { wrapper.classList.remove('show'); setTimeout(() => wrapper.style.display = 'none', 300); };
 
       if (type === 'alert') {
           btnContainer.innerHTML = `<button onclick="closeDialog()" class="btn-dialog" style="background:var(--tint-blue);">Đóng</button>`;
       } else if (type === 'confirm') {
-          btnContainer.innerHTML = `
-              <button onclick="closeDialog()" class="btn-dialog" style="background:var(--bg-hover); color:var(--text-main);">Hủy</button>
-              <button id="dialog-confirm-btn" class="btn-dialog" style="background:var(--tint-red);">Đồng ý</button>
-          `;
+          btnContainer.innerHTML = `<button onclick="closeDialog()" class="btn-dialog" style="background:var(--bg-hover); color:var(--text-main);">Hủy</button><button id="dialog-confirm-btn" class="btn-dialog" style="background:var(--tint-red);">Đồng ý</button>`;
           document.getElementById('dialog-confirm-btn').onclick = function() { closeDialog(); if(confirmCallback) confirmCallback(); };
       } else if (type === 'prompt') {
-          btnContainer.innerHTML = `
-              <button onclick="closeDialog()" class="btn-dialog" style="background:var(--bg-hover); color:var(--text-main);">Hủy</button>
-              <button id="dialog-confirm-btn" class="btn-dialog" style="background:var(--tint-blue);">Lưu</button>
-          `;
+          btnContainer.innerHTML = `<button onclick="closeDialog()" class="btn-dialog" style="background:var(--bg-hover); color:var(--text-main);">Hủy</button><button id="dialog-confirm-btn" class="btn-dialog" style="background:var(--tint-blue);">Lưu</button>`;
           document.getElementById('dialog-confirm-btn').onclick = function() { let val = promptInput.value; closeDialog(); if(confirmCallback) confirmCallback(val); };
       }
   }
 
-  // Hỏi xác nhận trước khi đưa xuống cuối
+  // HỎI CHUYỂN XUỐNG CUỐI
   window.promptMoveToBottom = function(evt, id, groupName) {
       evt.stopPropagation();
-      showDialog('Sắp xếp', 'Bạn có muốn chuyển liên hệ này xuống cuối danh sách?', 'confirm', () => {
+      showDialog('Sắp xếp', 'Chuyển liên hệ này xuống cuối danh sách?', 'confirm', () => {
           let groupContacts = STATE.contacts.filter(c => c.group === groupName);
           let idx = groupContacts.findIndex(c => c.id.toString() === id.toString());
           if (idx > -1) {
@@ -665,137 +443,69 @@
 
   window.promptMoveGroupToBottom = function(evt, groupName) {
       evt.stopPropagation();
-      showDialog('Sắp xếp', 'Bạn có muốn chuyển nhóm này xuống cuối danh sách?', 'confirm', () => {
+      showDialog('Sắp xếp', 'Chuyển nhóm này xuống cuối danh sách?', 'confirm', () => {
           let idx = STATE.groups.indexOf(groupName);
           if (idx > -1) {
               let movedItem = STATE.groups.splice(idx, 1)[0];
               STATE.groups.push(movedItem);
               localStorage.setItem('appGroupsStandalone', JSON.stringify(STATE.groups));
-              updateDataLists();
-              renderMainView();
+              updateDataLists(); renderMainView();
           }
       });
   }
 
-  // ================== STATE MANAGEMENT ==================
-  const STATE = {
-    contacts: [], 
-    groups: [],
-    pending: [],
-    trash: [], 
-    selectedPendingIds: [], 
-    activeDropdownId: null,
-    currentFolder: null 
-  };
+  // STATE MANAGEMENT
+  const STATE = { contacts: [], groups: [], pending: [], trash: [], selectedPendingIds: [], activeDropdownId: null, currentFolder: null };
 
   window.onload = () => {
-    let savedContacts = localStorage.getItem('appContactsStandalone');
-    STATE.contacts = savedContacts ? JSON.parse(savedContacts) : [];
-
+    let savedContacts = localStorage.getItem('appContactsStandalone'); STATE.contacts = savedContacts ? JSON.parse(savedContacts) : [];
     let savedGroups = localStorage.getItem('appGroupsStandalone');
-    if (savedGroups) STATE.groups = JSON.parse(savedGroups);
-    else { STATE.groups = ['Ban Chỉ Huy', 'Khẩn cấp', 'Đội Trực']; localStorage.setItem('appGroupsStandalone', JSON.stringify(STATE.groups)); }
-
-    let savedPending = localStorage.getItem('appPendingContacts');
-    if (savedPending) STATE.pending = JSON.parse(savedPending);
-
-    let savedTrash = localStorage.getItem('appTrashStandalone');
-    if (savedTrash) STATE.trash = JSON.parse(savedTrash);
+    if (savedGroups) STATE.groups = JSON.parse(savedGroups); else { STATE.groups = ['Ban Chỉ Huy', 'Khẩn cấp', 'Đội Trực']; localStorage.setItem('appGroupsStandalone', JSON.stringify(STATE.groups)); }
+    let savedPending = localStorage.getItem('appPendingContacts'); if (savedPending) STATE.pending = JSON.parse(savedPending);
+    let savedTrash = localStorage.getItem('appTrashStandalone'); if (savedTrash) STATE.trash = JSON.parse(savedTrash);
 
     updateDataLists(); renderMainView(); updatePendingBadge();
     document.addEventListener('click', function(e) { if (!e.target.closest('.smart-input-container')) hideAllDropdowns(); });
   };
 
-  window.updateDataLists = function() {
-      const datalist = document.getElementById('group-suggestions');
-      if(datalist) datalist.innerHTML = STATE.groups.map(g => `<option value="${g}">`).join('');
-  }
-
-  window.updatePendingBadge = function() {
-      let badge = document.getElementById('pending-badge');
-      if (STATE.pending.length > 0) { badge.innerText = STATE.pending.length > 99 ? '99+' : STATE.pending.length; badge.style.display = 'block'; } 
-      else { badge.style.display = 'none'; }
-  }
-
+  window.updateDataLists = function() { const datalist = document.getElementById('group-suggestions'); if(datalist) datalist.innerHTML = STATE.groups.map(g => `<option value="${g}">`).join(''); }
+  window.updatePendingBadge = function() { let badge = document.getElementById('pending-badge'); if (STATE.pending.length > 0) { badge.innerText = STATE.pending.length > 99 ? '99+' : STATE.pending.length; badge.style.display = 'block'; } else { badge.style.display = 'none'; } }
   window.updateStats = function() {
-      let elC = document.getElementById('stat-contacts');
-      let elG = document.getElementById('stat-groups');
-      if(elC) elC.innerText = STATE.contacts.length;
-      if(elG) elG.innerText = STATE.groups.length;
+      let elC = document.getElementById('stat-contacts'), elG = document.getElementById('stat-groups');
+      if(elC) elC.innerText = STATE.contacts.length; if(elG) elG.innerText = STATE.groups.length;
   }
-
   window.toggleContactToolbar = function() {
       let tb = document.getElementById('contact-action-toolbar');
-      if(tb.style.maxHeight === '0px' || tb.style.maxHeight === '0') {
-          tb.style.maxHeight = '100px'; tb.style.marginBottom = '10px'; tb.style.opacity = '1';
-      } else {
-          tb.style.maxHeight = '0px'; tb.style.marginBottom = '0px'; tb.style.opacity = '0';
-      }
+      if(tb.style.maxHeight === '0px' || tb.style.maxHeight === '0') { tb.style.maxHeight = '100px'; tb.style.marginBottom = '10px'; tb.style.opacity = '1'; } 
+      else { tb.style.maxHeight = '0px'; tb.style.marginBottom = '0px'; tb.style.opacity = '0'; }
   }
-
   window.showGroupDropdown = function(dropdownId, inputId) {
-      hideAllDropdowns();
-      let dropdown = document.getElementById(dropdownId);
-      if(!dropdown) return;
-      dropdown.style.display = 'block';
-      STATE.activeDropdownId = dropdownId;
-      
+      hideAllDropdowns(); let dropdown = document.getElementById(dropdownId); if(!dropdown) return; dropdown.style.display = 'block'; STATE.activeDropdownId = dropdownId;
       let html = STATE.groups.map(g => `<div class="smart-dropdown-item" onclick="selectGroupItem('${g}', '${inputId}')">${g}</div>`).join('');
       if(STATE.groups.length === 0) html = `<div style="padding:14px; color:var(--text-muted); font-size:14px; text-align:center;">Chưa có nhóm nào</div>`;
       dropdown.innerHTML = html;
   }
-
   window.filterGroupDropdown = function(keyword, dropdownId, inputId) {
-      let dropdown = document.getElementById(dropdownId);
-      if(!dropdown) return;
-      dropdown.style.display = 'block';
-      
+      let dropdown = document.getElementById(dropdownId); if(!dropdown) return; dropdown.style.display = 'block';
       let filtered = STATE.groups.filter(g => g.toLowerCase().includes(keyword.toLowerCase()));
       let html = filtered.map(g => `<div class="smart-dropdown-item" onclick="selectGroupItem('${g}', '${inputId}')">${g}</div>`).join('');
-      
-      if (keyword.trim() && !STATE.groups.some(g => g.toLowerCase() === keyword.toLowerCase())) {
-          html += `<div class="smart-dropdown-item" style="color:var(--tint-blue);" onclick="selectGroupItem('${keyword.trim()}', '${inputId}')">➕ Tạo nhóm mới: "${keyword.trim()}"</div>`;
-      }
-      
+      if (keyword.trim() && !STATE.groups.some(g => g.toLowerCase() === keyword.toLowerCase())) { html += `<div class="smart-dropdown-item" style="color:var(--tint-blue);" onclick="selectGroupItem('${keyword.trim()}', '${inputId}')">➕ Tạo nhóm mới: "${keyword.trim()}"</div>`; }
       if(!html) html = `<div style="padding:14px; color:var(--text-muted); font-size:14px; text-align:center;">Nhập để tạo mới...</div>`;
       dropdown.innerHTML = html;
   }
+  window.selectGroupItem = function(val, inputId) { let input = document.getElementById(inputId); if(input) input.value = val; hideAllDropdowns(); }
+  window.hideAllDropdowns = function() { document.querySelectorAll('.smart-dropdown').forEach(el => el.style.display = 'none'); STATE.activeDropdownId = null; }
 
-  window.selectGroupItem = function(val, inputId) {
-      let input = document.getElementById(inputId);
-      if(input) input.value = val;
-      hideAllDropdowns();
-  }
-
-  window.hideAllDropdowns = function() {
-      document.querySelectorAll('.smart-dropdown').forEach(el => el.style.display = 'none');
-      STATE.activeDropdownId = null;
-  }
-
-  // ================== KIẾN TRÚC ĐIỀU HƯỚNG MỚI ==================
+  // KIẾN TRÚC MAIN
   window.renderMainView = function() {
       updateStats();
-      STATE.contacts.forEach(c => {
-          let g = c.group || 'Khác';
-          if (!STATE.groups.includes(g)) {
-              STATE.groups.unshift(g);
-              localStorage.setItem('appGroupsStandalone', JSON.stringify(STATE.groups));
-              updateDataLists();
-          }
-      });
-
-      let viewFolders = document.getElementById('view-folder-list');
-      let viewInner = document.getElementById('view-inner-folder');
-      let viewSearch = document.getElementById('view-search-results');
-
-      viewInner.style.display = 'none'; viewSearch.style.display = 'none'; viewFolders.style.display = 'block';
-      STATE.currentFolder = null;
+      STATE.contacts.forEach(c => { let g = c.group || 'Khác'; if (!STATE.groups.includes(g)) { STATE.groups.unshift(g); localStorage.setItem('appGroupsStandalone', JSON.stringify(STATE.groups)); updateDataLists(); } });
+      let viewFolders = document.getElementById('view-folder-list'), viewInner = document.getElementById('view-inner-folder'), viewSearch = document.getElementById('view-search-results');
+      viewInner.style.display = 'none'; viewSearch.style.display = 'none'; viewFolders.style.display = 'block'; STATE.currentFolder = null;
 
       if (STATE.groups.length === 0 && STATE.contacts.length === 0) {
-          viewFolders.innerHTML = '<div style="text-align:center; padding: 40px 20px; color:var(--text-muted); line-height: 1.5;">Chưa có liên hệ nào.<br>Thêm thủ công hoặc Tải lên từ danh bạ.</div>';
-          return;
+          viewFolders.innerHTML = '<div style="text-align:center; padding: 40px 20px; color:var(--text-muted); line-height: 1.5;">Chưa có liên hệ nào.<br>Thêm thủ công hoặc Tải lên từ danh bạ.</div>'; return;
       }
-
       let html = STATE.groups.map(g => {
           let count = STATE.contacts.filter(c => c.group === g).length;
           return `
@@ -809,18 +519,15 @@
                       <span class="unit-chevron" style="cursor:pointer; margin-right: 5px;" onclick="openFolderView('${g.replace(/'/g, "\\'")}')">❯</span>
                       <div class="drag-handle drag-handle-group" onclick="promptMoveGroupToBottom(event, '${g.replace(/'/g, "\\'")}')">≡</div>
                   </div>
-              </div>
-          `;
+              </div>`;
       }).join('');
-      
       viewFolders.innerHTML = html;
 
       if (window.groupSortableMain) window.groupSortableMain.destroy();
       window.groupSortableMain = new Sortable(viewFolders, {
           handle: '.drag-handle-group', delay: 200, delayOnTouchOnly: true, animation: 150, ghostClass: 'sortable-ghost', chosenClass: 'sortable-chosen',
           onEnd: function (evt) {
-              let movedItem = STATE.groups.splice(evt.oldIndex, 1)[0];
-              STATE.groups.splice(evt.newIndex, 0, movedItem);
+              let movedItem = STATE.groups.splice(evt.oldIndex, 1)[0]; STATE.groups.splice(evt.newIndex, 0, movedItem);
               localStorage.setItem('appGroupsStandalone', JSON.stringify(STATE.groups)); updateDataLists();
           }
       });
@@ -838,7 +545,7 @@
               <div class="contact-avatar" style="background:${avatarColor}" onclick="showQRCode('${c.name.replace(/'/g, "\\'")}', '${c.phone}'); event.stopPropagation();" title="Quét mã QR">${initials}</div>
               <div class="contact-info">
                   <span class="contact-name">${c.name}</span>
-                  <div class="contact-phone-group" style="display:flex; flex-direction:column; gap:2px;">
+                  <div class="contact-phone-group">
                      <a href="tel:${c.phone}" class="contact-phone" style="text-decoration:none; display:block;" onclick="event.stopPropagation()">${c.phone}</a>
                      ${c.phone2 ? `<a href="tel:${c.phone2}" class="contact-phone" style="text-decoration:none; display:block;" onclick="event.stopPropagation()">${c.phone2}</a>` : ''}
                   </div>
@@ -863,11 +570,8 @@
       let contactsInGroup = STATE.contacts.filter(c => c.group === groupName);
       let listContainer = document.getElementById('inner-contact-list');
       
-      if (contactsInGroup.length === 0) {
-          listContainer.innerHTML = `<div style="text-align:center; padding:40px; color:var(--text-muted); font-style:italic;">Nhóm trống</div>`;
-      } else {
-          listContainer.innerHTML = contactsInGroup.map(c => renderContactCardHTML(c, true)).join('');
-      }
+      if (contactsInGroup.length === 0) { listContainer.innerHTML = `<div style="text-align:center; padding:40px; color:var(--text-muted); font-style:italic;">Nhóm trống</div>`; } 
+      else { listContainer.innerHTML = contactsInGroup.map(c => renderContactCardHTML(c, true)).join(''); }
       document.getElementById('search-contact').value = ''; 
 
       if (window.currentSortable) window.currentSortable.destroy();
@@ -894,11 +598,9 @@
   }
 
   window.sortContactsAZ = function() {
-      if(!STATE.currentFolder) return;
-      let groupName = STATE.currentFolder;
+      if(!STATE.currentFolder) return; let groupName = STATE.currentFolder;
       let groupContacts = STATE.contacts.filter(c => c.group === groupName);
       groupContacts.sort((a, b) => a.name.localeCompare(b.name, 'vi'));
-      
       let newContacts = [];
       STATE.groups.forEach(g => { if (g === groupName) newContacts.push(...groupContacts); else newContacts.push(...STATE.contacts.filter(c => c.group === g)); });
       let accountedIds = new Set(newContacts.map(c => c.id));
@@ -913,8 +615,7 @@
       let viewFolders = document.getElementById('view-folder-list'), viewInner = document.getElementById('view-inner-folder'), viewSearch = document.getElementById('view-search-results');
 
       if (!keyword) { 
-          if (STATE.currentFolder) openFolderView(STATE.currentFolder); 
-          else renderMainView(); 
+          if (STATE.currentFolder) openFolderView(STATE.currentFolder); else renderMainView(); 
           return; 
       }
       viewFolders.style.display = 'none'; viewInner.style.display = 'none'; viewSearch.style.display = 'block';
@@ -979,7 +680,7 @@
           <div class="group-item-card" data-group="${g.replace(/'/g, "\\'")}">
               <span class="group-item-name">${g}</span>
               <div class="group-actions">
-                  <div class="drag-handle drag-handle-setting" style="font-size: 24px; padding: 0 10px;">≡</div>
+                  <div class="drag-handle drag-handle-setting" style="font-size: 24px; padding: 0 10px;" onclick="promptMoveGroupToBottom(event, '${g.replace(/'/g, "\\'")}')">≡</div>
                   <button class="btn-sq btn-edit" onclick="editGroupItem(${i})">✏️</button>
                   <button class="btn-sq btn-del" onclick="deleteGroupItem(${i})">✖</button>
               </div>
@@ -1125,7 +826,7 @@
       if (dataArr.length === 0) { container.innerHTML = '<div style="text-align:center; padding:30px; color:var(--text-muted); font-style:italic;">Kho chờ trống.</div>'; document.getElementById('chk-select-all-pending').checked = false; return; }
       let html = dataArr.map(p => {
           let isChecked = STATE.selectedPendingIds.includes(p.id.toString()) ? 'checked' : '';
-          return `<label class="pending-card"><input type="checkbox" class="custom-checkbox chk-pending-item" value="${p.id}" onchange="handlePendingCheck('${p.id}', this.checked)" ${isChecked}><div style="flex:1;"><span class="p-name">${p.name}</span><div class="contact-phone-group" style="display:flex; flex-direction:column; gap:2px;"><span class="p-phone">${p.phone}</span>${p.phone2 ? `<span class="p-phone">${p.phone2}</span>` : ''}</div></div></label>`;
+          return `<label class="pending-card"><input type="checkbox" class="custom-checkbox chk-pending-item" value="${p.id}" onchange="handlePendingCheck('${p.id}', this.checked)" ${isChecked}><div style="flex:1;"><span class="p-name">${p.name}</span><div class="contact-phone-group"><span class="p-phone">${p.phone}</span>${p.phone2 ? `<span class="p-phone">${p.phone2}</span>` : ''}</div></div></label>`;
       }).join('');
       container.innerHTML = html;
       let allCheckedInView = dataArr.every(p => STATE.selectedPendingIds.includes(p.id.toString()));
@@ -1407,3 +1108,5 @@
 </script>
 </body>
 </html>
+
+

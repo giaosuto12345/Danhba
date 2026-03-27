@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <meta name="apple-mobile-web-app-title" content="Danh Bạ" />
@@ -15,18 +15,24 @@
   <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
 
   <style>
-    /* ================== BIẾN MÀU SẮC (HỖ TRỢ DARK MODE TỰ ĐỘNG) ================== */
+    /* ================== BIẾN MÀU SẮC CHUẨN IOS (LIGHT/DARK) ================== */
     :root {
-      --bg-body: #F4F5F7;
+      --bg-body: #F2F2F7;
       --bg-card: #FFFFFF;
-      --bg-hover: #F9F9F9;
-      --text-main: #1C1C1E;
-      --text-sub: #555555;
+      --bg-hover: #E5E5EA;
+      --text-main: #000000;
+      --text-sub: #3C3C43;
       --text-muted: #8E8E93;
-      --border: #E0E0E0;
-      --border-light: #F0F0F0;
-      --bg-input: #FFFFFF;
-      --shadow: rgba(0,0,0,0.03);
+      --border: #C6C6C8;
+      --border-light: #E5E5EA;
+      --search-bg: rgba(118, 118, 128, 0.12);
+      --tint-blue: #007AFF;
+      --tint-green: #34C759;
+      --tint-red: #FF3B30;
+      --tint-orange: #FF9500;
+      --tint-purple: #AF52DE;
+      --shadow: 0 1px 4px rgba(0,0,0,0.06);
+      --shadow-lg: 0 4px 15px rgba(0,0,0,0.08);
     }
 
     @media (prefers-color-scheme: dark) {
@@ -34,286 +40,283 @@
         --bg-body: #000000;
         --bg-card: #1C1C1E;
         --bg-hover: #2C2C2E;
-        --text-main: #F2F2F7;
+        --text-main: #FFFFFF;
         --text-sub: #EBEBF5;
         --text-muted: #8E8E93;
         --border: #38383A;
         --border-light: #2C2C2E;
-        --bg-input: #1C1C1E;
-        --shadow: rgba(0,0,0,0.3);
+        --search-bg: rgba(118, 118, 128, 0.24);
+        --tint-blue: #0A84FF;
+        --tint-green: #30D158;
+        --tint-red: #FF453A;
+        --tint-orange: #FF9F0A;
+        --tint-purple: #BF5AF2;
+        --shadow: 0 1px 4px rgba(0,0,0,0.3);
+        --shadow-lg: 0 4px 15px rgba(0,0,0,0.4);
       }
     }
 
     /* ================== CƠ BẢN ================== */
     * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
     body { 
-      margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+      margin: 0; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", sans-serif; 
       background: var(--bg-body); padding-bottom: 40px; color: var(--text-main);
     }
 
-    .container { max-width: 600px; margin: 0 auto; padding: 15px; }
-    .dash-header { padding: 10px 0 20px 0; text-align: center; display: flex; justify-content: center; align-items: center; gap: 8px;}
-    .dash-header h2 { color: #0A84FF; margin: 0; font-size: 24px; font-weight: 900; letter-spacing: 0.5px; text-transform: uppercase;}
+    /* Đảm bảo không lẹm "tai thỏ" (Notch) trên iPhone */
+    .container { 
+      max-width: 600px; margin: 0 auto; 
+      padding: calc(env(safe-area-inset-top) + 15px) 16px calc(env(safe-area-inset-bottom) + 20px) 16px; 
+    }
+    
+    .dash-header { padding: 5px 0 20px 0; text-align: left; display: flex; align-items: center; gap: 10px;}
+    .dash-header h2 { color: var(--text-main); margin: 0; font-size: 28px; font-weight: 800; letter-spacing: -0.5px;}
 
     /* ================== TÌM KIẾM & NÚT THÊM ================== */
     .top-controls { margin-bottom: 20px; }
     
-    .search-row { display: flex; gap: 8px; margin-bottom: 15px; }
+    .search-row { display: flex; gap: 8px; margin-bottom: 16px; align-items: center;}
     .search-input { 
-      flex: 1; padding: 14px 20px; font-size: 16px; border-radius: 12px; 
-      border: 1px solid var(--border); background: var(--bg-input); color: var(--text-main);
-      outline: none; box-shadow: 0 2px 8px var(--shadow); transition: 0.2s;
+      flex: 1; padding: 10px 16px; font-size: 17px; border-radius: 10px; 
+      border: none; background: var(--search-bg); color: var(--text-main);
+      outline: none; transition: 0.2s;
     }
-    .search-input:focus { border-color: #0A84FF; box-shadow: 0 4px 12px rgba(10,132,255,0.1); }
+    .search-input::placeholder { color: var(--text-muted); }
+    .search-input:focus { box-shadow: 0 0 0 2px rgba(10,132,255,0.3); }
+
+    .btn-toggle-menu { 
+      width: 40px; height: 40px; border-radius: 50%; font-size: 20px; font-weight: bold; 
+      color: var(--tint-blue); display: flex; align-items: center; justify-content: center; 
+      cursor: pointer; border: none; background: transparent; transition: 0.2s;
+    }
+    .btn-toggle-menu:active { background: var(--bg-hover); }
 
     .action-buttons-row { 
-      display: flex; gap: 10px; justify-content: space-between; align-items: center;
+      display: flex; gap: 12px; justify-content: space-between; align-items: center;
       transition: all 0.3s ease; overflow: hidden; max-height: 100px; margin-bottom: 20px;
     }
+    
+    /* Giao diện nút bấm chuẩn màu Pastel iOS */
     .btn-act {
-      flex: 1; height: 50px; border-radius: 12px; border: none; font-size: 22px; 
+      flex: 1; height: 50px; border-radius: 14px; border: none; font-size: 22px; 
       cursor: pointer; display: flex; align-items: center; justify-content: center; 
-      box-shadow: 0 4px 10px var(--shadow); transition: 0.2s; font-weight: bold;
+      transition: 0.2s; font-weight: bold;
     }
-    .btn-act:active { transform: scale(0.92); }
+    .btn-act:active { transform: scale(0.92); opacity: 0.8;}
 
-    .btn-setting { background: var(--bg-card); color: var(--text-sub); border: 1px solid var(--border); }
-    .btn-pending { background: #E3F2FD; color: #0A84FF; position: relative; }
-    .btn-file { background: #9C27B0; color: white; }
-    .btn-device { background: #0A84FF; color: white; }
-    .btn-add-manual { background: #34C759; color: white; }
-    .btn-toggle-menu { width: 52px; border-radius: 12px; font-size: 24px; font-weight: bold; color: #0A84FF; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 1px solid var(--border); background: var(--bg-card); }
-
-    @media (prefers-color-scheme: dark) {
-      .btn-pending { background: #0A84FF; color: white; }
-    }
+    .btn-setting { background: rgba(142, 142, 147, 0.15); color: var(--text-muted); }
+    .btn-pending { background: rgba(0, 122, 255, 0.15); color: var(--tint-blue); position: relative; }
+    .btn-file { background: rgba(175, 82, 222, 0.15); color: var(--tint-purple); }
+    .btn-device { background: rgba(255, 149, 0, 0.15); color: var(--tint-orange); }
+    .btn-add-manual { background: rgba(52, 199, 89, 0.15); color: var(--tint-green); }
 
     /* ================== BADGE KHO CHỜ ================== */
     .pending-badge {
-      position: absolute; top: -6px; right: -6px; background: #FF3B30; color: white;
-      font-size: 11px; font-weight: bold; padding: 2px 7px; border-radius: 10px;
-      border: 2px solid var(--bg-body); display: none; pointer-events: none; box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+      position: absolute; top: -4px; right: -4px; background: var(--tint-red); color: white;
+      font-size: 11px; font-weight: bold; padding: 2px 6px; border-radius: 10px;
+      border: 2px solid var(--bg-body); display: none; pointer-events: none;
     }
 
     /* ================== DANH SÁCH THƯ MỤC ================== */
     .unit-card {
-      background: var(--bg-card); border-radius: 16px; padding: 16px 20px; margin-bottom: 12px;
+      background: var(--bg-card); border-radius: 14px; padding: 16px 18px; margin-bottom: 12px;
       display: flex; justify-content: space-between; align-items: center;
-      box-shadow: 0 2px 8px var(--shadow); cursor: pointer; transition: 0.2s; border: 1px solid var(--border-light);
+      box-shadow: var(--shadow); cursor: pointer; transition: 0.2s; border: none;
     }
     .unit-card:active { transform: scale(0.98); background: var(--bg-hover); }
     .unit-left-info { display: flex; align-items: center; gap: 12px; }
-    .unit-icon-build { font-size: 20px; }
-    .unit-name { font-size: 16px; font-weight: 800; color: var(--text-main); }
-    .unit-right-info { display: flex; align-items: center; gap: 10px; }
+    .unit-icon-build { font-size: 22px; }
+    .unit-name { font-size: 17px; font-weight: 600; color: var(--text-main); letter-spacing: -0.3px;}
+    .unit-right-info { display: flex; align-items: center; gap: 8px; }
     .unit-count { 
-      background: var(--bg-hover); padding: 4px; border-radius: 20px; border: 1px solid var(--border-light);
-      font-size: 13px; color: var(--text-sub); font-weight: 800; min-width: 28px; text-align: center;
+      font-size: 15px; color: var(--text-muted); font-weight: 500; text-align: center;
     }
-    .unit-chevron { color: var(--text-muted); font-weight: 900; font-size: 14px;}
+    .unit-chevron { color: var(--border); font-weight: 700; font-size: 15px;}
 
     /* ================== CHI TIẾT THƯ MỤC ================== */
     .back-header {
-      display: flex; align-items: center; justify-content: space-between; padding: 10px 0 20px 0;
-      border-bottom: 1px solid var(--border); margin-bottom: 15px;
+      display: flex; align-items: center; justify-content: space-between; padding: 5px 0 20px 0; margin-bottom: 10px;
     }
-    .back-btn-text { color: #0A84FF; font-size: 16px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 5px;}
-    .back-btn-text:active { opacity: 0.7; }
-    .inner-folder-title { font-size: 18px; font-weight: 800; margin: 0; color: var(--text-main); text-align: center; flex: 1;}
-    .btn-sort-az { background: none; border: none; color: #0A84FF; font-size: 14px; font-weight: 800; cursor: pointer; padding: 5px 10px; background: rgba(10,132,255,0.1); border-radius: 8px; transition: 0.2s;}
+    .back-btn-text { color: var(--tint-blue); font-size: 17px; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 4px; letter-spacing: -0.3px;}
+    .back-btn-text:active { opacity: 0.5; }
+    .inner-folder-title { font-size: 17px; font-weight: 600; margin: 0; color: var(--text-main); text-align: center; flex: 1;}
+    .btn-sort-az { background: none; border: none; color: var(--tint-blue); font-size: 15px; font-weight: 600; cursor: pointer; padding: 6px 12px; background: rgba(0, 122, 255, 0.1); border-radius: 20px; transition: 0.2s;}
     .btn-sort-az:active { transform: scale(0.95); }
 
     .contact-card {
-      background: var(--bg-card); border-radius: 14px; padding: 12px 10px 12px 15px; margin-bottom: 10px;
-      display: flex; justify-content: space-between; align-items: center; gap: 10px;
-      box-shadow: 0 2px 6px var(--shadow); border-left: 4px solid #34C759;
+      background: var(--bg-card); border-radius: 14px; padding: 10px 8px 10px 14px; margin-bottom: 12px;
+      display: flex; justify-content: space-between; align-items: center; gap: 12px;
+      box-shadow: var(--shadow); border: none;
     }
     
     .contact-avatar {
-      width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0;
+      width: 44px; height: 44px; border-radius: 50%; flex-shrink: 0;
       display: flex; align-items: center; justify-content: center;
-      color: #fff; font-weight: 800; font-size: 15px; text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+      color: #fff; font-weight: 600; font-size: 16px;
     }
     
-    .contact-info { flex: 1; display: flex; flex-direction: column; gap: 2px; }
-    .contact-name { font-size: 16px; font-weight: 800; color: var(--text-main); line-height: 1.2;}
-    .contact-phone { font-size: 14px; color: #0A84FF; font-weight: 700; }
-    .contact-group-label { font-size: 11px; color: var(--text-muted); font-weight: 700; text-transform: uppercase;}
+    .contact-info { flex: 1; display: flex; flex-direction: column; gap: 3px; }
+    .contact-name { font-size: 17px; font-weight: 600; color: var(--text-main); letter-spacing: -0.3px;}
+    .contact-phone { font-size: 15px; color: var(--text-sub); }
+    .contact-group-label { font-size: 12px; color: var(--text-muted); font-weight: 500; margin-top: 2px;}
     
-    .action-buttons-card { display: flex; align-items: center; gap: 5px; flex-shrink: 0;}
+    .action-buttons-card { display: flex; align-items: center; gap: 6px; flex-shrink: 0;}
     .btn-action-circle {
       width: 36px; height: 36px; border-radius: 50%;
       display: flex; align-items: center; justify-content: center; font-size: 16px;
-      text-decoration: none; transition: 0.2s; border: none; cursor: pointer; font-weight: bold;
+      text-decoration: none; transition: 0.2s; border: none; cursor: pointer;
     }
     
-    /* Màu nút gọi theo DarkMode/LightMode */
-    .btn-zalo { background: #E3F2FD; color: #0A84FF; box-shadow: 0 2px 4px rgba(10,132,255,0.15); font-family: Arial, sans-serif;}
-    .btn-sms { background: #F0F0F5; color: #555; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-    .btn-call { background: #E8F5E9; color: #34C759; box-shadow: 0 2px 4px rgba(52,199,89,0.15); }
-    
-    @media (prefers-color-scheme: dark) {
-      .btn-zalo { background: #004499; color: #81D4FA; box-shadow: none; }
-      .btn-sms { background: #38383A; color: #EBEBF5; box-shadow: none;}
-      .btn-call { background: #1B5E20; color: #A5D6A7; box-shadow: none;}
-    }
-
-    .btn-action-circle:active { transform: scale(0.9); }
+    .btn-zalo { background: rgba(0, 122, 255, 0.1); color: var(--tint-blue); font-family: Arial, sans-serif; font-weight: bold;}
+    .btn-sms { background: var(--bg-hover); color: var(--text-main); }
+    .btn-call { background: rgba(52, 199, 89, 0.15); color: var(--tint-green); }
+    .btn-action-circle:active { transform: scale(0.85); opacity: 0.8;}
 
     .drag-handle {
-      padding: 5px 2px; color: var(--text-muted); font-size: 24px; font-weight: 300;
+      padding: 5px; color: var(--border); font-size: 22px; font-weight: 400;
       cursor: grab; display: flex; align-items: center; justify-content: center; touch-action: none; width: 30px;
     }
-    .drag-handle:active { cursor: grabbing; color: #0A84FF; }
-    .sortable-ghost { opacity: 0.5; background: var(--bg-hover); border: 1px dashed #0A84FF; }
-    .sortable-chosen { transform: scale(1.02); box-shadow: 0 8px 20px rgba(0,0,0,0.15); z-index: 10; border-left: 4px solid #0A84FF !important; background: var(--bg-card); }
+    .drag-handle:active { cursor: grabbing; color: var(--tint-blue); }
+    .sortable-ghost { opacity: 0.4; background: var(--bg-hover); border-radius: 14px;}
+    .sortable-chosen { transform: scale(1.03); box-shadow: var(--shadow-lg); z-index: 10; background: var(--bg-card); }
 
     /* ================== MODAL CHUNG ================== */
     .modal-overlay {
       position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,0.4); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px);
+      background: rgba(0,0,0,0.4); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);
       z-index: 1000; display: none; align-items: flex-end; justify-content: center;
       opacity: 0; transition: opacity 0.3s ease;
     }
     .modal-overlay.show { opacity: 1; }
     .modal-content {
       background: var(--bg-body); width: 100%; max-height: 92vh; max-width: 600px;
-      border-radius: 24px 24px 0 0; padding: 15px 20px 30px 20px; overflow-y: auto;
-      transform: translateY(100%); transition: transform 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.1);
+      border-radius: 20px 20px 0 0; padding: 15px 20px calc(env(safe-area-inset-bottom) + 20px) 20px; overflow-y: auto;
+      transform: translateY(100%); transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
       box-shadow: 0 -10px 25px rgba(0,0,0,0.2); display: flex; flex-direction: column;
     }
     .modal-overlay.show .modal-content { transform: translateY(0); }
     
-    .pull-bar { width: 40px; height: 5px; background: #8E8E93; border-radius: 3px; margin: 0 auto 15px auto; }
+    .pull-bar { width: 36px; height: 5px; background: var(--text-muted); border-radius: 3px; margin: 0 auto 15px auto; opacity: 0.5;}
     .modal-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; position: relative;}
-    .modal-title { font-size: 20px; font-weight: 800; margin: 0; color: #0A84FF; }
-    .btn-close-modal { background: var(--bg-hover); border: none; width: 30px; height: 30px; border-radius: 50%; font-size: 14px; font-weight: bold; color: var(--text-muted); cursor: pointer; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border);}
+    .modal-title { font-size: 22px; font-weight: 800; margin: 0; color: var(--text-main); letter-spacing: -0.5px;}
+    .btn-close-modal { background: var(--bg-hover); border: none; width: 30px; height: 30px; border-radius: 50%; font-size: 14px; font-weight: bold; color: var(--text-muted); cursor: pointer; display: flex; align-items: center; justify-content: center;}
 
     /* ================== UI CÀI ĐẶT NHÓM ================== */
     .group-input-wrapper { 
-      display: flex; background: var(--bg-input); border-radius: 12px; border: 1px solid var(--border); 
-      overflow: hidden; margin-bottom: 20px; box-shadow: 0 2px 6px var(--shadow);
+      display: flex; background: var(--bg-input); border-radius: 12px; border: none; 
+      overflow: hidden; margin-bottom: 20px; box-shadow: var(--shadow);
     }
-    .group-input-wrapper input { border: none; padding: 14px 15px; font-size: 15px; flex: 1; outline: none; background: transparent; color: var(--text-main); }
+    .group-input-wrapper input { border: none; padding: 14px 15px; font-size: 16px; flex: 1; outline: none; background: transparent; color: var(--text-main); }
     .group-input-wrapper button { 
-      background: #34C759; color: white; border: none; padding: 0 20px; 
-      font-weight: 800; font-size: 14px; cursor: pointer; transition: 0.2s;
+      background: var(--tint-blue); color: white; border: none; padding: 0 20px; 
+      font-weight: 700; font-size: 15px; cursor: pointer; transition: 0.2s;
     }
-    .group-input-wrapper button:active { background: #2E7D32; }
+    .group-input-wrapper button:active { opacity: 0.8; }
     
     .setting-list-box {
-      background: var(--bg-card); border-radius: 16px; border: 1px solid var(--border);
-      overflow: hidden; box-shadow: 0 2px 8px var(--shadow); margin-bottom: 20px;
+      background: var(--bg-card); border-radius: 14px; border: none;
+      overflow: hidden; box-shadow: var(--shadow); margin-bottom: 24px;
     }
     .group-item-card {
-      padding: 12px 15px; display: flex; justify-content: space-between; align-items: center;
+      padding: 14px 16px; display: flex; justify-content: space-between; align-items: center;
       border-bottom: 1px solid var(--border-light); background: var(--bg-card);
     }
     .group-item-card:last-child { border-bottom: none; }
-    .group-item-name { font-weight: 800; font-size: 15px; color: var(--text-main); }
-    .group-actions { display: flex; gap: 6px; align-items: center; }
+    .group-item-name { font-weight: 600; font-size: 16px; color: var(--text-main); }
+    .group-actions { display: flex; gap: 8px; align-items: center; }
     
     .btn-sq {
       width: 32px; height: 32px; border-radius: 8px; border: none; 
       display: flex; align-items: center; justify-content: center; 
-      font-size: 14px; cursor: pointer; transition: 0.2s; font-weight: 900;
+      font-size: 14px; cursor: pointer; transition: 0.2s;
     }
-    .btn-edit { background: rgba(255,149,0,0.15); color: #FF9500;}
-    .btn-del { background: rgba(255,59,48,0.15); color: #FF3B30;}
+    .btn-edit { background: rgba(255,149,0,0.15); color: var(--tint-orange);}
+    .btn-del { background: rgba(255,59,48,0.15); color: var(--tint-red);}
     .btn-sq:active { transform: scale(0.9); }
 
     /* ================== KHO CHỜ DUYỆT ================== */
-    .pending-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding: 0 5px; border-bottom: 1px solid var(--border); padding-bottom: 15px;}
+    .pending-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding: 0 5px; border-bottom: 1px solid var(--border-light); padding-bottom: 15px;}
     .custom-checkbox {
-      appearance: none; width: 24px; height: 24px; border: 2px solid var(--border); border-radius: 6px;
+      appearance: none; width: 24px; height: 24px; border: 1px solid var(--border); border-radius: 6px;
       outline: none; cursor: pointer; position: relative; background: var(--bg-input); transition: 0.2s; margin:0;
     }
-    .custom-checkbox:checked { background: #0A84FF; border-color: #0A84FF; }
+    .custom-checkbox:checked { background: var(--tint-blue); border-color: var(--tint-blue); }
     .custom-checkbox:checked::after {
       content: '✔'; position: absolute; color: white; font-size: 15px;
       top: 50%; left: 50%; transform: translate(-50%, -50%); font-weight: bold;
     }
     
-    .text-blue-bold { color: #0A84FF; font-weight: 800; font-size: 15px; cursor: pointer; }
-    .text-red-bold { color: #FF3B30; font-weight: 800; font-size: 14px; cursor: pointer; background: none; border: none; }
+    .text-blue-bold { color: var(--tint-blue); font-weight: 600; font-size: 16px; cursor: pointer; }
+    .text-red-bold { color: var(--tint-red); font-weight: 600; font-size: 15px; cursor: pointer; background: none; border: none; padding:0;}
 
     .pending-list { flex: 1; overflow-y: auto; padding-bottom: 10px; margin-bottom: 10px; }
     .pending-card {
-      background: var(--bg-card); border-radius: 14px; padding: 15px; margin-bottom: 10px;
-      display: flex; align-items: center; gap: 15px; border: 1px solid var(--border); box-shadow: 0 2px 4px var(--shadow);
+      background: var(--bg-card); border-radius: 14px; padding: 14px 16px; margin-bottom: 10px;
+      display: flex; align-items: center; gap: 16px; border: none; box-shadow: var(--shadow);
     }
-    .p-name { font-weight: 800; color: var(--text-main); font-size: 15px; margin-bottom: 4px; display: block;}
-    .p-phone { font-weight: 700; color: #0A84FF; font-size: 14px; display: block;}
+    .p-name { font-weight: 600; color: var(--text-main); font-size: 16px; margin-bottom: 2px; display: block;}
+    .p-phone { font-weight: 500; color: var(--text-sub); font-size: 14px; display: block;}
 
     .bottom-action-card {
-      background: var(--bg-card); padding: 15px; border-radius: 16px; margin-top: 5px;
-      box-shadow: 0 -4px 15px var(--shadow); border: 1px solid var(--border);
+      background: var(--bg-card); padding: 16px; border-radius: 16px; margin-top: 5px;
+      box-shadow: var(--shadow-lg); border: none;
     }
-    .bottom-action-title { font-size: 14px; font-weight: 800; color: var(--text-main); margin-bottom: 10px; }
+    .bottom-action-title { font-size: 15px; font-weight: 600; color: var(--text-main); margin-bottom: 12px; }
 
     /* ================== Ô NHẬP LIỆU CHUNG & DROPDOWN ================== */
-    .smart-input-container { position: relative; margin-bottom: 15px; }
+    .smart-input-container { position: relative; margin-bottom: 16px; }
     .smart-input {
-      width: 100%; padding: 15px; font-size: 16px; border: 1px solid var(--border); border-radius: 12px;
+      width: 100%; padding: 14px 16px; font-size: 16px; border: none; border-radius: 12px;
       outline: none; box-sizing: border-box; background: var(--bg-input); color: var(--text-main); transition: 0.2s;
     }
-    .smart-input:focus { border-color: #34C759; box-shadow: 0 0 0 3px rgba(52,199,89,0.1);}
+    .smart-input:focus { box-shadow: 0 0 0 2px rgba(10,132,255,0.3);}
     
     .smart-dropdown {
-      position: absolute; top: 100%; left: 0; right: 0; background: var(--bg-card); border: 1px solid var(--border);
+      position: absolute; top: 100%; left: 0; right: 0; background: var(--bg-card); border: 1px solid var(--border-light);
       border-radius: 12px; max-height: 180px; overflow-y: auto; z-index: 100; display: none;
-      box-shadow: 0 8px 25px rgba(0,0,0,0.2); margin-top: 5px;
+      box-shadow: var(--shadow-lg); margin-top: 5px;
     }
     .smart-dropdown-item {
-      padding: 12px 15px; border-bottom: 1px solid var(--border-light); cursor: pointer; 
-      font-size: 15px; font-weight: 700; color: var(--text-main); text-align: left;
+      padding: 14px 16px; border-bottom: 1px solid var(--border-light); cursor: pointer; 
+      font-size: 16px; font-weight: 500; color: var(--text-main); text-align: left;
     }
     .smart-dropdown-item:last-child { border-bottom: none; }
     .smart-dropdown-item:active { background: var(--bg-hover); }
     
     .btn-green-large {
-      width: 100%; background: #34C759; color: white; padding: 16px; border: none;
-      border-radius: 12px; font-size: 15px; font-weight: bold; cursor: pointer; transition: 0.2s;
+      width: 100%; background: var(--tint-blue); color: white; padding: 16px; border: none;
+      border-radius: 14px; font-size: 16px; font-weight: 600; cursor: pointer; transition: 0.2s; letter-spacing: -0.3px;
     }
-    .btn-green-large:active { background: #2E7D32; transform: scale(0.98);}
+    .btn-green-large:active { opacity: 0.8; transform: scale(0.98);}
 
-    .btn-blue-large {
-      width: 100%; background: #0A84FF; color: white; padding: 16px; border: none;
-      border-radius: 12px; font-size: 15px; font-weight: bold; cursor: pointer; transition: 0.2s;
-    }
-    .btn-blue-large:active { background: #0056b3; transform: scale(0.98);}
-
-    .input-label { font-size: 14px; font-weight: 800; color: var(--text-sub); margin-bottom: 8px; display: block;}
+    .input-label { font-size: 14px; font-weight: 600; color: var(--text-sub); margin-bottom: 8px; display: block;}
 
     /* ================== THÔNG BÁO TỰ TẠO (CUSTOM DIALOG) ================== */
     .custom-dialog-box {
-      background: var(--bg-card); width: 85%; max-width: 320px; border-radius: 20px; padding: 25px 20px 20px 20px;
-      text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.3); transform: scale(0.9); opacity: 0;
-      transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275); margin: auto; border: 1px solid var(--border);
+      background: var(--bg-card); width: 85%; max-width: 300px; border-radius: 18px; padding: 24px 20px 20px 20px;
+      text-align: center; box-shadow: var(--shadow-lg); transform: scale(0.9); opacity: 0;
+      transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1); margin: auto; border: none;
     }
     #custom-dialog-wrapper.show .custom-dialog-box { transform: scale(1); opacity: 1; }
-    .dialog-title { font-size: 18px; font-weight: 800; color: var(--text-main); margin: 0 0 10px 0; }
+    .dialog-title { font-size: 18px; font-weight: 600; color: var(--text-main); margin: 0 0 10px 0; letter-spacing: -0.3px;}
     .dialog-message { font-size: 14px; color: var(--text-sub); margin: 0 0 20px 0; line-height: 1.4; }
     .dialog-buttons { display: flex; gap: 10px; }
-    .btn-dialog { flex: 1; padding: 12px; border-radius: 10px; font-weight: bold; border: none; font-size: 15px; cursor: pointer; color: white;}
+    .btn-dialog { flex: 1; padding: 12px; border-radius: 12px; font-weight: 600; border: none; font-size: 15px; cursor: pointer; color: white;}
   </style>
 </head>
 <body>
 
-  <!-- DATALIST ẨN ĐỂ GỢI Ý MẶC ĐỊNH TRÌNH DUYỆT -->
   <datalist id="group-suggestions"></datalist>
 
   <div class="container">
     <div class="dash-header">
-      <span style="font-size: 28px;">📇</span>
-      <h2>DANH BẠ NỘI BỘ</h2>
+      <h2>Danh Bạ</h2>
     </div>
 
     <!-- TÌM KIẾM & NÚT THÊM -->
     <div class="top-controls">
       <div class="search-row">
-        <input type="text" id="search-contact" class="search-input" placeholder="🔍 Tìm kiếm tên, SĐT..." onkeyup="searchContacts()">
-        <!-- NÚT ẨN HIỆN MENU -->
+        <input type="text" id="search-contact" class="search-input" placeholder="Tìm kiếm tên, SĐT..." onkeyup="searchContacts()">
         <button class="btn-toggle-menu" onclick="toggleContactToolbar()">⚏</button>
       </div>
 
@@ -323,7 +326,7 @@
           <button class="btn-act btn-pending" style="width:100%;" onclick="openPendingModal()" title="Kho chờ duyệt">📥</button>
           <span id="pending-badge" class="pending-badge">0</span>
         </div>
-        <button class="btn-act btn-file" onclick="document.getElementById('contact-file-upload').click()" title="Nhập từ file CSV/VCF/JSON">📁</button>
+        <button class="btn-act btn-file" onclick="document.getElementById('contact-file-upload').click()" title="Nhập từ file">📁</button>
         <button class="btn-act btn-device" onclick="importFromContacts()" title="Nhập từ điện thoại">📇</button>
         <button class="btn-act btn-add-manual" onclick="openContactModal()" title="Thêm thủ công">+</button>
       </div>
@@ -331,7 +334,7 @@
       <input type="file" id="contact-file-upload" style="display:none;" accept=".csv, .vcf, text/csv, text/vcard, application/json, .json" onchange="handleContactFileUpload(event)">
     </div>
 
-    <!-- KHU VỰC HIỂN THỊ ĐỘNG (THƯ MỤC / DANH SÁCH) -->
+    <!-- KHU VỰC HIỂN THỊ ĐỘNG -->
     <div id="view-folder-list"></div>
 
     <div id="view-inner-folder" style="display:none;">
@@ -359,36 +362,33 @@
         <button class="btn-close-modal" onclick="closeGroupSettingsModal()">✕</button>
       </div>
 
-      <!-- Thống kê tổng quan -->
-      <div id="stats-overview" style="text-align:center; padding: 12px; background: var(--bg-hover); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 20px; font-size: 13px; font-weight: 600; color: var(--text-sub);">
-         📊 Đang quản lý <b style="color:#0A84FF; font-size:15px;" id="stat-contacts">0</b> liên hệ / <b style="color:#FF9500; font-size:15px;" id="stat-groups">0</b> nhóm.
+      <div id="stats-overview" style="text-align:center; padding: 12px; background: var(--bg-hover); border-radius: 12px; margin-bottom: 20px; font-size: 14px; font-weight: 500; color: var(--text-sub);">
+         📊 Đang quản lý <b style="color:var(--tint-blue); font-size:16px;" id="stat-contacts">0</b> liên hệ / <b style="color:var(--tint-orange); font-size:16px;" id="stat-groups">0</b> nhóm.
       </div>
 
-      <div style="font-size:12px; color:#1976D2; font-weight:800; margin-bottom:10px; text-transform: uppercase;">⚡ TẠO NHÓM MỚI</div>
+      <div style="font-size:13px; color:var(--text-muted); font-weight:600; margin-bottom:8px; text-transform: uppercase; letter-spacing:0.5px;">Tạo nhóm mới</div>
       <div class="group-input-wrapper">
         <input type="text" id="new-group-input" placeholder="Tên nhóm công việc...">
-        <button onclick="addNewGroup()">THÊM</button>
+        <button onclick="addNewGroup()">Thêm</button>
       </div>
 
-      <div style="font-size:12px; color:#1976D2; font-weight:800; margin-bottom:10px; text-transform: uppercase;">📂 QUẢN LÝ DANH SÁCH</div>
+      <div style="font-size:13px; color:var(--text-muted); font-weight:600; margin-bottom:8px; text-transform: uppercase; letter-spacing:0.5px;">Quản lý danh sách</div>
       <div class="setting-list-box">
-        <div id="group-settings-list" style="max-height:25vh; overflow-y:auto;"></div>
+        <div id="group-settings-list" style="max-height:30vh; overflow-y:auto;"></div>
       </div>
 
-      <!-- QUẢN TRỊ DỮ LIỆU (Dọn dẹp & Thùng rác) -->
-      <div style="font-size:12px; color:#34C759; font-weight:800; margin-bottom:10px; text-transform: uppercase;">🧹 DỌN DẸP & BẢO VỆ DỮ LIỆU</div>
-      <div style="display: flex; gap: 10px; margin-bottom: 20px;">
-        <button onclick="cleanupContacts()" class="btn-green-large" style="margin:0; background:rgba(52,199,89,0.15); color:#2E7D32; font-size:13px; padding:12px;">🧹 DỌN TRÙNG LẶP</button>
-        <button onclick="openTrashModal()" class="btn-green-large" style="margin:0; background:rgba(255,59,48,0.15); color:#FF3B30; font-size:13px; padding:12px;">🗑️ THÙNG RÁC</button>
+      <div style="font-size:13px; color:var(--text-muted); font-weight:600; margin-bottom:8px; text-transform: uppercase; letter-spacing:0.5px;">Dọn dẹp & Bảo vệ</div>
+      <div style="display: flex; gap: 10px; margin-bottom: 24px;">
+        <button onclick="cleanupContacts()" class="btn-green-large" style="margin:0; background:rgba(52,199,89,0.15); color:var(--tint-green); font-size:14px; padding:14px;">🧹 Dọn trùng lặp</button>
+        <button onclick="openTrashModal()" class="btn-green-large" style="margin:0; background:rgba(255,59,48,0.15); color:var(--tint-red); font-size:14px; padding:14px;">🗑️ Thùng rác</button>
       </div>
 
-      <!-- KHU VỰC XUẤT DỮ LIỆU & CẬP NHẬT -->
-      <div style="font-size:12px; color:#1976D2; font-weight:800; margin-bottom:10px; text-transform: uppercase;">💾 DỮ LIỆU & CẬP NHẬT</div>
+      <div style="font-size:13px; color:var(--text-muted); font-weight:600; margin-bottom:8px; text-transform: uppercase; letter-spacing:0.5px;">Dữ liệu & Cập nhật</div>
       <div style="display: flex; gap: 10px; margin-bottom: 10px;">
-        <button onclick="exportContactsCSV()" class="btn-green-large" style="margin:0; background:#FF9500; font-size:13px; padding:12px;">📄 XUẤT CSV</button>
-        <button onclick="exportContactsBackup()" class="btn-green-large" style="margin:0; background:#AF52DE; font-size:13px; padding:12px;">📦 XUẤT BẢN SAO LƯU (.JSON)</button>
+        <button onclick="exportContactsCSV()" class="btn-green-large" style="margin:0; background:rgba(255,149,0,0.15); color:var(--tint-orange); font-size:14px; padding:14px;">📄 Xuất CSV</button>
+        <button onclick="exportContactsBackup()" class="btn-green-large" style="margin:0; background:rgba(175,82,222,0.15); color:var(--tint-purple); font-size:14px; padding:14px;">📦 Sao lưu JSON</button>
       </div>
-      <button onclick="capNhatApp()" class="btn-blue-large" style="margin:0; background:var(--bg-hover); color:#FF3B30; border:1px solid var(--border); font-size:14px; padding:12px; margin-bottom:10px;">♻️ CẬP NHẬT ỨNG DỤNG WEB</button>
+      <button onclick="capNhatApp()" class="btn-green-large" style="margin:0; background:var(--bg-hover); color:var(--tint-red); font-size:15px; padding:14px; margin-bottom:10px;">♻️ Cập nhật Web App</button>
     </div>
   </div>
 
@@ -399,12 +399,12 @@
     <div class="modal-content">
       <div class="pull-bar"></div>
       <div class="modal-head">
-        <h3 class="modal-title" style="color: #FF3B30;">🗑️ Thùng Rác</h3>
+        <h3 class="modal-title" style="color: var(--tint-red);">Thùng Rác</h3>
         <button class="btn-close-modal" onclick="closeTrashModal()">✕</button>
       </div>
       <div style="display:flex; justify-content:space-between; margin-bottom:15px; align-items:center;">
-         <span style="font-size:13px; color:var(--text-sub);">Lưu trữ liên hệ đã xóa.</span>
-         <button onclick="emptyTrash()" style="background:none; border:none; color:#FF3B30; font-weight:bold; cursor:pointer; padding:5px;">Xóa tất cả</button>
+         <span style="font-size:14px; color:var(--text-sub);">Đã xóa gần đây</span>
+         <button onclick="emptyTrash()" style="background:none; border:none; color:var(--tint-red); font-weight:600; font-size:15px; cursor:pointer; padding:5px;">Xóa sạch</button>
       </div>
       <div id="trash-list-container" style="flex:1; overflow-y:auto; padding-bottom: 10px;"></div>
     </div>
@@ -417,9 +417,9 @@
     <div class="modal-content" style="align-items:center; padding-bottom:40px;">
       <div class="pull-bar"></div>
       <h3 class="modal-title" id="qr-name" style="margin-bottom:20px; text-align:center; font-size: 22px;">Tên</h3>
-      <div id="qr-code-img" style="background:#fff; padding:15px; border-radius:16px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);"></div>
-      <p style="color:var(--text-sub); margin-top:20px; font-size:14px; text-align:center;">Đưa camera điện thoại quét mã này<br>để lưu nhanh vào danh bạ.</p>
-      <button onclick="closeQRModal()" class="btn-blue-large" style="margin-top:20px; max-width: 250px;">ĐÓNG QUÉT MÃ</button>
+      <div id="qr-code-img" style="background:#fff; padding:20px; border-radius:20px; box-shadow: var(--shadow-lg);"></div>
+      <p style="color:var(--text-sub); margin-top:20px; font-size:15px; text-align:center; line-height: 1.4;">Đưa camera quét mã này<br>để lưu nhanh vào điện thoại.</p>
+      <button onclick="closeQRModal()" class="btn-green-large" style="margin-top:20px; background: var(--bg-hover); color: var(--text-main); width: 100%;">Đóng</button>
     </div>
   </div>
 
@@ -430,11 +430,11 @@
     <div class="modal-content" style="max-height: 95vh; padding-bottom: 20px;">
       <div class="pull-bar"></div>
       <div class="modal-head">
-        <h3 class="modal-title" style="display:flex; align-items:center; gap:8px;">📥 Kho Chờ Duyệt</h3>
+        <h3 class="modal-title" style="display:flex; align-items:center; gap:8px;">Kho Chờ Duyệt</h3>
         <button class="btn-close-modal" onclick="closePendingModal()">✕</button>
       </div>
 
-      <input type="text" id="search-pending" class="smart-input" style="margin-bottom: 15px; padding: 10px 15px;" placeholder="🔍 Tìm tên hoặc số điện thoại..." onkeyup="searchPending()">
+      <input type="text" id="search-pending" class="smart-input" style="margin-bottom: 15px; padding: 12px 16px;" placeholder="Tìm tên hoặc số điện thoại..." onkeyup="searchPending()">
       
       <div class="pending-header-row">
         <label style="display:flex; align-items:center; cursor:pointer; gap:10px;">
@@ -447,15 +447,15 @@
       <div id="pending-list-container" class="pending-list"></div>
       
       <div class="bottom-action-card">
-        <div class="bottom-action-title">Xếp các số ĐÃ CHỌN vào Nhóm:</div>
-        <div class="smart-input-container" style="margin-bottom: 10px;">
+        <div class="bottom-action-title">Xếp các số đã chọn vào:</div>
+        <div class="smart-input-container" style="margin-bottom: 12px;">
           <input type="text" id="pending-group-input" class="smart-input" placeholder="Gõ tìm hoặc tạo nhóm mới..." 
                  onfocus="showGroupDropdown('pending-dropdown', 'pending-group-input')" 
                  onkeyup="filterGroupDropdown(this.value, 'pending-dropdown', 'pending-group-input')"
                  autocomplete="off">
           <div id="pending-dropdown" class="smart-dropdown"></div>
         </div>
-        <button onclick="saveSelectedPendingToMain()" class="btn-green-large">XÁC NHẬN ĐƯA VÀO DANH BẠ</button>
+        <button onclick="saveSelectedPendingToMain()" class="btn-green-large">Xác nhận</button>
       </div>
     </div>
   </div>
@@ -473,36 +473,55 @@
       
       <input type="hidden" id="contact-id">
       
-      <label class="input-label">Tên liên hệ:</label>
-      <input type="text" id="contact-name" class="smart-input" style="margin-bottom:15px;" placeholder="VD: Nguyễn Văn A" />
+      <label class="input-label">Họ và tên</label>
+      <input type="text" id="contact-name" class="smart-input" style="margin-bottom:15px;" placeholder="Ví dụ: Nguyễn Văn A" />
       
-      <label class="input-label">Số điện thoại:</label>
-      <input type="tel" id="contact-phone" class="smart-input" style="margin-bottom:15px;" placeholder="VD: 0987654321" />
+      <label class="input-label">Số điện thoại</label>
+      <input type="tel" id="contact-phone" class="smart-input" style="margin-bottom:15px;" placeholder="Ví dụ: 0987654321" />
       
-      <label class="input-label">Nhóm / Chức vụ:</label>
+      <label class="input-label">Nhóm / Đơn vị</label>
       <div class="smart-input-container" style="margin-bottom:0;">
-        <input type="text" id="manual-group-input" class="smart-input" style="margin-bottom:0;" placeholder="Gõ tìm hoặc tạo nhóm mới..." 
+        <input type="text" id="manual-group-input" class="smart-input" style="margin-bottom:0;" placeholder="Chọn hoặc tạo nhóm mới..." 
                onfocus="showGroupDropdown('manual-dropdown', 'manual-group-input')" 
                onkeyup="filterGroupDropdown(this.value, 'manual-dropdown', 'manual-group-input')"
                autocomplete="off">
         <div id="manual-dropdown" class="smart-dropdown"></div>
       </div>
 
-      <div style="display:flex; gap:10px; margin-top: 20px;">
-        <button id="btn-delete-contact" onclick="deleteContact()" style="background:rgba(255,59,48,0.15); color:#FF3B30; display:none; flex: 0.4; padding: 16px; border-radius: 12px; font-weight: bold; border: none; cursor: pointer;">XÓA</button>
-        <button onclick="saveContact()" class="btn-blue-large" style="margin-top:0; flex: 1;">LƯU LIÊN HỆ</button>
+      <div style="display:flex; gap:10px; margin-top: 24px;">
+        <button id="btn-delete-contact" onclick="deleteContact()" style="background:rgba(255,59,48,0.15); color:var(--tint-red); display:none; flex: 0.4; padding: 16px; border-radius: 12px; font-weight: 600; border: none; cursor: pointer;">Xóa</button>
+        <button onclick="saveContact()" class="btn-green-large" style="margin-top:0; flex: 1;">Lưu liên hệ</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================= -->
+  <!-- MODAL CẢNH BÁO IOS -->
+  <!-- ======================================================= -->
+  <div id="ios-warning-modal" class="modal-overlay" onclick="if(event.target === this) closeIosWarningModal()">
+    <div class="modal-content" style="text-align: center;">
+      <div class="pull-bar"></div>
+      <div style="font-size: 50px; margin-bottom: 10px;">🍎</div>
+      <h3 style="color: var(--text-main); margin: 0 0 15px 0; font-size: 20px; font-weight: 800;">Hạn Chế Của iOS</h3>
+      <p style="color: var(--text-sub); font-size: 15px; line-height: 1.5; margin-bottom: 25px; padding: 0 10px;">
+        Apple hiện <b>chưa cho phép</b> trình duyệt Web truy cập tự động vào Danh bạ thiết bị để bảo vệ quyền riêng tư.<br><br>
+        Vui lòng tải tệp <b>.VCF / .CSV</b> lên hoặc nhập thủ công!
+      </p>
+      <div style="display:flex; gap:10px; flex-wrap: wrap; justify-content: center;">
+        <button onclick="closeIosWarningModal()" class="btn-green-large" style="background:var(--bg-hover); color: var(--text-main); flex: 1; margin-top:0;">Đóng</button>
+        <button onclick="closeIosWarningModal(); document.getElementById('contact-file-upload').click();" class="btn-green-large" style="background:var(--tint-purple); flex: 1; margin-top:0;">Tải file</button>
+        <button onclick="closeIosWarningModal(); openContactModal();" class="btn-green-large" style="min-width: 100%; margin-top:0;">+ Thêm thủ công</button>
       </div>
     </div>
   </div>
 
   <!-- ======================================================= -->
   <!-- HỘP THOẠI THÔNG BÁO TỰ TẠO (CUSTOM DIALOG) -->
-  <!-- ======================================================= -->
   <div id="custom-dialog-wrapper" class="modal-overlay" style="z-index: 10005;">
     <div class="custom-dialog-box">
       <h3 id="dialog-title" class="dialog-title">Thông báo</h3>
       <p id="dialog-message" class="dialog-message">Nội dung</p>
-      <input type="text" id="dialog-prompt-input" style="display:none; width: 100%; padding: 12px; font-size: 16px; border: 1px solid var(--border); border-radius: 10px; outline: none; box-sizing: border-box; background: var(--bg-input); color: var(--text-main); text-align: center; margin-bottom: 20px;">
+      <input type="text" id="dialog-prompt-input" style="display:none; width: 100%; padding: 14px; font-size: 16px; border: 1px solid var(--border); border-radius: 12px; outline: none; box-sizing: border-box; background: var(--bg-input); color: var(--text-main); text-align: center; margin-bottom: 20px;">
       <div id="dialog-buttons" class="dialog-buttons"></div>
     </div>
   </div>
@@ -511,7 +530,6 @@
   // ================== HÀM TIỆN ÍCH ==================
   function genId() { return Date.now().toString() + Math.floor(Math.random() * 1000000).toString(); }
 
-  // Mã màu ngẫu nhiên nhưng cố định cho từng Tên
   window.getAvatarColor = function(str) {
       let hash = 0;
       for (let i = 0; i < str.length; i++) hash = str.charCodeAt(i) + ((hash << 5) - hash);
@@ -519,7 +537,6 @@
       return '#' + '00000'.substring(0, 6 - c.length) + c;
   };
   
-  // Lấy chữ cái đầu của Tên
   window.getInitials = function(name) {
       if(!name) return '?';
       let parts = name.trim().split(' ');
@@ -527,7 +544,6 @@
       return name.substring(0, 2).toUpperCase();
   };
 
-  // HÀM CHUẨN HÓA SỐ ĐIỆN THOẠI (+84 -> 0) ĐỂ CHỐNG TRÙNG
   window.normalizePhone = function(phone) {
       if (!phone) return '';
       let cleaned = String(phone).replace(/[\s\-().]/g, '');
@@ -536,16 +552,14 @@
       return cleaned;
   }
 
-  // Cập nhật App (Bỏ Cache)
   window.capNhatApp = function() {
-      showDialog("Cập nhật Ứng dụng", "Làm mới ứng dụng để nhận phiên bản Web mới nhất?<br><br>(Quá trình này không làm mất dữ liệu)", "confirm", () => {
+      showDialog("Cập nhật", "Làm mới ứng dụng để nhận phiên bản mới nhất?<br><br><span style='font-size:12px'>(Quá trình này không làm mất dữ liệu)</span>", "confirm", () => {
           const url = new URL(window.location.href);
           url.searchParams.set('v', Date.now()); 
           window.location.replace(url.toString());
       });
   }
 
-  // Custom Dialog
   window.showDialog = function(title, message, type, confirmCallback, defaultValue = '') {
       document.getElementById('dialog-title').innerText = title;
       document.getElementById('dialog-message').innerHTML = message; 
@@ -567,17 +581,17 @@
       };
 
       if (type === 'alert') {
-          btnContainer.innerHTML = `<button onclick="closeDialog()" class="btn-dialog" style="background:#0A84FF;">ĐÓNG</button>`;
+          btnContainer.innerHTML = `<button onclick="closeDialog()" class="btn-dialog" style="background:var(--tint-blue);">Đóng</button>`;
       } else if (type === 'confirm') {
           btnContainer.innerHTML = `
-              <button onclick="closeDialog()" class="btn-dialog" style="background:var(--bg-hover); color:var(--text-main); border:1px solid var(--border);">HỦY</button>
-              <button id="dialog-confirm-btn" class="btn-dialog" style="background:#FF3B30;">ĐỒNG Ý</button>
+              <button onclick="closeDialog()" class="btn-dialog" style="background:var(--bg-hover); color:var(--text-main);">Hủy</button>
+              <button id="dialog-confirm-btn" class="btn-dialog" style="background:var(--tint-red);">Đồng ý</button>
           `;
           document.getElementById('dialog-confirm-btn').onclick = function() { closeDialog(); if(confirmCallback) confirmCallback(); };
       } else if (type === 'prompt') {
           btnContainer.innerHTML = `
-              <button onclick="closeDialog()" class="btn-dialog" style="background:var(--bg-hover); color:var(--text-main); border:1px solid var(--border);">HỦY</button>
-              <button id="dialog-confirm-btn" class="btn-dialog" style="background:#34C759;">LƯU</button>
+              <button onclick="closeDialog()" class="btn-dialog" style="background:var(--bg-hover); color:var(--text-main);">Hủy</button>
+              <button id="dialog-confirm-btn" class="btn-dialog" style="background:var(--tint-blue);">Lưu</button>
           `;
           document.getElementById('dialog-confirm-btn').onclick = function() { let val = promptInput.value; closeDialog(); if(confirmCallback) confirmCallback(val); };
       }
@@ -588,7 +602,7 @@
     contacts: [], 
     groups: [],
     pending: [],
-    trash: [], // Lưu trữ liên hệ đã xóa (Thùng rác)
+    trash: [], 
     selectedPendingIds: [], 
     activeDropdownId: null,
     currentFolder: null 
@@ -630,7 +644,6 @@
       if(elG) elG.innerText = STATE.groups.length;
   }
 
-  // Ẩn/Hiện thanh công cụ (Toolbar)
   window.toggleContactToolbar = function() {
       let tb = document.getElementById('contact-action-toolbar');
       if(tb.style.maxHeight === '0px' || tb.style.maxHeight === '0') {
@@ -640,7 +653,6 @@
       }
   }
 
-  // ================== DROPDOWN NHÓM THÔNG MINH ==================
   window.showGroupDropdown = function(dropdownId, inputId) {
       hideAllDropdowns();
       let dropdown = document.getElementById(dropdownId);
@@ -649,7 +661,7 @@
       STATE.activeDropdownId = dropdownId;
       
       let html = STATE.groups.map(g => `<div class="smart-dropdown-item" onclick="selectGroupItem('${g}', '${inputId}')">${g}</div>`).join('');
-      if(STATE.groups.length === 0) html = `<div style="padding:10px; color:var(--text-muted); font-size:13px; text-align:center;">Chưa có nhóm nào.</div>`;
+      if(STATE.groups.length === 0) html = `<div style="padding:14px; color:var(--text-muted); font-size:14px; text-align:center;">Chưa có nhóm nào</div>`;
       dropdown.innerHTML = html;
   }
 
@@ -662,10 +674,10 @@
       let html = filtered.map(g => `<div class="smart-dropdown-item" onclick="selectGroupItem('${g}', '${inputId}')">${g}</div>`).join('');
       
       if (keyword.trim() && !STATE.groups.some(g => g.toLowerCase() === keyword.toLowerCase())) {
-          html += `<div class="smart-dropdown-item" style="color:#0A84FF;" onclick="selectGroupItem('${keyword.trim()}', '${inputId}')">➕ Tạo nhóm mới: "${keyword.trim()}"</div>`;
+          html += `<div class="smart-dropdown-item" style="color:var(--tint-blue);" onclick="selectGroupItem('${keyword.trim()}', '${inputId}')">➕ Tạo nhóm mới: "${keyword.trim()}"</div>`;
       }
       
-      if(!html) html = `<div style="padding:10px; color:var(--text-muted); font-size:13px; text-align:center;">Nhập để tạo mới...</div>`;
+      if(!html) html = `<div style="padding:14px; color:var(--text-muted); font-size:14px; text-align:center;">Nhập để tạo mới...</div>`;
       dropdown.innerHTML = html;
   }
 
@@ -700,7 +712,7 @@
       STATE.currentFolder = null;
 
       if (STATE.groups.length === 0 && STATE.contacts.length === 0) {
-          viewFolders.innerHTML = '<div style="text-align:center; padding: 40px 20px; color:var(--text-muted); line-height: 1.5;">Chưa có liên hệ nào.<br>Hãy thêm hoặc tải lên file danh bạ.</div>';
+          viewFolders.innerHTML = '<div style="text-align:center; padding: 40px 20px; color:var(--text-muted); line-height: 1.5;">Chưa có liên hệ nào.<br>Thêm thủ công hoặc Tải lên từ danh bạ.</div>';
           return;
       }
 
@@ -734,7 +746,6 @@
       });
   }
 
-  // Template render thẻ liên hệ chung
   function renderContactCardHTML(c, inFolder = false) {
       let avatarColor = getAvatarColor(c.name);
       let initials = getInitials(c.name);
@@ -770,7 +781,7 @@
       let listContainer = document.getElementById('inner-contact-list');
       
       if (contactsInGroup.length === 0) {
-          listContainer.innerHTML = `<div style="text-align:center; padding:30px; color:var(--text-muted); font-style:italic;">Chưa có người trong nhóm này</div>`;
+          listContainer.innerHTML = `<div style="text-align:center; padding:40px; color:var(--text-muted); font-style:italic;">Nhóm trống</div>`;
       } else {
           listContainer.innerHTML = contactsInGroup.map(c => renderContactCardHTML(c, true)).join('');
       }
@@ -811,7 +822,7 @@
       STATE.contacts.forEach(c => { if(!accountedIds.has(c.id)) newContacts.push(c); });
 
       STATE.contacts = newContacts; localStorage.setItem('appContactsStandalone', JSON.stringify(STATE.contacts));
-      openFolderView(groupName); showDialog('Thành công', 'Đã sắp xếp danh sách theo thứ tự A-Z', 'alert');
+      openFolderView(groupName); 
   }
 
   window.searchContacts = function() {
@@ -830,7 +841,7 @@
 
   // ================== CÀI ĐẶT NHÓM & XUẤT DỮ LIỆU ==================
   window.exportContactsCSV = function() {
-      if(STATE.contacts.length === 0) { showDialog("Lỗi", "Chưa có dữ liệu danh bạ để xuất!", "alert"); return; }
+      if(STATE.contacts.length === 0) { showDialog("Lỗi", "Chưa có dữ liệu để xuất!", "alert"); return; }
       let csvContent = "data:text/csv;charset=utf-8,\uFEFF"; 
       csvContent += "Họ và Tên,Số Điện Thoại,Nhóm\n";
       STATE.contacts.forEach(c => {
@@ -864,7 +875,7 @@
 
   window.renderGroupSettingsList = function() {
       let listDiv = document.getElementById('group-settings-list');
-      if(STATE.groups.length === 0) { listDiv.innerHTML = '<div style="text-align:center; color:var(--text-muted); font-size:13px; padding:20px;">Chưa có nhóm nào.</div>'; return; }
+      if(STATE.groups.length === 0) { listDiv.innerHTML = '<div style="text-align:center; color:var(--text-muted); font-size:14px; padding:20px;">Danh sách trống</div>'; return; }
       listDiv.innerHTML = STATE.groups.map((g, i) => `
           <div class="group-item-card" data-group="${g.replace(/'/g, "\\'")}">
               <span class="group-item-name">${g}</span>
@@ -897,7 +908,7 @@
 
   window.editGroupItem = function(idx) {
       idx = parseInt(idx); let oldName = STATE.groups[idx];
-      showDialog('Đổi tên nhóm', `Nhập tên mới cho nhóm "<b>${oldName}</b>":`, 'prompt', (newName) => {
+      showDialog('Đổi tên nhóm', `Đổi tên "<b>${oldName}</b>" thành:`, 'prompt', (newName) => {
           if (!newName || newName.trim() === '' || newName.trim() === oldName) return; newName = newName.trim();
           if (STATE.groups.includes(newName)) { showDialog("Lỗi", "Tên nhóm này đã tồn tại!", "alert"); return; }
           STATE.groups[idx] = newName; STATE.contacts.forEach(c => { if (c.group === oldName) c.group = newName; });
@@ -910,7 +921,7 @@
   window.deleteGroupItem = function(idx) {
       idx = parseInt(idx); let groupName = STATE.groups[idx]; if(!groupName) return;
       let orphanedContacts = STATE.contacts.filter(c => c.group === groupName), count = orphanedContacts.length, msg = `Xóa nhóm "<b>${groupName}</b>"?`;
-      if(count > 0) msg += `<br><br><span style="color:#FF3B30;">⚠️ ${count} người sẽ bị đẩy về Kho Chờ (📥) để không mất dữ liệu.</span>`;
+      if(count > 0) msg += `<br><br><span style="color:var(--tint-red);">⚠️ ${count} người sẽ bị đẩy về Kho Chờ (📥).</span>`;
       showDialog('Xóa Nhóm', msg, 'confirm', () => {
           STATE.groups.splice(idx, 1);
           if(count > 0) {
@@ -935,9 +946,9 @@
       if (dups > 0) {
           STATE.contacts = unique;
           localStorage.setItem('appContactsStandalone', JSON.stringify(STATE.contacts)); localStorage.setItem('appTrashStandalone', JSON.stringify(STATE.trash));
-          renderMainView(); updateStats(); showDialog('Dọn dẹp', `Phát hiện và gộp <b>${dups}</b> liên hệ trùng lặp SĐT.<br><br>Đã chuyển những người bị trùng vào 🗑️ Thùng rác.`, 'alert');
+          renderMainView(); updateStats(); showDialog('Đã dọn dẹp', `Gộp <b>${dups}</b> liên hệ trùng SĐT.<br><br>Đã chuyển số trùng vào Thùng rác.`, 'alert');
       } else {
-          showDialog('Dọn dẹp', 'Danh bạ của bạn đã rất sạch sẽ, không có liên hệ trùng SĐT.', 'alert');
+          showDialog('Hoàn tất', 'Danh bạ sạch sẽ, không có trùng lặp.', 'alert');
       }
   }
 
@@ -949,14 +960,14 @@
   }
   window.renderTrashList = function() {
       let container = document.getElementById('trash-list-container');
-      if(STATE.trash.length === 0) { container.innerHTML = '<div style="text-align:center; padding: 30px; color:var(--text-muted); font-style:italic;">Thùng rác trống.</div>'; return; }
+      if(STATE.trash.length === 0) { container.innerHTML = '<div style="text-align:center; padding: 30px; color:var(--text-muted); font-style:italic;">Thùng rác trống</div>'; return; }
       container.innerHTML = STATE.trash.map((c, i) => `
           <div class="group-item-card" style="margin-bottom: 10px; border-radius: 12px; border: 1px solid var(--border);">
               <div>
-                 <div style="font-weight:800; font-size:15px; color:var(--text-main);">${c.name}</div>
-                 <div style="font-size:13px; color:var(--text-sub);">${c.phone}</div>
+                 <div style="font-weight:600; font-size:15px; color:var(--text-main);">${c.name}</div>
+                 <div style="font-size:14px; color:var(--text-sub);">${c.phone}</div>
               </div>
-              <button onclick="restoreTrash(${i})" style="background:rgba(52,199,89,0.15); color:#2E7D32; border:none; padding:8px 12px; border-radius:8px; font-weight:bold; cursor:pointer;">Khôi phục</button>
+              <button onclick="restoreTrash(${i})" style="background:rgba(52,199,89,0.15); color:var(--tint-green); border:none; padding:8px 12px; border-radius:8px; font-weight:bold; cursor:pointer;">Khôi phục</button>
           </div>
       `).join('');
   }
@@ -964,11 +975,11 @@
       let restored = STATE.trash.splice(idx, 1)[0]; delete restored.deletedAt;
       STATE.contacts.push(restored);
       localStorage.setItem('appContactsStandalone', JSON.stringify(STATE.contacts)); localStorage.setItem('appTrashStandalone', JSON.stringify(STATE.trash));
-      renderTrashList(); renderMainView(); showDialog('Thành công', 'Đã khôi phục liên hệ về Danh bạ chính!', 'alert');
+      renderTrashList(); renderMainView(); 
   }
   window.emptyTrash = function() {
       if(STATE.trash.length === 0) return;
-      showDialog('Xóa vĩnh viễn', 'Bạn chắc chắn muốn dọn sạch thùng rác? Hành động này không thể khôi phục.', 'confirm', () => {
+      showDialog('Dọn thùng rác', 'Xóa vĩnh viễn mọi dữ liệu trong thùng rác?', 'confirm', () => {
           STATE.trash = []; localStorage.setItem('appTrashStandalone', JSON.stringify(STATE.trash)); renderTrashList();
       });
   }
@@ -989,7 +1000,7 @@
   // ================== KHO CHỜ DUYỆT ==================
   function updatePendingSelectedCountText() {
       let textEl = document.getElementById('selected-count-text'), count = STATE.selectedPendingIds.length;
-      if (count > 0) { textEl.innerText = `Đã chọn: ${count}`; textEl.style.color = '#FF3B30'; } else { textEl.innerText = `Chọn tất cả`; textEl.style.color = '#0A84FF'; }
+      if (count > 0) { textEl.innerText = `Đã chọn: ${count}`; textEl.style.color = 'var(--tint-red)'; } else { textEl.innerText = `Chọn tất cả`; textEl.style.color = 'var(--tint-blue)'; }
   }
 
   window.openPendingModal = function() {
@@ -1006,7 +1017,7 @@
 
   window.renderPendingList = function(dataArr) {
       const container = document.getElementById('pending-list-container');
-      if (dataArr.length === 0) { container.innerHTML = '<div style="text-align:center; padding:30px; color:var(--text-muted); font-style:italic;">Kho chờ đang trống.</div>'; document.getElementById('chk-select-all-pending').checked = false; return; }
+      if (dataArr.length === 0) { container.innerHTML = '<div style="text-align:center; padding:30px; color:var(--text-muted); font-style:italic;">Kho chờ trống.</div>'; document.getElementById('chk-select-all-pending').checked = false; return; }
       let html = dataArr.map(p => {
           let isChecked = STATE.selectedPendingIds.includes(p.id.toString()) ? 'checked' : '';
           return `<label class="pending-card"><input type="checkbox" class="custom-checkbox chk-pending-item" value="${p.id}" onchange="handlePendingCheck('${p.id}', this.checked)" ${isChecked}><div style="flex:1;"><span class="p-name">${p.name}</span><span class="p-phone">${p.phone}</span></div></label>`;
@@ -1042,8 +1053,8 @@
   }
 
   window.deleteSelectedPending = function() {
-      if (STATE.selectedPendingIds.length === 0) { showDialog('Lỗi', 'Vui lòng tick chọn ít nhất 1 liên hệ để xóa!', 'alert'); return; }
-      showDialog('Xác nhận', `Xóa vĩnh viễn ${STATE.selectedPendingIds.length} liên hệ khỏi kho chờ?`, 'confirm', () => {
+      if (STATE.selectedPendingIds.length === 0) { showDialog('Lỗi', 'Chưa chọn liên hệ nào!', 'alert'); return; }
+      showDialog('Xóa vĩnh viễn', `Bỏ qua ${STATE.selectedPendingIds.length} liên hệ này?`, 'confirm', () => {
           STATE.pending = STATE.pending.filter(p => !STATE.selectedPendingIds.includes(p.id.toString()));
           localStorage.setItem('appPendingContacts', JSON.stringify(STATE.pending));
           STATE.selectedPendingIds = []; document.getElementById('search-pending').value = ''; 
@@ -1052,7 +1063,7 @@
   }
 
   window.saveSelectedPendingToMain = function() {
-      if (STATE.selectedPendingIds.length === 0) { showDialog('Lỗi', 'Vui lòng tick chọn các số liên hệ cần lưu!', 'alert'); return; }
+      if (STATE.selectedPendingIds.length === 0) { showDialog('Lỗi', 'Chưa chọn liên hệ nào!', 'alert'); return; }
       let finalGroup = document.getElementById('pending-group-input').value.trim() || 'Khác';
       if (finalGroup !== 'Khác' && !STATE.groups.includes(finalGroup)) { STATE.groups.unshift(finalGroup); localStorage.setItem('appGroupsStandalone', JSON.stringify(STATE.groups)); updateDataLists(); }
       let selectedContacts = STATE.pending.filter(p => STATE.selectedPendingIds.includes(p.id.toString()));
@@ -1061,9 +1072,8 @@
       localStorage.setItem('appContactsStandalone', JSON.stringify(STATE.contacts)); localStorage.setItem('appPendingContacts', JSON.stringify(STATE.pending));
       STATE.selectedPendingIds = []; document.getElementById('chk-select-all-pending').checked = false; document.getElementById('search-pending').value = ''; document.getElementById('pending-group-input').value = '';
       updatePendingSelectedCountText(); hideAllDropdowns(); updatePendingBadge();
-      showDialog('Thành công', `Đã lưu ${selectedContacts.length} số vào nhóm "${finalGroup}"!`, 'alert', () => {
-          if (STATE.pending.length === 0) closePendingModal(); else renderPendingList(STATE.pending);
-      });
+      
+      if (STATE.pending.length === 0) closePendingModal(); else renderPendingList(STATE.pending);
   }
 
   // ================== THÊM/SỬA LIÊN HỆ THỦ CÔNG ==================
@@ -1099,7 +1109,7 @@
           let idx = STATE.contacts.findIndex(x => x.id.toString() === id.toString());
           if(idx !== -1) STATE.contacts[idx] = { id: id, name, phone, group: finalGroup };
       } else { 
-          if (STATE.contacts.some(c => window.normalizePhone(c.phone) === phone)) { showDialog("Cảnh báo", "Số điện thoại này đã tồn tại trong Danh bạ chính!", "alert"); return; }
+          if (STATE.contacts.some(c => window.normalizePhone(c.phone) === phone)) { showDialog("Cảnh báo", "SĐT đã có trong Danh bạ chính!", "alert"); return; }
           STATE.contacts.push({ id: genId(), name, phone, group: finalGroup });
       }
 
@@ -1110,11 +1120,11 @@
 
   window.deleteContact = function() {
       let id = document.getElementById('contact-id').value;
-      showDialog('Xác nhận xóa', 'Bạn có chắc chắn muốn xóa liên hệ này?', 'confirm', () => {
+      showDialog('Xác nhận xóa', 'Liên hệ này sẽ được đưa vào Thùng rác.', 'confirm', () => {
           let idx = STATE.contacts.findIndex(x => x.id.toString() === id.toString());
           if(idx > -1) {
               let deleted = STATE.contacts.splice(idx, 1)[0];
-              deleted.deletedAt = Date.now(); STATE.trash.push(deleted); // Ném vào thùng rác
+              deleted.deletedAt = Date.now(); STATE.trash.push(deleted); 
               localStorage.setItem('appTrashStandalone', JSON.stringify(STATE.trash));
               localStorage.setItem('appContactsStandalone', JSON.stringify(STATE.contacts));
           }
@@ -1153,8 +1163,8 @@
 
       if (addedCount > 0) {
           localStorage.setItem('appPendingContacts', JSON.stringify(STATE.pending)); updatePendingBadge();
-          showDialog('Thành công', `Đã đồng bộ đầu số (+84) và lọc ra <b>${addedCount}</b> SĐT MỚI đưa vào Kho chờ 📥.`, 'alert');
-      } else { showDialog('Thông báo', 'Không có liên hệ MỚI nào được thêm!<br><br>Tất cả SĐT bạn vừa chọn đều <b>đã tồn tại</b> trong Danh bạ hoặc Kho chờ.', 'alert'); }
+          showDialog('Thành công', `Đã lọc và đưa <b>${addedCount}</b> liên hệ MỚI vào Kho chờ 📥.`, 'alert');
+      } else { showDialog('Thông báo', 'Mọi số bạn vừa chọn đều đã có trong app.', 'alert'); }
   }
 
   window.handleContactFileUpload = function(event) {
@@ -1164,18 +1174,18 @@
           if (fileName.endsWith('.json')) {
               try {
                   let data = JSON.parse(text);
-                  if (data.type === "DanhBa_Backup_Standalone") restoreBackup(data); else showDialog("Lỗi", "File JSON không hợp lệ hoặc không phải bản sao lưu của ứng dụng này!", "alert");
-              } catch (err) { showDialog("Lỗi", "Không thể đọc file JSON!", "alert"); }
+                  if (data.type === "DanhBa_Backup_Standalone") restoreBackup(data); else showDialog("Lỗi", "File không đúng định dạng sao lưu!", "alert");
+              } catch (err) { showDialog("Lỗi", "Lỗi đọc file JSON!", "alert"); }
           } else {
               let parsedContacts = [];
               if (fileName.endsWith('.vcf')) parsedContacts = parseVCF(text); else if (fileName.endsWith('.csv')) parsedContacts = parseCSV(text);
-              if (parsedContacts.length > 0) pushToPending(parsedContacts, 'file'); else showDialog("Lỗi", "Hệ thống không tìm thấy số điện thoại hợp lệ nào trong tệp này!", "alert");
+              if (parsedContacts.length > 0) pushToPending(parsedContacts, 'file'); else showDialog("Lỗi", "Không tìm thấy dữ liệu liên hệ hợp lệ!", "alert");
           }
       }; reader.readAsText(file); event.target.value = ''; 
   }
 
   window.restoreBackup = function(data) {
-      showDialog("Khôi phục dữ liệu", `Bạn muốn gộp bản sao lưu này vào danh bạ hiện tại?\n\n- ${data.contacts.length} liên hệ\n- ${data.groups.length} nhóm`, "confirm", () => {
+      showDialog("Khôi phục", `Gộp bản sao lưu này vào máy?\n\n- ${data.contacts.length} liên hệ\n- ${data.groups.length} nhóm`, "confirm", () => {
           data.groups.forEach(g => { if (!STATE.groups.includes(g)) STATE.groups.push(g); });
           localStorage.setItem('appGroupsStandalone', JSON.stringify(STATE.groups));
 
@@ -1186,7 +1196,7 @@
               if (!existingPhones.has(normPhone)) { c.id = genId(); c.phone = normPhone; STATE.contacts.push(c); existingPhones.add(normPhone); addedCount++; }
           });
           localStorage.setItem('appContactsStandalone', JSON.stringify(STATE.contacts));
-          updateDataLists(); renderMainView(); showDialog("Thành công", `Đã khôi phục: Thêm mới ${addedCount} liên hệ. Các nhóm đã được cập nhật.`, "alert");
+          updateDataLists(); renderMainView(); showDialog("Thành công", `Đã khôi phục an toàn.`, "alert");
       });
   }
 

@@ -170,8 +170,10 @@
     
     .contact-info { flex: 1; display: flex; flex-direction: column; gap: 3px; }
     .contact-name { font-size: 17px; font-weight: 600; color: var(--text-main); letter-spacing: -0.3px;}
+    
     .contact-phone-group { display: flex; flex-direction: column; gap: 3px; }
-    .contact-phone { font-size: 15px; color: var(--text-sub); }
+    .contact-phone { font-size: 15px; color: var(--tint-blue); }
+    
     .contact-group-label { font-size: 12px; color: var(--text-muted); font-weight: 500; margin-top: 2px;}
     
     .action-buttons-card { display: flex; align-items: center; gap: 6px; flex-shrink: 0;}
@@ -269,7 +271,7 @@
       display: flex; align-items: center; gap: 16px; border: none; box-shadow: var(--shadow);
     }
     .p-name { font-weight: 600; color: var(--text-main); font-size: 16px; margin-bottom: 2px; display: block;}
-    .p-phone { font-weight: 500; color: var(--text-sub); font-size: 14px; display: block;}
+    .p-phone { font-weight: 500; color: var(--tint-blue); font-size: 15px; display: block;}
 
     .bottom-action-card {
       background: var(--bg-card); padding: 16px; border-radius: 16px; margin-top: 5px;
@@ -571,12 +573,24 @@
       return name.substring(0, 2).toUpperCase();
   };
 
+  // Nâng cấp: Tự động tách các SĐT nếu người dùng nhập dính (VD: "0912... , 0987...")
   window.normalizePhone = function(phone) {
       if (!phone) return '';
-      let cleaned = String(phone).replace(/[\s\-().]/g, '');
+      let cleaned = String(phone).replace(/[^\d+]/g, '');
       if (cleaned.startsWith('+84')) cleaned = '0' + cleaned.substring(3);
-      else if (cleaned.startsWith('84') && cleaned.length > 9) cleaned = '0' + cleaned.substring(2);
+      else if (cleaned.startsWith('84') && cleaned.length >= 10) cleaned = '0' + cleaned.substring(2);
       return cleaned;
+  }
+  
+  window.extractAllPhones = function(str) {
+      if (!str) return [];
+      let parts = String(str).split(/[,/;|:]+/);
+      let valid = [];
+      parts.forEach(p => {
+          let norm = window.normalizePhone(p);
+          if (norm && norm.length >= 9) valid.push(norm);
+      });
+      return valid;
   }
 
   window.capNhatApp = function() {
@@ -713,7 +727,7 @@
   window.toggleContactToolbar = function() {
       let tb = document.getElementById('contact-action-toolbar');
       if(tb.style.maxHeight === '0px' || tb.style.maxHeight === '0') {
-          tb.style.maxHeight = '100px'; tb.style.marginBottom = '20px'; tb.style.opacity = '1';
+          tb.style.maxHeight = '100px'; tb.style.marginBottom = '10px'; tb.style.opacity = '1';
       } else {
           tb.style.maxHeight = '0px'; tb.style.marginBottom = '0px'; tb.style.opacity = '0';
       }
@@ -824,9 +838,9 @@
               <div class="contact-avatar" style="background:${avatarColor}" onclick="showQRCode('${c.name.replace(/'/g, "\\'")}', '${c.phone}'); event.stopPropagation();" title="Quét mã QR">${initials}</div>
               <div class="contact-info">
                   <span class="contact-name">${c.name}</span>
-                  <div class="contact-phone-group">
-                     <a href="tel:${c.phone}" style="color:inherit; text-decoration:none;" onclick="event.stopPropagation()">${c.phone}</a>
-                     ${c.phone2 ? `<a href="tel:${c.phone2}" style="color:inherit; text-decoration:none;" onclick="event.stopPropagation()">${c.phone2}</a>` : ''}
+                  <div class="contact-phone-group" style="display:flex; flex-direction:column; gap:2px;">
+                     <a href="tel:${c.phone}" class="contact-phone" style="text-decoration:none; display:block;" onclick="event.stopPropagation()">${c.phone}</a>
+                     ${c.phone2 ? `<a href="tel:${c.phone2}" class="contact-phone" style="text-decoration:none; display:block;" onclick="event.stopPropagation()">${c.phone2}</a>` : ''}
                   </div>
                   ${folderLabel}
               </div>
@@ -1111,7 +1125,7 @@
       if (dataArr.length === 0) { container.innerHTML = '<div style="text-align:center; padding:30px; color:var(--text-muted); font-style:italic;">Kho chờ trống.</div>'; document.getElementById('chk-select-all-pending').checked = false; return; }
       let html = dataArr.map(p => {
           let isChecked = STATE.selectedPendingIds.includes(p.id.toString()) ? 'checked' : '';
-          return `<label class="pending-card"><input type="checkbox" class="custom-checkbox chk-pending-item" value="${p.id}" onchange="handlePendingCheck('${p.id}', this.checked)" ${isChecked}><div style="flex:1;"><span class="p-name">${p.name}</span><div class="contact-phone-group"><span class="p-phone">${p.phone}</span>${p.phone2 ? `<span class="p-phone">${p.phone2}</span>` : ''}</div></div></label>`;
+          return `<label class="pending-card"><input type="checkbox" class="custom-checkbox chk-pending-item" value="${p.id}" onchange="handlePendingCheck('${p.id}', this.checked)" ${isChecked}><div style="flex:1;"><span class="p-name">${p.name}</span><div class="contact-phone-group" style="display:flex; flex-direction:column; gap:2px;"><span class="p-phone">${p.phone}</span>${p.phone2 ? `<span class="p-phone">${p.phone2}</span>` : ''}</div></div></label>`;
       }).join('');
       container.innerHTML = html;
       let allCheckedInView = dataArr.every(p => STATE.selectedPendingIds.includes(p.id.toString()));
@@ -1255,12 +1269,16 @@
 
       rawContacts.forEach(c => {
           let name = 'Không tên', phones = [];
-          if (source === 'device' || source === 'file') { name = c.name && c.name.length > 0 ? c.name[0] : 'Không tên'; phones = c.tel || []; }
+          if (source === 'device' || source === 'file') { 
+              name = c.name && c.name.length > 0 ? c.name[0] : 'Không tên'; 
+              if (c.tel) {
+                  c.tel.forEach(t => phones.push(...window.extractAllPhones(t)));
+              }
+          }
           
           let validPhones = [];
-          phones.forEach(rawPhone => {
-              let normPhone = window.normalizePhone(rawPhone);
-              if (normPhone && /\d/.test(normPhone) && !sessionPhones.has(normPhone)) {
+          phones.forEach(normPhone => {
+              if (normPhone && !sessionPhones.has(normPhone)) {
                   if (!existingPhones.has(normPhone)) {
                       validPhones.push(normPhone);
                       existingPhones.add(normPhone);
@@ -1340,7 +1358,10 @@
           if (!vcard.trim()) continue;
           let nameMatch = vcard.match(/^FN[^:]*:(.*)$/im) || vcard.match(/^N[^:]*:(.*)$/im);
           let phoneRegex = /^TEL[^:]*:(.*)$/gm, phones = [], match;
-          while ((match = phoneRegex.exec(vcard)) !== null) { let phone = match[1].trim().replace(/[\s\-()]/g, ''); if (phone && /\d/.test(phone)) phones.push(phone); }
+          while ((match = phoneRegex.exec(vcard)) !== null) { 
+              let phoneStr = match[1].trim(); 
+              phones.push(...window.extractAllPhones(phoneStr)); 
+          }
           if (nameMatch && phones.length > 0) { let name = nameMatch[1].trim().replace(/;/g, ' '); contacts.push({ name: [name], tel: phones }); }
       } return contacts;
   }
@@ -1349,18 +1370,32 @@
       let contacts = [], lines = text.split(/\r?\n/); if (lines.length === 0) return contacts;
       const splitCSV = (str) => { let result = [], insideQuote = false, currentStr = ""; for (let i = 0; i < str.length; i++) { let char = str[i]; if (char === '"') insideQuote = !insideQuote; else if (char === ',' && !insideQuote) { result.push(currentStr); currentStr = ""; } else currentStr += char; } result.push(currentStr); return result; };
       let headers = splitCSV(lines[0]).map(h => h.trim().toLowerCase());
+      
       let nameIdx = headers.findIndex(h => h === 'name' || h === 'first name' || h === 'tên' || h === 'họ tên' || h === 'họ và tên');
       if (nameIdx === -1) nameIdx = headers.findIndex(h => h.includes('name') && !h.includes('phonetic') && !h.includes('file as')); if (nameIdx === -1) nameIdx = 0;
+      
       let phoneIdx = headers.findIndex(h => h === 'phone 1 - value' || h === 'phone' || h === 'số điện thoại' || h === 'sđt' || h === 'điện thoại');
       if (phoneIdx === -1) phoneIdx = headers.findIndex(h => (h.includes('phone') || h.includes('tel') || h.includes('mobile')) && !h.includes('label')); if (phoneIdx === -1) phoneIdx = 1;
+      
       for (let i = 1; i < lines.length; i++) {
           if (!lines[i].trim()) continue; let cols = splitCSV(lines[i]);
           if (cols.length > Math.max(nameIdx, phoneIdx)) {
               let name = cols[nameIdx] ? cols[nameIdx].trim() : '';
               if (headers[0] === 'first name' && headers[1] === 'middle name' && headers[2] === 'last name') { let fullName = []; if(cols[0]) fullName.push(cols[0].trim()); if(cols[1]) fullName.push(cols[1].trim()); if(cols[2]) fullName.push(cols[2].trim()); if(fullName.length > 0) name = fullName.join(' '); }
-              let phones = [], phone1 = cols[phoneIdx] ? cols[phoneIdx].replace(/[\s\-()]/g, '').trim() : ''; if (phone1 && /\d/.test(phone1)) phones.push(phone1);
-              if (headers.includes('phone 2 - value')) { let phone2Idx = headers.indexOf('phone 2 - value'); let phone2 = cols[phone2Idx] ? cols[phone2Idx].replace(/[\s\-()]/g, '').trim() : ''; if (phone2 && /\d/.test(phone2)) phones.push(phone2); }
-              if (headers.includes('phone 3 - value')) { let phone3Idx = headers.indexOf('phone 3 - value'); let phone3 = cols[phone3Idx] ? cols[phone3Idx].replace(/[\s\-()]/g, '').trim() : ''; if (phone3 && /\d/.test(phone3)) phones.push(phone3); }
+              
+              let phones = [];
+              let p1 = cols[phoneIdx] || '';
+              phones.push(...window.extractAllPhones(p1));
+              
+              if (headers.includes('phone 2 - value')) { 
+                  let p2 = cols[headers.indexOf('phone 2 - value')] || ''; 
+                  phones.push(...window.extractAllPhones(p2));
+              }
+              if (headers.includes('phone 3 - value')) { 
+                  let p3 = cols[headers.indexOf('phone 3 - value')] || ''; 
+                  phones.push(...window.extractAllPhones(p3));
+              }
+              
               if (name && phones.length > 0) { contacts.push({ name: [name], tel: phones }); }
           }
       } return contacts;

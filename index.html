@@ -9,38 +9,91 @@
   <meta name="mobile-web-app-capable" content="yes" />
   <title>Danh Bạ Nội Bộ</title>
   
-  <!-- TỐI ƯU HÓA: Kết nối trước và Tải ngầm thư viện để mở app nhanh hơn -->
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <!-- Thư viện Kéo thả -->
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+  <!-- Thư viện tạo mã QR Code -->
   <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
 
   <style>
+    /* ================== BIẾN MÀU SẮC CHUẨN IOS (LIGHT/DARK) ================== */
     :root {
-      --bg-body: #F2F2F7; --bg-card: #FFFFFF; --bg-hover: #E5E5EA;
-      --text-main: #000000; --text-sub: #3C3C43; --text-muted: #8E8E93;
-      --border: #C6C6C8; --border-light: #E5E5EA; --search-bg: rgba(118, 118, 128, 0.12);
-      --tint-blue: #007AFF; --tint-green: #34C759; --tint-red: #FF3B30; --tint-orange: #FF9500; --tint-purple: #AF52DE;
-      --shadow: 0 1px 4px rgba(0,0,0,0.06); --shadow-lg: 0 4px 15px rgba(0,0,0,0.08);
-      --sticky-top: 140px; /* Biến CSS tự động tính toán khoảng cách cố định */
+      --bg-body: #F2F2F7;
+      --bg-body-alpha: rgba(242, 242, 247, 0.9);
+      --bg-card: #FFFFFF;
+      --bg-hover: #E5E5EA;
+      --text-main: #000000;
+      --text-sub: #3C3C43;
+      --text-muted: #8E8E93;
+      --border: #C6C6C8;
+      --border-light: #E5E5EA;
+      --search-bg: rgba(118, 118, 128, 0.12);
+      --tint-blue: #007AFF;
+      --tint-green: #34C759;
+      --tint-red: #FF3B30;
+      --tint-orange: #FF9500;
+      --tint-purple: #AF52DE;
+      --shadow: 0 1px 4px rgba(0,0,0,0.06);
+      --shadow-lg: 0 4px 15px rgba(0,0,0,0.08);
+      --sticky-top: 130px; /* Sẽ được JS cập nhật tự động */
     }
+
     @media (prefers-color-scheme: dark) {
       :root {
-        --bg-body: #000000; --bg-card: #1C1C1E; --bg-hover: #2C2C2E;
-        --text-main: #FFFFFF; --text-sub: #EBEBF5; --text-muted: #8E8E93;
-        --border: #38383A; --border-light: #2C2C2E; --search-bg: rgba(118, 118, 128, 0.24);
-        --tint-blue: #0A84FF; --tint-green: #30D158; --tint-red: #FF453A; --tint-orange: #FF9F0A; --tint-purple: #BF5AF2;
-        --shadow: 0 1px 4px rgba(0,0,0,0.3); --shadow-lg: 0 4px 15px rgba(0,0,0,0.4);
+        --bg-body: #000000;
+        --bg-body-alpha: rgba(0, 0, 0, 0.85);
+        --bg-card: #1C1C1E;
+        --bg-hover: #2C2C2E;
+        --text-main: #FFFFFF;
+        --text-sub: #EBEBF5;
+        --text-muted: #8E8E93;
+        --border: #38383A;
+        --border-light: #2C2C2E;
+        --search-bg: rgba(118, 118, 128, 0.24);
+        --tint-blue: #0A84FF;
+        --tint-green: #30D158;
+        --tint-red: #FF453A;
+        --tint-orange: #FF9F0A;
+        --tint-purple: #BF5AF2;
+        --shadow: 0 1px 4px rgba(0,0,0,0.3);
+        --shadow-lg: 0 4px 15px rgba(0,0,0,0.4);
       }
     }
-    * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
-    body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif; background: var(--bg-body); padding-bottom: 40px; color: var(--text-main); }
-    .container { max-width: 600px; margin: 0 auto; padding: calc(env(safe-area-inset-top) + 15px) 16px calc(env(safe-area-inset-bottom) + 20px) 16px; }
 
-    .sticky-zone { position: sticky; top: 0; background: var(--bg-body); z-index: 100; padding-top: calc(env(safe-area-inset-top) + 15px); margin-top: calc(-1 * (env(safe-area-inset-top) + 15px)); margin-left: -16px; margin-right: -16px; padding-left: 16px; padding-right: 16px; padding-bottom: 5px; }
-    .dash-header { padding: 5px 0 20px 0; text-align: left; display: flex; align-items: center; gap: 10px;}
+    /* ================== CƠ BẢN ================== */
+    * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
+    body { 
+      margin: 0; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif; 
+      background: var(--bg-body); padding-bottom: 40px; color: var(--text-main);
+    }
+
+    /* Đã sửa container để tương thích với fixed header */
+    .container { 
+      max-width: 600px; 
+      margin: 0 auto; 
+      /* padding-top sẽ được JS tự động tính toán và gán để không bị đè nội dung */
+      padding: 130px 16px calc(env(safe-area-inset-bottom) + 20px) 16px; 
+    }
+
+    /* ================== THANH CÔNG CỤ TÌM KIẾM (CỐ ĐỊNH) ================== */
+    /* Đã sửa sang position: fixed để trị dứt điểm lỗi nhảy form trên iOS */
+    .sticky-zone {
+      position: fixed;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%); /* Canh giữa cho Desktop/Tablet */
+      width: 100%;
+      max-width: 600px; /* Khớp với .container */
+      background: var(--bg-body-alpha);
+      backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+      z-index: 100;
+      padding: calc(env(safe-area-inset-top) + 15px) 16px 15px 16px;
+      border-bottom: 1px solid var(--border-light); /* Kẻ viền nhẹ để phân tách */
+    }
+    
+    .dash-header { padding: 0 0 15px 0; text-align: left; display: flex; align-items: center; gap: 12px;}
     .dash-header h2 { color: var(--text-main); margin: 0; font-size: 28px; font-weight: 800; letter-spacing: -0.5px;}
 
-    /* NÚT HOME */
     .btn-home {
       width: 40px; height: 40px; border-radius: 50%; border: none;
       background: var(--search-bg); color: var(--text-main); font-size: 20px;
@@ -49,26 +102,52 @@
     }
     .btn-home:active { transform: scale(0.9); opacity: 0.8; }
 
-    .top-controls { margin-bottom: 10px; }
-    .search-row { display: flex; gap: 8px; margin-bottom: 16px; align-items: center;}
-    .search-input { flex: 1; padding: 10px 16px; font-size: 17px; border-radius: 10px; border: none; background: var(--search-bg); color: var(--text-main); outline: none; transition: 0.2s; }
+    .top-controls { margin-bottom: 0px; }
+    .search-row { display: flex; gap: 8px; margin-bottom: 10px; align-items: center;}
+    .search-input { 
+      flex: 1; padding: 10px 16px; font-size: 17px; border-radius: 10px; 
+      border: none; background: var(--search-bg); color: var(--text-main); outline: none; transition: 0.2s; 
+    }
     .search-input::placeholder { color: var(--text-muted); }
     .search-input:focus { box-shadow: 0 0 0 2px rgba(10,132,255,0.3); }
-    .btn-toggle-menu { width: 40px; height: 40px; border-radius: 50%; font-size: 20px; font-weight: bold; color: var(--tint-blue); display: flex; align-items: center; justify-content: center; cursor: pointer; border: none; background: transparent; transition: 0.2s; }
+
+    .btn-toggle-menu { 
+      width: 40px; height: 40px; border-radius: 50%; font-size: 20px; font-weight: bold; 
+      color: var(--tint-blue); display: flex; align-items: center; justify-content: center; 
+      cursor: pointer; border: none; background: transparent; transition: 0.2s;
+    }
     .btn-toggle-menu:active { background: var(--bg-hover); }
 
-    .action-buttons-row { display: flex; gap: 12px; justify-content: space-between; align-items: center; transition: all 0.3s ease; overflow: hidden; max-height: 100px; margin-bottom: 10px; }
-    .btn-act { flex: 1; height: 50px; border-radius: 14px; border: none; font-size: 22px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; font-weight: bold; }
+    .action-buttons-row { 
+      display: flex; gap: 10px; justify-content: space-between; align-items: center;
+      transition: all 0.3s ease; overflow: hidden; max-height: 100px;
+    }
+    
+    .btn-act {
+      flex: 1; height: 48px; border-radius: 14px; border: none; font-size: 20px; 
+      cursor: pointer; display: flex; align-items: center; justify-content: center; 
+      transition: 0.2s; font-weight: bold;
+    }
     .btn-act:active { transform: scale(0.92); opacity: 0.8;}
+
     .btn-setting { background: rgba(142, 142, 147, 0.15); color: var(--text-muted); }
     .btn-pending { background: rgba(0, 122, 255, 0.15); color: var(--tint-blue); position: relative; }
     .btn-file { background: rgba(175, 82, 222, 0.15); color: var(--tint-purple); }
     .btn-device { background: rgba(255, 149, 0, 0.15); color: var(--tint-orange); }
     .btn-add-manual { background: rgba(52, 199, 89, 0.15); color: var(--tint-green); }
 
-    .pending-badge { position: absolute; top: -4px; right: -4px; background: var(--tint-red); color: white; font-size: 11px; font-weight: bold; padding: 2px 6px; border-radius: 10px; border: 2px solid var(--bg-body); display: none; pointer-events: none; }
+    .pending-badge {
+      position: absolute; top: -4px; right: -4px; background: var(--tint-red); color: white;
+      font-size: 11px; font-weight: bold; padding: 2px 6px; border-radius: 10px;
+      border: 2px solid var(--bg-body); display: none; pointer-events: none;
+    }
 
-    .unit-card { background: var(--bg-card); border-radius: 14px; padding: 16px 18px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; box-shadow: var(--shadow); cursor: pointer; transition: 0.2s; border: none; }
+    /* ================== THƯ MỤC CHÍNH ================== */
+    .unit-card {
+      background: var(--bg-card); border-radius: 14px; padding: 16px 18px; margin-bottom: 12px;
+      display: flex; justify-content: space-between; align-items: center;
+      box-shadow: var(--shadow); cursor: pointer; transition: 0.2s; border: none;
+    }
     .unit-card:active { transform: scale(0.98); background: var(--bg-hover); }
     .unit-left-info { display: flex; align-items: center; gap: 12px; }
     .unit-icon-build { font-size: 22px; }
@@ -77,30 +156,39 @@
     .unit-count { font-size: 15px; color: var(--text-muted); font-weight: 500; text-align: center; }
     .unit-chevron { color: var(--border); font-weight: 700; font-size: 15px;}
 
-    /* ================== THANH CÔNG CỤ CỐ ĐỊNH KHI XEM NHÓM ================== */
-    .back-header { 
+    /* ================== HÀNG CÔNG CỤ CỐ ĐỊNH TRONG NHÓM ================== */
+    .back-header {
       display: flex; align-items: center; justify-content: space-between; 
-      padding: 10px 16px 15px 16px; margin: 0 -16px 15px -16px; 
-      background: var(--bg-body); 
-      position: sticky; 
-      top: var(--sticky-top); /* Tự động tính toán để sát với thanh tìm kiếm */
-      z-index: 95; 
+      padding: 12px 16px; margin: 0 -16px 15px -16px;
+      background: var(--bg-body-alpha);
+      backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+      position: sticky; top: var(--sticky-top); z-index: 95;
       border-bottom: 1px solid var(--border-light);
     }
-    .back-btn-text { color: var(--tint-blue); font-size: 17px; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 4px; letter-spacing: -0.3px;}
-    .back-btn-text:active { opacity: 0.5; }
-    .inner-folder-title { font-size: 17px; font-weight: 600; margin: 0; color: var(--text-main); text-align: center; flex: 1;}
-    .btn-sort-az { background: none; border: none; color: var(--tint-blue); font-size: 15px; font-weight: 600; cursor: pointer; padding: 6px 12px; background: rgba(0, 122, 255, 0.1); border-radius: 20px; transition: 0.2s;}
-    .btn-sort-az:active { transform: scale(0.95); }
+    .header-left { flex: 1; color: var(--tint-blue); font-size: 16px; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 4px; letter-spacing: -0.3px;}
+    .header-left:active { opacity: 0.5; }
+    .header-center { flex: 1.5; font-size: 17px; font-weight: 700; margin: 0; color: var(--text-main); text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
+    .header-right { flex: 1; display: flex; justify-content: flex-end; gap: 8px; }
+    
+    .btn-sm-green { background: rgba(52, 199, 89, 0.15); color: var(--tint-green); border: none; padding: 6px 10px; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; transition: 0.2s;}
+    .btn-sm-blue { background: rgba(0, 122, 255, 0.15); color: var(--tint-blue); border: none; padding: 6px 10px; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; transition: 0.2s;}
+    .btn-sm-green:active, .btn-sm-blue:active { transform: scale(0.95); }
 
-    .contact-card { background: var(--bg-card); border-radius: 14px; padding: 10px 8px 10px 14px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; gap: 12px; box-shadow: var(--shadow); border: none; }
-    .contact-avatar { width: 44px; height: 44px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 600; font-size: 16px; }
+    /* ================== THẺ LIÊN HỆ ================== */
+    .contact-card {
+      background: var(--bg-card); border-radius: 14px; padding: 10px 8px 10px 14px; margin-bottom: 12px;
+      display: flex; justify-content: space-between; align-items: center; gap: 12px;
+      box-shadow: var(--shadow); border: none;
+    }
+    .contact-avatar {
+      width: 44px; height: 44px; border-radius: 50%; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-weight: 600; font-size: 16px;
+    }
     .contact-info { flex: 1; display: flex; flex-direction: column; gap: 3px; }
     .contact-name { font-size: 17px; font-weight: 600; color: var(--text-main); letter-spacing: -0.3px;}
-    
     .contact-phone-group { display: flex; flex-direction: column; gap: 4px; }
     .contact-phone { font-size: 15px; color: var(--tint-blue); line-height: 1.2;}
-    
     .contact-group-label { font-size: 12px; color: var(--text-muted); font-weight: 500; margin-top: 2px;}
     
     .action-buttons-card { display: flex; align-items: center; gap: 6px; flex-shrink: 0;}
@@ -115,6 +203,7 @@
     .sortable-ghost { opacity: 0.4; background: var(--bg-hover); border-radius: 14px;}
     .sortable-chosen { transform: scale(1.03); box-shadow: var(--shadow-lg); z-index: 10; background: var(--bg-card); }
 
+    /* ================== MODAL & KHÁC ================== */
     .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); z-index: 1000; display: none; align-items: flex-end; justify-content: center; opacity: 0; transition: opacity 0.3s ease; }
     .modal-overlay.show { opacity: 1; }
     .modal-content { background: var(--bg-body); width: 100%; max-height: 92vh; max-width: 600px; border-radius: 20px 20px 0 0; padding: 15px 20px calc(env(safe-area-inset-bottom) + 20px) 20px; overflow-y: auto; transform: translateY(100%); transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1); box-shadow: 0 -10px 25px rgba(0,0,0,0.2); display: flex; flex-direction: column; }
@@ -209,26 +298,25 @@
     <!-- KHU VỰC HIỂN THỊ ĐỘNG -->
     <div id="view-folder-list"></div>
 
+    <!-- CHI TIẾT NHÓM VỚI STICKY HEADER -->
     <div id="view-inner-folder" style="display:none;">
       <div class="back-header">
-        <div onclick="closeFolderView()" style="display:flex; align-items:center; gap:5px; cursor:pointer;">
-            <span class="back-btn-text">❮ Trở lại</span>
-        </div>
-        <h3 id="inner-folder-title" class="inner-folder-title">Tên Nhóm</h3>
-        <div style="display: flex; gap: 8px;">
-            <button class="btn-sort-az" style="background: rgba(52, 199, 89, 0.15); color: var(--tint-green);" onclick="openPendingModal()">📥 Thêm</button>
-            <button id="btn-sort-az" class="btn-sort-az" onclick="sortContactsAZ()">A-Z ↓</button>
+        <div class="header-left" onclick="closeFolderView()">❮ Trở lại</div>
+        <div class="header-center" id="inner-folder-title">Tên Nhóm</div>
+        <div class="header-right">
+            <button class="btn-sm-green" onclick="openPendingModal()">📥 Thêm</button>
+            <button class="btn-sm-blue" onclick="sortContactsAZ()">A-Z ↓</button>
         </div>
       </div>
       <div id="inner-contact-list"></div>
     </div>
     
+    <!-- KẾT QUẢ TÌM KIẾM -->
     <div id="view-search-results" style="display:none;">
       <div class="back-header">
-        <div onclick="cancelSearch()" style="display:flex; align-items:center; gap:5px; cursor:pointer;">
-            <span class="back-btn-text">❮ Trở lại</span>
-        </div>
-        <h3 class="inner-folder-title">Kết quả tìm kiếm</h3>
+        <div class="header-left" onclick="cancelSearch()">❮ Trở lại</div>
+        <div class="header-center">Kết quả tìm kiếm</div>
+        <div class="header-right"></div>
       </div>
       <div id="search-contact-list"></div>
     </div>
@@ -244,7 +332,7 @@
       </div>
 
       <div id="stats-overview" style="text-align:center; padding: 12px; background: var(--bg-hover); border-radius: 12px; margin-bottom: 20px; font-size: 14px; font-weight: 500; color: var(--text-sub);">
-         📊 Đang quản lý <b style="color:var(--tint-blue); font-size:16px;" id="stat-contacts">0</b> liên hệ / <b style="color:var(--tint-orange); font-size:16px;" id="stat-groups">0</b> nhóm.
+          📊 Đang quản lý <b style="color:var(--tint-blue); font-size:16px;" id="stat-contacts">0</b> liên hệ / <b style="color:var(--tint-orange); font-size:16px;" id="stat-groups">0</b> nhóm.
       </div>
 
       <div style="font-size:13px; color:var(--text-muted); font-weight:600; margin-bottom:8px; text-transform: uppercase; letter-spacing:0.5px;">Tạo nhóm mới</div>
@@ -395,7 +483,6 @@
       return cleaned;
   }
   
-  // TÁCH NHIỀU SĐT TRONG 1 Ô
   window.extractAllPhones = function(str) {
       if (!str) return [];
       let parts = String(str).split(/[,/;|:]+/); 
@@ -407,13 +494,25 @@
       return valid;
   }
 
-  // TÍNH TOÁN KHOẢNG CÁCH DÍNH CHUẨN XÁC
+  // ================= TỐI ƯU HÓA TÍNH TOÁN STICKY CHO IOS =================
   window.updateStickyTop = function() {
       const stickyZone = document.querySelector('.sticky-zone');
-      if (stickyZone) {
-          document.documentElement.style.setProperty('--sticky-top', stickyZone.offsetHeight + 'px');
+      const container = document.querySelector('.container');
+      
+      if (stickyZone && container) {
+          // Lấy chiều cao động của khung tìm kiếm (bao gồm cả padding)
+          let headerHeight = stickyZone.offsetHeight;
+          
+          // Set biến CSS cho các thành phần con dính theo (như sub-header của folder)
+          document.documentElement.style.setProperty('--sticky-top', headerHeight + 'px');
+          
+          // Bù trừ khoảng trống bằng padding-top của container 
+          // (Cộng thêm 15px để giao diện thoáng, không dính sát viền)
+          container.style.paddingTop = (headerHeight + 15) + 'px';
       }
   }
+  
+  // Lắng nghe sự kiện resize màn hình (khi xoay ngang dọc hoặc đổi thiết bị)
   window.addEventListener('resize', updateStickyTop);
 
   window.capNhatApp = function() {
@@ -442,7 +541,6 @@
       }
   }
 
-  // HỎI CHUYỂN XUỐNG CUỐI
   window.promptMoveToBottom = function(evt, id, groupName) {
       evt.stopPropagation();
       showDialog('Sắp xếp', 'Chuyển liên hệ này xuống cuối danh sách?', 'confirm', () => {
@@ -482,27 +580,23 @@
 
   // STATE MANAGEMENT
   const STATE = { 
-      contacts: [], 
-      groups: [], 
-      pending: [], 
-      conflicts: [], // Lọc trùng lặp khác tên
-      selectedPendingIds: [], 
-      activeDropdownId: null, 
-      currentFolder: null 
+      contacts: [], groups: [], pending: [], conflicts: [], 
+      selectedPendingIds: [], activeDropdownId: null, currentFolder: null 
   };
 
-  // TỐI ƯU HÓA: TẢI NGAY LẬP TỨC THAY VÌ ĐỢI WINDOW.ONLOAD
   document.addEventListener('DOMContentLoaded', () => {
     let savedContacts = localStorage.getItem('appContactsStandalone'); STATE.contacts = savedContacts ? JSON.parse(savedContacts) : [];
     let savedGroups = localStorage.getItem('appGroupsStandalone');
     if (savedGroups) STATE.groups = JSON.parse(savedGroups); else { STATE.groups = ['Ban Chỉ Huy', 'Khẩn cấp', 'Đội Trực']; localStorage.setItem('appGroupsStandalone', JSON.stringify(STATE.groups)); }
     let savedPending = localStorage.getItem('appPendingContacts'); if (savedPending) STATE.pending = JSON.parse(savedPending);
 
-    // Dọn dẹp thùng rác cũ (nếu còn sót từ phiên bản trước)
-    localStorage.removeItem('appTrashStandalone');
+    localStorage.removeItem('appTrashStandalone'); // Cleanup old trash
 
     updateDataLists(); renderMainView(); updatePendingBadge();
-    updateStickyTop();
+    
+    // Gọi tính toán giao diện sau khi tải xong UI 100ms
+    setTimeout(updateStickyTop, 100); 
+    
     document.addEventListener('click', function(e) { if (!e.target.closest('.smart-input-container')) hideAllDropdowns(); });
   });
 
@@ -510,12 +604,8 @@
   
   window.updatePendingBadge = function() { 
       let badge = document.getElementById('pending-badge'); 
-      if (STATE.pending.length > 0) { 
-          badge.innerText = STATE.pending.length; 
-          badge.style.display = 'block'; 
-      } else { 
-          badge.style.display = 'none'; 
-      } 
+      if (STATE.pending.length > 0) { badge.innerText = STATE.pending.length; badge.style.display = 'block'; } 
+      else { badge.style.display = 'none'; } 
   }
   
   window.updateStats = function() {
@@ -525,12 +615,12 @@
   
   window.toggleContactToolbar = function() {
       let tb = document.getElementById('contact-action-toolbar');
-      if(tb.style.maxHeight === '0px' || tb.style.maxHeight === '0') { 
+      if(tb.style.maxHeight === '0px' || tb.style.maxHeight === '0' || !tb.style.maxHeight) { 
           tb.style.maxHeight = '100px'; tb.style.marginBottom = '10px'; tb.style.opacity = '1'; 
-      } 
-      else { 
+      } else { 
           tb.style.maxHeight = '0px'; tb.style.marginBottom = '0px'; tb.style.opacity = '0'; 
       }
+      // Tính toán lại chiều cao sau khi animation kết thúc
       setTimeout(updateStickyTop, 310);
   }
   
@@ -890,7 +980,7 @@
       if (dataArr.length === 0) { container.innerHTML = '<div style="text-align:center; padding:30px; color:var(--text-muted); font-style:italic;">Kho chờ trống.</div>'; document.getElementById('chk-select-all-pending').checked = false; return; }
       let html = dataArr.map(p => {
           let isChecked = STATE.selectedPendingIds.includes(p.id.toString()) ? 'checked' : '';
-          return `<label class="pending-card"><input type="checkbox" class="custom-checkbox chk-pending-item" value="${p.id}" onchange="handlePendingCheck('${p.id}', this.checked)" ${isChecked}><div style="flex:1;"><span class="p-name">${p.name}</span><div class="contact-phone-group" style="display:flex; flex-direction:column; gap:2px;"><span class="p-phone">${p.phone}</span>${p.phone2 ? `<span class="p-phone">${p.phone2}</span>` : ''}</div></div></label>`;
+          return `<label class="pending-card"><input type="checkbox" class="custom-checkbox chk-pending-item" value="${p.id}" onchange="handlePendingCheck('${p.id}', this.checked)" ${isChecked}><div style="flex:1;"><span class="p-name">${p.name}</span><div class="contact-phone-group"><span class="p-phone">${p.phone}</span>${p.phone2 ? `<span class="p-phone">${p.phone2}</span>` : ''}</div></div></label>`;
       }).join('');
       container.innerHTML = html;
       let allCheckedInView = dataArr.every(p => STATE.selectedPendingIds.includes(p.id.toString()));
@@ -997,7 +1087,6 @@
       document.getElementById('search-contact').value = '';
   }
 
-  // Chuyển việc xóa vào Kho chờ thay vì Thùng rác
   window.deleteContact = function() {
       let id = document.getElementById('contact-id').value;
       showDialog('Xác nhận xóa', 'Liên hệ này sẽ được đưa về Kho chờ duyệt 📥.', 'confirm', () => {
@@ -1019,12 +1108,12 @@
   window.importFromContacts = async function() {
       const supported = ('contacts' in navigator && 'ContactsManager' in window);
       if (!supported) {
-          let modal = document.getElementById('ios-warning-modal'); modal.style.display = 'flex'; setTimeout(() => modal.classList.add('show'), 10); return;
+          showDialog("Lỗi", "Trình duyệt của bạn không hỗ trợ lấy danh bạ trực tiếp. Hãy dùng tính năng 📁 (Nhập từ file vcf/csv) thay thế.", "alert");
+          return;
       }
       try { const contacts = await navigator.contacts.select(['name', 'tel'], { multiple: true }); if (contacts && contacts.length > 0) pushToPending(contacts, 'device'); } catch (err) { console.log(err); }
   }
 
-  // Lọc trùng & Bắt Conflict Tên
   function pushToPending(rawContacts, source) {
       let addedCount = 0;
       STATE.conflicts = [];
@@ -1225,10 +1314,6 @@
               if (name && phones.length > 0) { contacts.push({ name: [name], tel: phones }); }
           }
       } return contacts;
-  }
-
-  window.closeIosWarningModal = function() {
-      let modal = document.getElementById('ios-warning-modal'); modal.classList.remove('show'); setTimeout(() => modal.style.display = 'none', 300);
   }
 </script>
 </body>

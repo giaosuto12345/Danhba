@@ -165,13 +165,18 @@
       position: sticky; top: var(--sticky-top); z-index: 95;
       border-bottom: 1px solid var(--border-light);
     }
-    .header-left { flex: 1; color: var(--tint-blue); font-size: 16px; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 4px; letter-spacing: -0.3px;}
-    .header-left:active { opacity: 0.5; }
-    .header-center { flex: 1.5; font-size: 17px; font-weight: 700; margin: 0; color: var(--text-main); text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
-    .header-right { flex: 1; display: flex; justify-content: flex-end; gap: 8px; }
     
-    .btn-sm-green { background: rgba(52, 199, 89, 0.15); color: var(--tint-green); border: none; padding: 6px 10px; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; transition: 0.2s;}
-    .btn-sm-blue { background: rgba(0, 122, 255, 0.15); color: var(--tint-blue); border: none; padding: 6px 10px; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; transition: 0.2s;}
+    /* [ĐÃ SỬA]: Cố định kích thước 2 bên, ưu tiên không gian co giãn cho tiêu đề ở giữa */
+    .header-left { flex: 0 0 auto; color: var(--tint-blue); font-size: 16px; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 4px; letter-spacing: -0.3px;}
+    .header-left:active { opacity: 0.5; }
+    
+    .header-center { flex: 1 1 auto; font-size: 17px; font-weight: 700; margin: 0 10px; color: var(--text-main); text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
+    
+    .header-right { flex: 0 0 auto; display: flex; justify-content: flex-end; align-items: center; gap: 8px; }
+    
+    /* [ĐÃ SỬA]: Ép nút nằm ngang, cấm xuống dòng (nowrap), bo góc dạng viên thuốc (pill) */
+    .btn-sm-green { display: flex; align-items: center; justify-content: center; white-space: nowrap; height: 32px; background: rgba(52, 199, 89, 0.15); color: var(--tint-green); border: none; padding: 0 12px; border-radius: 16px; font-size: 14px; font-weight: 600; cursor: pointer; transition: 0.2s;}
+    .btn-sm-blue { display: flex; align-items: center; justify-content: center; white-space: nowrap; height: 32px; background: rgba(0, 122, 255, 0.15); color: var(--tint-blue); border: none; padding: 0 12px; border-radius: 16px; font-size: 14px; font-weight: 600; cursor: pointer; transition: 0.2s;}
     .btn-sm-green:active, .btn-sm-blue:active { transform: scale(0.95); }
 
     /* ================== THẺ LIÊN HỆ ================== */

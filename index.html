@@ -635,6 +635,35 @@
     setTimeout(updateStickyTop, 100); 
     
     document.addEventListener('click', function(e) { if (!e.target.closest('.smart-input-container')) hideAllDropdowns(); });
+
+    // ================= TÍNH NĂNG VUỐT MÉP TRÁI ĐỂ QUAY LẠI (EDGE SWIPE) =================
+    let touchStartX = 0;
+    let touchStartY = 0;
+
+    document.addEventListener('touchstart', e => {
+        touchStartX = e.changedTouches[0].screenX;
+        touchStartY = e.changedTouches[0].screenY;
+    }, { passive: true });
+
+    document.addEventListener('touchend', e => {
+        let touchEndX = e.changedTouches[0].screenX;
+        let touchEndY = e.changedTouches[0].screenY;
+
+        let deltaX = touchEndX - touchStartX;
+        let deltaY = touchEndY - touchStartY;
+
+        let viewInner = document.getElementById('view-inner-folder');
+        let isViewingFolder = viewInner && viewInner.style.display === 'block';
+
+        // Điều kiện kích hoạt:
+        // 1. Đang mở xem nhóm
+        // 2. Điểm chạm đầu tiên sát mép trái màn hình (< 40px)
+        // 3. Vuốt sang phải ngang nhiều hơn dọc (chống nhầm với cuộn lên xuống)
+        // 4. Lực vuốt đủ dài (> 60px)
+        if (isViewingFolder && touchStartX < 40 && Math.abs(deltaX) > Math.abs(deltaY) && deltaX > 60) {
+            closeFolderView();
+        }
+    }, { passive: true });
   });
 
   window.updateDataLists = function() { const datalist = document.getElementById('group-suggestions'); if(datalist) datalist.innerHTML = STATE.groups.map(g => `<option value="${g}">`).join(''); }
@@ -1354,5 +1383,3 @@
 </script>
 </body>
 </html>
-
-

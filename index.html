@@ -9,6 +9,8 @@
   <meta name="mobile-web-app-capable" content="yes" />
   <title>Danh Bạ Nội Bộ</title>
   
+  <!-- TỐI ƯU HÓA: Kết nối trước và Tải ngầm thư viện để mở app nhanh hơn -->
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
 
@@ -470,7 +472,8 @@
       currentFolder: null 
   };
 
-  window.onload = () => {
+  // TỐI ƯU HÓA: TẢI NGAY LẬP TỨC THAY VÌ ĐỢI WINDOW.ONLOAD
+  document.addEventListener('DOMContentLoaded', () => {
     let savedContacts = localStorage.getItem('appContactsStandalone'); STATE.contacts = savedContacts ? JSON.parse(savedContacts) : [];
     let savedGroups = localStorage.getItem('appGroupsStandalone');
     if (savedGroups) STATE.groups = JSON.parse(savedGroups); else { STATE.groups = ['Ban Chỉ Huy', 'Khẩn cấp', 'Đội Trực']; localStorage.setItem('appGroupsStandalone', JSON.stringify(STATE.groups)); }
@@ -481,7 +484,7 @@
 
     updateDataLists(); renderMainView(); updatePendingBadge();
     document.addEventListener('click', function(e) { if (!e.target.closest('.smart-input-container')) hideAllDropdowns(); });
-  };
+  });
 
   window.updateDataLists = function() { const datalist = document.getElementById('group-suggestions'); if(datalist) datalist.innerHTML = STATE.groups.map(g => `<option value="${g}">`).join(''); }
   

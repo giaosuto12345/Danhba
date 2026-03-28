@@ -67,28 +67,22 @@
       background: var(--bg-body); padding-bottom: 40px; color: var(--text-main);
     }
 
-    /* Đã sửa container để tương thích với fixed header */
     .container { 
       max-width: 600px; 
       margin: 0 auto; 
-      /* padding-top sẽ được JS tự động tính toán và gán để không bị đè nội dung */
       padding: 130px 16px calc(env(safe-area-inset-bottom) + 20px) 16px; 
     }
 
     /* ================== THANH CÔNG CỤ TÌM KIẾM (CỐ ĐỊNH) ================== */
-    /* Đã sửa sang position: fixed để trị dứt điểm lỗi nhảy form trên iOS */
     .sticky-zone {
       position: fixed;
-      top: 0;
-      left: 50%;
-      transform: translateX(-50%); /* Canh giữa cho Desktop/Tablet */
-      width: 100%;
-      max-width: 600px; /* Khớp với .container */
+      top: 0; left: 50%; transform: translateX(-50%);
+      width: 100%; max-width: 600px; 
       background: var(--bg-body-alpha);
       backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
       z-index: 100;
       padding: calc(env(safe-area-inset-top) + 15px) 16px 15px 16px;
-      border-bottom: 1px solid var(--border-light); /* Kẻ viền nhẹ để phân tách */
+      border-bottom: 1px solid var(--border-light);
     }
     
     .dash-header { padding: 0 0 15px 0; text-align: left; display: flex; align-items: center; gap: 12px;}
@@ -166,15 +160,11 @@
       border-bottom: 1px solid var(--border-light);
     }
     
-    /* [ĐÃ SỬA]: Cố định kích thước 2 bên, ưu tiên không gian co giãn cho tiêu đề ở giữa */
     .header-left { flex: 0 0 auto; color: var(--tint-blue); font-size: 16px; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 4px; letter-spacing: -0.3px;}
     .header-left:active { opacity: 0.5; }
-    
     .header-center { flex: 1 1 auto; font-size: 17px; font-weight: 700; margin: 0 10px; color: var(--text-main); text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
-    
     .header-right { flex: 0 0 auto; display: flex; justify-content: flex-end; align-items: center; gap: 8px; }
     
-    /* [ĐÃ SỬA]: Ép nút nằm ngang, cấm xuống dòng (nowrap), bo góc dạng viên thuốc (pill) */
     .btn-sm-green { display: flex; align-items: center; justify-content: center; white-space: nowrap; height: 32px; background: rgba(52, 199, 89, 0.15); color: var(--tint-green); border: none; padding: 0 12px; border-radius: 16px; font-size: 14px; font-weight: 600; cursor: pointer; transition: 0.2s;}
     .btn-sm-blue { display: flex; align-items: center; justify-content: center; white-space: nowrap; height: 32px; background: rgba(0, 122, 255, 0.15); color: var(--tint-blue); border: none; padding: 0 12px; border-radius: 16px; font-size: 14px; font-weight: 600; cursor: pointer; transition: 0.2s;}
     .btn-sm-green:active, .btn-sm-blue:active { transform: scale(0.95); }
@@ -208,13 +198,53 @@
     .sortable-ghost { opacity: 0.4; background: var(--bg-hover); border-radius: 14px;}
     .sortable-chosen { transform: scale(1.03); box-shadow: var(--shadow-lg); z-index: 10; background: var(--bg-card); }
 
-    /* ================== MODAL & KHÁC ================== */
+    /* ================== MODAL & KHÁC CƠ BẢN ================== */
     .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); z-index: 1000; display: none; align-items: flex-end; justify-content: center; opacity: 0; transition: opacity 0.3s ease; }
     .modal-overlay.show { opacity: 1; }
-    .modal-content { background: var(--bg-body); width: 100%; max-height: 92vh; max-width: 600px; border-radius: 20px 20px 0 0; padding: 15px 20px calc(env(safe-area-inset-bottom) + 20px) 20px; overflow-y: auto; transform: translateY(100%); transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1); box-shadow: 0 -10px 25px rgba(0,0,0,0.2); display: flex; flex-direction: column; }
+    
+    /* [ĐÃ SỬA]: KIẾN TRÚC MODAL MỚI CHỐNG NHẢY BÀN PHÍM IOS */
+    .modal-content { 
+      background: var(--bg-body); width: 100%; max-width: 600px; 
+      border-radius: 20px 20px 0 0; 
+      transform: translateY(100%); transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1); 
+      box-shadow: 0 -10px 25px rgba(0,0,0,0.2); 
+    }
     .modal-overlay.show .modal-content { transform: translateY(0); }
+
+    /* Lớp Flexbox bắt buộc để chia khu vực tĩnh và cuộn */
+    .flex-modal {
+      display: flex; flex-direction: column; 
+      max-height: 90vh; /* Giới hạn chiều cao an toàn */
+      padding: 0; /* Xóa padding tổng để quản lý riêng từng khu vực */
+      overflow: hidden; /* NGĂN KHÔNG CHO TOÀN BỘ MODAL BỊ CUỘN */
+    }
+    
+    .modal-header-fixed {
+      flex-shrink: 0; /* Cấm co lại */
+      padding: 15px 20px 10px 20px;
+      background: var(--bg-body);
+      border-bottom: 1px solid var(--border-light);
+      z-index: 10;
+    }
+    
+    .modal-body-scroll {
+      flex: 1; /* Chiếm toàn bộ không gian còn lại */
+      overflow-y: auto; /* CHỈ VÙNG NÀY ĐƯỢC CUỘN */
+      padding: 15px 20px 20px 20px;
+      -webkit-overflow-scrolling: touch; /* Cuộn mượt trên iOS */
+    }
+    
+    .modal-footer-fixed {
+      flex-shrink: 0; /* Cấm co lại */
+      padding: 15px 20px calc(env(safe-area-inset-bottom) + 15px) 20px;
+      background: var(--bg-body);
+      border-top: 1px solid var(--border-light);
+      z-index: 10;
+      box-shadow: 0 -4px 15px rgba(0,0,0,0.03);
+    }
+
     .pull-bar { width: 36px; height: 5px; background: var(--text-muted); border-radius: 3px; margin: 0 auto 15px auto; opacity: 0.5;}
-    .modal-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; position: relative;}
+    .modal-head { display: flex; justify-content: space-between; align-items: center; position: relative;}
     .modal-title { font-size: 22px; font-weight: 800; margin: 0; color: var(--text-main); letter-spacing: -0.5px;}
     .btn-close-modal { background: var(--bg-hover); border: none; width: 30px; height: 30px; border-radius: 50%; font-size: 14px; font-weight: bold; color: var(--text-muted); cursor: pointer; display: flex; align-items: center; justify-content: center;}
 
@@ -233,25 +263,26 @@
     .btn-del { background: rgba(255,59,48,0.15); color: var(--tint-red);}
     .btn-sq:active { transform: scale(0.9); }
 
-    .pending-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding: 0 5px; border-bottom: 1px solid var(--border-light); padding-bottom: 15px;}
+    .pending-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0px; padding: 5px; }
     .custom-checkbox { appearance: none; width: 24px; height: 24px; border: 1px solid var(--border); border-radius: 6px; outline: none; cursor: pointer; position: relative; background: var(--bg-input); transition: 0.2s; margin:0; }
     .custom-checkbox:checked { background: var(--tint-blue); border-color: var(--tint-blue); }
     .custom-checkbox:checked::after { content: '✔'; position: absolute; color: white; font-size: 15px; top: 50%; left: 50%; transform: translate(-50%, -50%); font-weight: bold; }
     .text-blue-bold { color: var(--tint-blue); font-weight: 600; font-size: 16px; cursor: pointer; }
     .text-red-bold { color: var(--tint-red); font-weight: 600; font-size: 15px; cursor: pointer; background: none; border: none; padding:0;}
 
-    .pending-list { flex: 1; overflow-y: auto; padding-bottom: 10px; margin-bottom: 10px; }
+    .pending-list { width: 100%; }
     .pending-card { background: var(--bg-card); border-radius: 14px; padding: 14px 16px; margin-bottom: 10px; display: flex; align-items: center; gap: 16px; border: none; box-shadow: var(--shadow); }
     .p-name { font-weight: 600; color: var(--text-main); font-size: 16px; margin-bottom: 2px; display: block;}
     .p-phone { font-weight: 500; color: var(--tint-blue); font-size: 15px; display: block;}
 
-    .bottom-action-card { background: var(--bg-card); padding: 16px; border-radius: 16px; margin-top: 5px; box-shadow: var(--shadow-lg); border: none; }
-    .bottom-action-title { font-size: 15px; font-weight: 600; color: var(--text-main); margin-bottom: 12px; }
-
     .smart-input-container { position: relative; margin-bottom: 16px; }
-    .smart-input { width: 100%; padding: 14px 16px; font-size: 16px; border: none; border-radius: 12px; outline: none; box-sizing: border-box; background: var(--bg-input); color: var(--text-main); transition: 0.2s; }
-    .smart-input:focus { box-shadow: 0 0 0 2px rgba(10,132,255,0.3);}
+    .smart-input { width: 100%; padding: 14px 16px; font-size: 16px; border: none; border-radius: 12px; outline: none; box-sizing: border-box; background: var(--bg-card); border: 1px solid var(--border); color: var(--text-main); transition: 0.2s; }
+    .smart-input:focus { box-shadow: 0 0 0 2px rgba(10,132,255,0.3); border-color: var(--tint-blue);}
+    
     .smart-dropdown { position: absolute; top: 100%; left: 0; right: 0; background: var(--bg-card); border: 1px solid var(--border-light); border-radius: 12px; max-height: 180px; overflow-y: auto; z-index: 100; display: none; box-shadow: var(--shadow-lg); margin-top: 5px; }
+    /* Dropdown lật lên trên dành cho Footer */
+    .smart-dropdown.dropdown-up { top: auto; bottom: 100%; margin-top: 0; margin-bottom: 5px; border-radius: 12px 12px 0 0; box-shadow: 0 -5px 15px rgba(0,0,0,0.1); }
+    
     .smart-dropdown-item { padding: 14px 16px; border-bottom: 1px solid var(--border-light); cursor: pointer; font-size: 16px; font-weight: 500; color: var(--text-main); text-align: left; }
     .smart-dropdown-item:last-child { border-bottom: none; }
     .smart-dropdown-item:active { background: var(--bg-hover); }
@@ -327,56 +358,68 @@
     </div>
   </div>
 
-  <!-- MODAL CÀI ĐẶT NHÓM -->
+  <!-- MODAL CÀI ĐẶT NHÓM (Đã chuyển sang kiến trúc Flex) -->
   <div id="group-settings-modal" class="modal-overlay" onclick="if(event.target === this) closeGroupSettingsModal()">
-    <div class="modal-content">
-      <div class="pull-bar"></div>
-      <div class="modal-head" style="margin-bottom: 10px;">
-        <h3 class="modal-title">Cài Đặt Hệ Thống</h3>
-        <button class="btn-close-modal" onclick="closeGroupSettingsModal()">✕</button>
+    <div class="modal-content flex-modal">
+      <div class="modal-header-fixed">
+        <div class="pull-bar"></div>
+        <div class="modal-head" style="margin-bottom: 0;">
+          <h3 class="modal-title">Cài Đặt Hệ Thống</h3>
+          <button class="btn-close-modal" onclick="closeGroupSettingsModal()">✕</button>
+        </div>
       </div>
 
-      <div id="stats-overview" style="text-align:center; padding: 12px; background: var(--bg-hover); border-radius: 12px; margin-bottom: 20px; font-size: 14px; font-weight: 500; color: var(--text-sub);">
-          📊 Đang quản lý <b style="color:var(--tint-blue); font-size:16px;" id="stat-contacts">0</b> liên hệ / <b style="color:var(--tint-orange); font-size:16px;" id="stat-groups">0</b> nhóm.
-      </div>
+      <div class="modal-body-scroll">
+        <div id="stats-overview" style="text-align:center; padding: 12px; background: var(--bg-hover); border-radius: 12px; margin-bottom: 20px; font-size: 14px; font-weight: 500; color: var(--text-sub);">
+            📊 Đang quản lý <b style="color:var(--tint-blue); font-size:16px;" id="stat-contacts">0</b> liên hệ / <b style="color:var(--tint-orange); font-size:16px;" id="stat-groups">0</b> nhóm.
+        </div>
 
-      <div style="font-size:13px; color:var(--text-muted); font-weight:600; margin-bottom:8px; text-transform: uppercase; letter-spacing:0.5px;">Tạo nhóm mới</div>
-      <div class="group-input-wrapper">
-        <input type="text" id="new-group-input" placeholder="Tên nhóm công việc...">
-        <button onclick="addNewGroup()">Thêm</button>
-      </div>
+        <div style="font-size:13px; color:var(--text-muted); font-weight:600; margin-bottom:8px; text-transform: uppercase; letter-spacing:0.5px;">Tạo nhóm mới</div>
+        <div class="group-input-wrapper">
+          <input type="text" id="new-group-input" placeholder="Tên nhóm công việc...">
+          <button onclick="addNewGroup()">Thêm</button>
+        </div>
 
-      <div style="font-size:13px; color:var(--text-muted); font-weight:600; margin-bottom:8px; text-transform: uppercase; letter-spacing:0.5px;">Quản lý danh sách</div>
-      <div class="setting-list-box" style="margin-bottom: 24px;">
-        <div id="group-settings-list" style="max-height:30vh; overflow-y:auto;"></div>
-      </div>
+        <div style="font-size:13px; color:var(--text-muted); font-weight:600; margin-bottom:8px; text-transform: uppercase; letter-spacing:0.5px;">Quản lý danh sách</div>
+        <div class="setting-list-box" style="margin-bottom: 24px;">
+          <div id="group-settings-list" style="max-height:30vh; overflow-y:auto;"></div>
+        </div>
 
-      <div style="font-size:13px; color:var(--text-muted); font-weight:600; margin-bottom:8px; text-transform: uppercase; letter-spacing:0.5px;">Dữ liệu & Cập nhật</div>
-      <div style="display: flex; gap: 10px; margin-bottom: 10px;">
-        <button onclick="exportContactsCSV()" class="btn-green-large" style="margin:0; background:rgba(255,149,0,0.15); color:var(--tint-orange); font-size:14px; padding:14px;">📄 Xuất CSV</button>
-        <button onclick="exportContactsBackup()" class="btn-green-large" style="margin:0; background:rgba(175,82,222,0.15); color:var(--tint-purple); font-size:14px; padding:14px;">📦 Sao lưu JSON</button>
+        <div style="font-size:13px; color:var(--text-muted); font-weight:600; margin-bottom:8px; text-transform: uppercase; letter-spacing:0.5px;">Dữ liệu & Cập nhật</div>
+        <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+          <button onclick="exportContactsCSV()" class="btn-green-large" style="margin:0; background:rgba(255,149,0,0.15); color:var(--tint-orange); font-size:14px; padding:14px;">📄 Xuất CSV</button>
+          <button onclick="exportContactsBackup()" class="btn-green-large" style="margin:0; background:rgba(175,82,222,0.15); color:var(--tint-purple); font-size:14px; padding:14px;">📦 Sao lưu JSON</button>
+        </div>
+        <button onclick="capNhatApp()" class="btn-green-large" style="margin:0; background:var(--bg-hover); color:var(--tint-red); font-size:15px; padding:14px; margin-bottom:10px;">♻️ Cập nhật Web App</button>
       </div>
-      <button onclick="capNhatApp()" class="btn-green-large" style="margin:0; background:var(--bg-hover); color:var(--tint-red); font-size:15px; padding:14px; margin-bottom:10px;">♻️ Cập nhật Web App</button>
     </div>
   </div>
 
   <!-- MODAL GIẢI QUYẾT TRÙNG LẶP TÊN -->
   <div id="conflict-modal" class="modal-overlay" onclick="if(event.target === this) closeConflictModal()">
-    <div class="modal-content" style="max-height: 90vh;">
-      <div class="pull-bar"></div>
-      <div class="modal-head">
-        <h3 class="modal-title" style="color: var(--tint-orange);">⚠️ Tên trùng lặp</h3>
-        <button class="btn-close-modal" onclick="closeConflictModal()">✕</button>
+    <div class="modal-content flex-modal">
+      <div class="modal-header-fixed">
+        <div class="pull-bar"></div>
+        <div class="modal-head" style="margin-bottom: 0;">
+          <h3 class="modal-title" style="color: var(--tint-orange);">⚠️ Tên trùng lặp</h3>
+          <button class="btn-close-modal" onclick="closeConflictModal()">✕</button>
+        </div>
       </div>
-      <p style="font-size: 14px; color: var(--text-sub); margin-bottom: 15px;">Phát hiện các số điện thoại đã có nhưng lưu tên khác. Bạn muốn dùng tên nào?</p>
-      <div id="conflict-list-container" style="flex: 1; overflow-y: auto; padding-bottom: 10px;"></div>
-      <button onclick="resolveConflicts()" class="btn-green-large" style="margin-top: 15px; background: var(--tint-blue);">LƯU LỰA CHỌN</button>
+      
+      <div class="modal-body-scroll">
+        <p style="font-size: 14px; color: var(--text-sub); margin-bottom: 15px;">Phát hiện các số điện thoại đã có nhưng lưu tên khác. Bạn muốn dùng tên nào?</p>
+        <div id="conflict-list-container" style="padding-bottom: 10px;"></div>
+      </div>
+
+      <div class="modal-footer-fixed">
+        <button onclick="resolveConflicts()" class="btn-green-large" style="background: var(--tint-blue);">LƯU LỰA CHỌN</button>
+      </div>
     </div>
   </div>
 
-  <!-- MODAL MÃ QR CODE -->
+  <!-- MODAL MÃ QR CODE (Chỉ hiển thị, không nhập liệu nên giữ nguyên cấu trúc cũ được) -->
   <div id="qr-modal" class="modal-overlay" onclick="if(event.target === this) closeQRModal()">
-    <div class="modal-content" style="align-items:center; padding-bottom:40px;">
+    <div class="modal-content" style="align-items:center; padding-bottom:40px; border-radius: 20px 20px 0 0;">
       <div class="pull-bar"></div>
       <h3 class="modal-title" id="qr-name" style="margin-bottom:20px; text-align:center; font-size: 22px;">Tên</h3>
       <div id="qr-code-img" style="background:#fff; padding:20px; border-radius:20px; box-shadow: var(--shadow-lg);"></div>
@@ -385,73 +428,90 @@
     </div>
   </div>
 
-  <!-- MODAL KHO CHỜ DUYỆT -->
+  <!-- ============================================== -->
+  <!-- MODAL KHO CHỜ DUYỆT (ĐÃ FIX KIẾN TRÚC FLEX) -->
+  <!-- ============================================== -->
   <div id="pending-modal" class="modal-overlay" onclick="if(event.target === this) closePendingModal()">
-    <div class="modal-content" style="max-height: 95vh; padding-bottom: 20px;">
-      <div class="pull-bar"></div>
-      <div class="modal-head">
-        <h3 class="modal-title" style="display:flex; align-items:center; gap:8px;">Kho Chờ Duyệt</h3>
-        <button class="btn-close-modal" onclick="closePendingModal()">✕</button>
+    <div class="modal-content flex-modal">
+      
+      <!-- PHẦN ĐẦU CỐ ĐỊNH (KHÔNG BỊ CUỘN KHI BẬT BÀN PHÍM) -->
+      <div class="modal-header-fixed">
+        <div class="pull-bar"></div>
+        <div class="modal-head" style="margin-bottom: 15px;">
+          <h3 class="modal-title" style="display:flex; align-items:center; gap:8px;">Kho Chờ Duyệt</h3>
+          <button class="btn-close-modal" onclick="closePendingModal()">✕</button>
+        </div>
+
+        <input type="text" id="search-pending" class="smart-input" style="margin-bottom: 15px; padding: 12px 16px;" placeholder="Tìm tên hoặc số điện thoại..." onkeyup="searchPending()">
+        
+        <div class="pending-header-row">
+          <label style="display:flex; align-items:center; cursor:pointer; gap:10px;">
+            <input type="checkbox" id="chk-select-all-pending" class="custom-checkbox" onchange="toggleSelectAllPending()"> 
+            <span class="text-blue-bold" id="selected-count-text">Chọn tất cả</span>
+          </label>
+          <button onclick="deleteSelectedPending()" class="text-red-bold">Xóa đã chọn</button>
+        </div>
       </div>
 
-      <input type="text" id="search-pending" class="smart-input" style="margin-bottom: 15px; padding: 12px 16px;" placeholder="Tìm tên hoặc số điện thoại..." onkeyup="searchPending()">
-      
-      <div class="pending-header-row">
-        <label style="display:flex; align-items:center; cursor:pointer; gap:10px;">
-          <input type="checkbox" id="chk-select-all-pending" class="custom-checkbox" onchange="toggleSelectAllPending()"> 
-          <span class="text-blue-bold" id="selected-count-text">Chọn tất cả</span>
-        </label>
-        <button onclick="deleteSelectedPending()" class="text-red-bold">Xóa đã chọn</button>
+      <!-- PHẦN DANH SÁCH CUỘN Ở GIỮA -->
+      <div class="modal-body-scroll">
+        <div id="pending-list-container" class="pending-list"></div>
       </div>
-
-      <div id="pending-list-container" class="pending-list"></div>
       
-      <div class="bottom-action-card">
-        <div class="bottom-action-title">Xếp các số đã chọn vào:</div>
+      <!-- PHẦN ĐÁY CỐ ĐỊNH (GẮN CHẶT XUỐNG DƯỚI) -->
+      <div class="modal-footer-fixed">
+        <div style="font-size: 15px; font-weight: 600; color: var(--text-main); margin-bottom: 12px;">Xếp các số đã chọn vào:</div>
         <div class="smart-input-container" style="margin-bottom: 12px;">
           <input type="text" id="pending-group-input" class="smart-input" placeholder="Gõ tìm hoặc tạo nhóm mới..." 
                  onfocus="showGroupDropdown('pending-dropdown', 'pending-group-input')" 
                  onkeyup="filterGroupDropdown(this.value, 'pending-dropdown', 'pending-group-input')"
                  autocomplete="off">
-          <div id="pending-dropdown" class="smart-dropdown"></div>
+          <!-- Dropdown mở ngược lên trên -->
+          <div id="pending-dropdown" class="smart-dropdown dropdown-up"></div>
         </div>
         <button onclick="saveSelectedPendingToMain()" class="btn-green-large">Xác nhận</button>
       </div>
+
     </div>
   </div>
 
-  <!-- MODAL THÊM/SỬA LIÊN HỆ -->
+  <!-- MODAL THÊM/SỬA LIÊN HỆ (Đã chuyển sang kiến trúc Flex) -->
   <div id="contact-modal" class="modal-overlay" onclick="if(event.target === this) closeContactModal()">
-    <div class="modal-content">
-      <div class="pull-bar"></div>
-      <div class="modal-head">
-        <h3 class="modal-title" id="contact-modal-title">Thêm Liên Hệ</h3>
-        <button class="btn-close-modal" onclick="closeContactModal()">✕</button>
+    <div class="modal-content flex-modal">
+      <div class="modal-header-fixed">
+        <div class="pull-bar"></div>
+        <div class="modal-head" style="margin-bottom: 0;">
+          <h3 class="modal-title" id="contact-modal-title">Thêm Liên Hệ</h3>
+          <button class="btn-close-modal" onclick="closeContactModal()">✕</button>
+        </div>
       </div>
       
-      <input type="hidden" id="contact-id">
-      
-      <label class="input-label">Họ và tên</label>
-      <input type="text" id="contact-name" class="smart-input" style="margin-bottom:15px;" placeholder="Ví dụ: Nguyễn Văn A" />
-      
-      <label class="input-label">Số điện thoại 1</label>
-      <input type="tel" id="contact-phone" class="smart-input" style="margin-bottom:15px;" placeholder="Ví dụ: 0987654321" />
+      <div class="modal-body-scroll">
+        <input type="hidden" id="contact-id">
+        
+        <label class="input-label" style="margin-top: 10px;">Họ và tên</label>
+        <input type="text" id="contact-name" class="smart-input" style="margin-bottom:15px;" placeholder="Ví dụ: Nguyễn Văn A" />
+        
+        <label class="input-label">Số điện thoại 1</label>
+        <input type="tel" id="contact-phone" class="smart-input" style="margin-bottom:15px;" placeholder="Ví dụ: 0987654321" />
 
-      <label class="input-label">Số điện thoại 2 (Tùy chọn)</label>
-      <input type="tel" id="contact-phone2" class="smart-input" style="margin-bottom:15px;" placeholder="Ví dụ: 0123456789" />
-      
-      <label class="input-label">Nhóm / Đơn vị</label>
-      <div class="smart-input-container" style="margin-bottom:0;">
-        <input type="text" id="manual-group-input" class="smart-input" style="margin-bottom:0;" placeholder="Chọn hoặc tạo nhóm mới..." 
-               onfocus="showGroupDropdown('manual-dropdown', 'manual-group-input')" 
-               onkeyup="filterGroupDropdown(this.value, 'manual-dropdown', 'manual-group-input')"
-               autocomplete="off">
-        <div id="manual-dropdown" class="smart-dropdown"></div>
-      </div>
+        <label class="input-label">Số điện thoại 2 (Tùy chọn)</label>
+        <input type="tel" id="contact-phone2" class="smart-input" style="margin-bottom:15px;" placeholder="Ví dụ: 0123456789" />
+        
+        <label class="input-label">Nhóm / Đơn vị</label>
+        <div class="smart-input-container" style="margin-bottom:0;">
+          <input type="text" id="manual-group-input" class="smart-input" style="margin-bottom:0;" placeholder="Chọn hoặc tạo nhóm mới..." 
+                 onfocus="showGroupDropdown('manual-dropdown', 'manual-group-input')" 
+                 onkeyup="filterGroupDropdown(this.value, 'manual-dropdown', 'manual-group-input')"
+                 autocomplete="off">
+          <!-- Dropdown mở ngược lên trên để tránh che lấp nút Lưu bên dưới -->
+          <div id="manual-dropdown" class="smart-dropdown dropdown-up"></div>
+        </div>
 
-      <div style="display:flex; gap:10px; margin-top: 24px;">
-        <button id="btn-delete-contact" onclick="deleteContact()" style="background:rgba(255,59,48,0.15); color:var(--tint-red); display:none; flex: 0.4; padding: 16px; border-radius: 12px; font-weight: 600; border: none; cursor: pointer;">Xóa</button>
-        <button onclick="saveContact()" class="btn-green-large" style="margin-top:0; flex: 1;">Lưu liên hệ</button>
+        <div style="display:flex; gap:10px; margin-top: 24px; margin-bottom: 20px;">
+          <button id="btn-delete-contact" onclick="deleteContact()" style="background:rgba(255,59,48,0.15); color:var(--tint-red); display:none; flex: 0.4; padding: 16px; border-radius: 12px; font-weight: 600; border: none; cursor: pointer;">Xóa</button>
+          <button onclick="saveContact()" class="btn-green-large" style="margin-top:0; flex: 1;">Lưu liên hệ</button>
+        </div>
       </div>
     </div>
   </div>
@@ -505,19 +565,11 @@
       const container = document.querySelector('.container');
       
       if (stickyZone && container) {
-          // Lấy chiều cao động của khung tìm kiếm (bao gồm cả padding)
           let headerHeight = stickyZone.offsetHeight;
-          
-          // Set biến CSS cho các thành phần con dính theo (như sub-header của folder)
           document.documentElement.style.setProperty('--sticky-top', headerHeight + 'px');
-          
-          // Bù trừ khoảng trống bằng padding-top của container 
-          // (Cộng thêm 15px để giao diện thoáng, không dính sát viền)
           container.style.paddingTop = (headerHeight + 15) + 'px';
       }
   }
-  
-  // Lắng nghe sự kiện resize màn hình (khi xoay ngang dọc hoặc đổi thiết bị)
   window.addEventListener('resize', updateStickyTop);
 
   window.capNhatApp = function() {
@@ -598,8 +650,6 @@
     localStorage.removeItem('appTrashStandalone'); // Cleanup old trash
 
     updateDataLists(); renderMainView(); updatePendingBadge();
-    
-    // Gọi tính toán giao diện sau khi tải xong UI 100ms
     setTimeout(updateStickyTop, 100); 
     
     document.addEventListener('click', function(e) { if (!e.target.closest('.smart-input-container')) hideAllDropdowns(); });
@@ -625,7 +675,6 @@
       } else { 
           tb.style.maxHeight = '0px'; tb.style.marginBottom = '0px'; tb.style.opacity = '0'; 
       }
-      // Tính toán lại chiều cao sau khi animation kết thúc
       setTimeout(updateStickyTop, 310);
   }
   

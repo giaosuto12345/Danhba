@@ -10,9 +10,7 @@
   <title>Danh Bạ Nội Bộ</title>
   
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-  <!-- Thư viện Kéo thả -->
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
-  <!-- Thư viện tạo mã QR Code -->
   <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
 
   <style>
@@ -202,7 +200,6 @@
     .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); z-index: 1000; display: none; align-items: flex-end; justify-content: center; opacity: 0; transition: opacity 0.3s ease; }
     .modal-overlay.show { opacity: 1; }
     
-    /* [ĐÃ SỬA]: KIẾN TRÚC MODAL MỚI CHỐNG NHẢY BÀN PHÍM IOS */
     .modal-content { 
       background: var(--bg-body); width: 100%; max-width: 600px; 
       border-radius: 20px 20px 0 0; 
@@ -211,11 +208,12 @@
     }
     .modal-overlay.show .modal-content { transform: translateY(0); }
 
-    /* Lớp Flexbox bắt buộc để chia khu vực tĩnh và cuộn */
+    /* [ĐÃ SỬA]: Ép cứng chiều cao 85vh để chống lỗi Modal bay lơ lửng khi bàn phím bật */
     .flex-modal {
       display: flex; flex-direction: column; 
-      max-height: 90vh; /* Giới hạn chiều cao an toàn */
-      padding: 0; /* Xóa padding tổng để quản lý riêng từng khu vực */
+      height: 85vh; /* Khóa cứng chiều cao */
+      max-height: 85vh; 
+      padding: 0; 
       overflow: hidden; /* NGĂN KHÔNG CHO TOÀN BỘ MODAL BỊ CUỘN */
     }
     
@@ -331,10 +329,8 @@
       </div>
     </div>
 
-    <!-- KHU VỰC HIỂN THỊ ĐỘNG -->
     <div id="view-folder-list"></div>
 
-    <!-- CHI TIẾT NHÓM VỚI STICKY HEADER -->
     <div id="view-inner-folder" style="display:none;">
       <div class="back-header">
         <div class="header-left" onclick="closeFolderView()">❮ Trở lại</div>
@@ -347,7 +343,6 @@
       <div id="inner-contact-list"></div>
     </div>
     
-    <!-- KẾT QUẢ TÌM KIẾM -->
     <div id="view-search-results" style="display:none;">
       <div class="back-header">
         <div class="header-left" onclick="cancelSearch()">❮ Trở lại</div>
@@ -358,7 +353,6 @@
     </div>
   </div>
 
-  <!-- MODAL CÀI ĐẶT NHÓM (Đã chuyển sang kiến trúc Flex) -->
   <div id="group-settings-modal" class="modal-overlay" onclick="if(event.target === this) closeGroupSettingsModal()">
     <div class="modal-content flex-modal">
       <div class="modal-header-fixed">
@@ -395,7 +389,6 @@
     </div>
   </div>
 
-  <!-- MODAL GIẢI QUYẾT TRÙNG LẶP TÊN -->
   <div id="conflict-modal" class="modal-overlay" onclick="if(event.target === this) closeConflictModal()">
     <div class="modal-content flex-modal">
       <div class="modal-header-fixed">
@@ -417,7 +410,6 @@
     </div>
   </div>
 
-  <!-- MODAL MÃ QR CODE (Chỉ hiển thị, không nhập liệu nên giữ nguyên cấu trúc cũ được) -->
   <div id="qr-modal" class="modal-overlay" onclick="if(event.target === this) closeQRModal()">
     <div class="modal-content" style="align-items:center; padding-bottom:40px; border-radius: 20px 20px 0 0;">
       <div class="pull-bar"></div>
@@ -428,13 +420,9 @@
     </div>
   </div>
 
-  <!-- ============================================== -->
-  <!-- MODAL KHO CHỜ DUYỆT (ĐÃ FIX KIẾN TRÚC FLEX) -->
-  <!-- ============================================== -->
   <div id="pending-modal" class="modal-overlay" onclick="if(event.target === this) closePendingModal()">
     <div class="modal-content flex-modal">
       
-      <!-- PHẦN ĐẦU CỐ ĐỊNH (KHÔNG BỊ CUỘN KHI BẬT BÀN PHÍM) -->
       <div class="modal-header-fixed">
         <div class="pull-bar"></div>
         <div class="modal-head" style="margin-bottom: 15px;">
@@ -453,12 +441,10 @@
         </div>
       </div>
 
-      <!-- PHẦN DANH SÁCH CUỘN Ở GIỮA -->
       <div class="modal-body-scroll">
         <div id="pending-list-container" class="pending-list"></div>
       </div>
       
-      <!-- PHẦN ĐÁY CỐ ĐỊNH (GẮN CHẶT XUỐNG DƯỚI) -->
       <div class="modal-footer-fixed">
         <div style="font-size: 15px; font-weight: 600; color: var(--text-main); margin-bottom: 12px;">Xếp các số đã chọn vào:</div>
         <div class="smart-input-container" style="margin-bottom: 12px;">
@@ -466,7 +452,6 @@
                  onfocus="showGroupDropdown('pending-dropdown', 'pending-group-input')" 
                  onkeyup="filterGroupDropdown(this.value, 'pending-dropdown', 'pending-group-input')"
                  autocomplete="off">
-          <!-- Dropdown mở ngược lên trên -->
           <div id="pending-dropdown" class="smart-dropdown dropdown-up"></div>
         </div>
         <button onclick="saveSelectedPendingToMain()" class="btn-green-large">Xác nhận</button>
@@ -475,7 +460,6 @@
     </div>
   </div>
 
-  <!-- MODAL THÊM/SỬA LIÊN HỆ (Đã chuyển sang kiến trúc Flex) -->
   <div id="contact-modal" class="modal-overlay" onclick="if(event.target === this) closeContactModal()">
     <div class="modal-content flex-modal">
       <div class="modal-header-fixed">
@@ -504,7 +488,6 @@
                  onfocus="showGroupDropdown('manual-dropdown', 'manual-group-input')" 
                  onkeyup="filterGroupDropdown(this.value, 'manual-dropdown', 'manual-group-input')"
                  autocomplete="off">
-          <!-- Dropdown mở ngược lên trên để tránh che lấp nút Lưu bên dưới -->
           <div id="manual-dropdown" class="smart-dropdown dropdown-up"></div>
         </div>
 
@@ -516,7 +499,6 @@
     </div>
   </div>
 
-  <!-- CUSTOM DIALOG -->
   <div id="custom-dialog-wrapper" class="modal-overlay" style="z-index: 10005;">
     <div class="custom-dialog-box">
       <h3 id="dialog-title" class="dialog-title">Thông báo</h3>
@@ -1372,3 +1354,5 @@
 </script>
 </body>
 </html>
+
+

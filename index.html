@@ -17,7 +17,7 @@
     /* ================== BIẾN MÀU SẮC CHUẨN IOS ================== */
     :root {
       --bg-body: #F2F2F7;
-      --bg-body-alpha: rgba(242, 242, 247, 0.9);
+      --bg-body-alpha: rgba(242, 242, 247, 0.85);
       --bg-card: #FFFFFF;
       --bg-hover: #E5E5EA;
       --bg-input: rgba(118, 118, 128, 0.12);
@@ -40,7 +40,7 @@
     @media (prefers-color-scheme: dark) {
       :root {
         --bg-body: #000000;
-        --bg-body-alpha: rgba(0, 0, 0, 0.85);
+        --bg-body-alpha: rgba(0, 0, 0, 0.8);
         --bg-card: #1C1C1E;
         --bg-hover: #2C2C2E;
         --bg-input: rgba(118, 118, 128, 0.24);
@@ -65,6 +65,7 @@
     body { 
       margin: 0; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif; 
       background: var(--bg-body); padding-bottom: 40px; color: var(--text-main);
+      overflow-x: hidden; /* Ngăn cuộn ngang khi dùng animation trượt */
     }
 
     .container { 
@@ -79,7 +80,7 @@
       top: 0; left: 50%; transform: translateX(-50%);
       width: 100%; max-width: 600px; 
       background: var(--bg-body-alpha);
-      backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); 
       z-index: 100;
       padding: calc(env(safe-area-inset-top) + 15px) 16px 15px 16px;
       border-bottom: 1px solid var(--border-light);
@@ -92,9 +93,9 @@
       width: 40px; height: 40px; border-radius: 50%; border: none;
       background: var(--search-bg); color: var(--text-main); font-size: 20px;
       display: flex; align-items: center; justify-content: center; cursor: pointer;
-      transition: 0.2s; text-decoration: none;
+      transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1); text-decoration: none;
     }
-    .btn-home:active { transform: scale(0.9); opacity: 0.8; }
+    .btn-home:active { transform: scale(0.85); opacity: 0.8; }
 
     .top-controls { margin-bottom: 0px; }
     .search-row { display: flex; gap: 8px; margin-bottom: 10px; align-items: center;}
@@ -110,19 +111,19 @@
       color: var(--tint-blue); display: flex; align-items: center; justify-content: center; 
       cursor: pointer; border: none; background: transparent; transition: 0.2s;
     }
-    .btn-toggle-menu:active { background: var(--bg-hover); }
+    .btn-toggle-menu:active { background: var(--bg-hover); transform: scale(0.9); }
 
     .action-buttons-row { 
       display: flex; gap: 10px; justify-content: space-between; align-items: center;
-      transition: all 0.3s ease; overflow: hidden; max-height: 100px;
+      transition: all 0.35s cubic-bezier(0.2, 0.8, 0.2, 1); overflow: hidden; max-height: 100px;
     }
     
     .btn-act {
       flex: 1; height: 48px; border-radius: 14px; border: none; font-size: 20px; 
       cursor: pointer; display: flex; align-items: center; justify-content: center; 
-      transition: 0.2s; font-weight: bold;
+      transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1); font-weight: bold;
     }
-    .btn-act:active { transform: scale(0.92); opacity: 0.8;}
+    .btn-act:active { transform: scale(0.9); opacity: 0.8;}
 
     .btn-setting { background: rgba(142, 142, 147, 0.15); color: var(--text-muted); }
     .btn-pending { background: rgba(0, 122, 255, 0.15); color: var(--tint-blue); position: relative; }
@@ -136,13 +137,72 @@
       border: 2px solid var(--bg-body); display: none; pointer-events: none;
     }
 
+    /* ================== HIỆU ỨNG CHUYỂN TRANG MƯỢT MÀ (PRO FEATURE) ================== */
+    .page-enter-right { animation: fadeSlideRight 0.3s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
+    .page-enter-left { animation: fadeSlideLeft 0.3s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
+    
+    @keyframes fadeSlideRight {
+        from { opacity: 0; transform: translateX(30px); }
+        to { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes fadeSlideLeft {
+        from { opacity: 0; transform: translateX(-30px); }
+        to { opacity: 1; transform: translateX(0); }
+    }
+
+    /* ================== THÔNG BÁO BONG BÓNG NHANH (TOAST) ================== */
+    .ios-toast {
+        position: fixed;
+        top: -60px; /* Ẩn phía trên */
+        left: 50%;
+        transform: translateX(-50%);
+        background: var(--bg-card);
+        color: var(--text-main);
+        font-weight: 600;
+        font-size: 15px;
+        padding: 12px 24px;
+        border-radius: 30px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        z-index: 10000;
+        transition: 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+        opacity: 0;
+        display: flex; align-items: center; gap: 8px;
+    }
+    .ios-toast.show {
+        top: calc(env(safe-area-inset-top) + 20px);
+        opacity: 1;
+    }
+
+    /* ================== HIGHLIGHT TÌM KIẾM (PRO FEATURE) ================== */
+    .search-highlight {
+      background: rgba(0, 122, 255, 0.15);
+      color: var(--tint-blue);
+      font-weight: 700;
+      padding: 0 2px;
+      border-radius: 4px;
+    }
+
+    /* ================== TRẠNG THÁI TRỐNG (EMPTY STATES) ================== */
+    .empty-state {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 60px 20px; text-align: center; animation: fadeIn 0.4s ease;
+    }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .empty-icon { font-size: 54px; margin-bottom: 15px; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.1)); }
+    .empty-title { font-size: 20px; font-weight: 700; color: var(--text-main); margin: 0 0 8px 0; letter-spacing: -0.3px; }
+    .empty-desc { font-size: 15px; color: var(--text-sub); margin: 0 0 24px 0; line-height: 1.4; max-width: 280px; }
+    .empty-actions { display: flex; flex-direction: column; gap: 12px; width: 100%; max-width: 240px; }
+    .btn-empty-primary { background: var(--tint-blue); color: white; border: none; padding: 14px; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; transition: 0.2s; }
+    .btn-empty-secondary { background: var(--bg-hover); color: var(--text-main); border: none; padding: 14px; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; transition: 0.2s; }
+    .btn-empty-primary:active, .btn-empty-secondary:active { transform: scale(0.96); opacity: 0.8; }
+
     /* ================== DẠNG HIỂN THỊ 1: DANH SÁCH (LIST) ================== */
     .unit-card {
       background: var(--bg-card); border-radius: 14px; padding: 16px 18px; margin-bottom: 12px;
       display: flex; justify-content: space-between; align-items: center;
-      box-shadow: var(--shadow); cursor: pointer; transition: 0.2s; border: none;
+      box-shadow: var(--shadow); cursor: pointer; transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1); border: none;
     }
-    .unit-card:active { transform: scale(0.98); background: var(--bg-hover); }
+    .unit-card:active { transform: scale(0.96); background: var(--bg-hover); }
     .unit-left-info { display: flex; align-items: center; gap: 12px; }
     .unit-icon-build { font-size: 22px; }
     .unit-name { font-size: 17px; font-weight: 600; color: var(--text-main); letter-spacing: -0.3px;}
@@ -150,13 +210,13 @@
     .unit-count { font-size: 15px; color: var(--text-muted); font-weight: 500; text-align: center; }
     .unit-chevron { color: var(--border); font-weight: 700; font-size: 15px;}
 
-    /* ================== DẠNG HIỂN THỊ 2: LƯỚI 3 CỘT ================== */
+    /* ================== DẠNG HIỂN THỊ 2: LƯỚI CHUYÊN NGHIỆP ================== */
     .folder-grid-container {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      row-gap: 24px;
-      column-gap: 15px;
-      padding: 20px 10px;
+      row-gap: 20px;
+      column-gap: 12px;
+      padding: 15px 10px;
     }
     .folder-grid-item {
       display: flex;
@@ -166,54 +226,32 @@
       position: relative;
       user-select: none;
       -webkit-user-select: none;
-      transition: 0.2s;
+      transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     }
-    .folder-grid-item:active { opacity: 0.6; transform: scale(0.95); }
+    .folder-grid-item:active { opacity: 0.7; transform: scale(0.92); }
     
-    /* [ĐÃ FIX]: Ô Vuông Bo Tròn (Squircle) */
     .folder-grid-icon-wrapper {
       position: relative;
-      width: 64px; 
-      height: 64px;
-      border-radius: 16px; /* Vuông bo tròn chuẩn iOS */
+      width: 60px; 
+      height: 60px;
+      border-radius: 14px; 
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 3px 8px rgba(0,0,0,0.15); 
-      margin-bottom: 8px; 
+      box-shadow: 0 4px 10px rgba(0,0,0,0.12); 
     }
     
-    /* Text chữ cái bên trong hình vuông */
     .folder-grid-icon-text { 
       color: #FFFFFF; 
       font-size: 22px; 
-      font-weight: 700; 
+      font-weight: 600; 
       letter-spacing: 0.5px;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.2); 
     }
     
-    /* Chấm đỏ báo số lượng */
-    .folder-grid-badge { 
-      position: absolute; 
-      top: -6px; 
-      right: -6px; 
-      background: var(--tint-red); 
-      color: white; 
-      font-size: 13px; 
-      font-weight: 700; 
-      min-width: 24px; 
-      height: 24px; 
-      padding: 0 6px;
-      display: flex; align-items: center; justify-content: center; 
-      border-radius: 12px; 
-      border: 2px solid var(--bg-body); 
-      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-      z-index: 2;
-    }
-
-    /* Tên nhóm bên dưới ô vuông */
     .folder-grid-name { 
       font-size: 13px; 
-      font-weight: 500; 
+      font-weight: 600; 
       color: var(--text-main); 
       text-align: center; 
       width: 100%;
@@ -221,7 +259,15 @@
       white-space: nowrap; 
       overflow: hidden; 
       text-overflow: ellipsis; 
-      letter-spacing: -0.2px;
+      margin-top: 8px; 
+    }
+    
+    .folder-grid-count-text {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text-muted);
+      text-align: center;
+      margin-top: 2px;
     }
 
     /* NÚT CHUYỂN ĐỔI CHẾ ĐỘ XEM */
@@ -234,7 +280,7 @@
       display: flex; align-items: center; justify-content: space-between; 
       padding: 12px 16px; margin: 0 -16px 15px -16px;
       background: var(--bg-body-alpha);
-      backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
       position: sticky; top: var(--sticky-top); z-index: 95;
       border-bottom: 1px solid var(--border-light);
     }
@@ -258,73 +304,48 @@
       width: 44px; height: 44px; border-radius: 50%; flex-shrink: 0;
       display: flex; align-items: center; justify-content: center;
       color: #fff; font-weight: 600; font-size: 16px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
     }
     .contact-info { flex: 1; display: flex; flex-direction: column; gap: 3px; }
     .contact-name { font-size: 17px; font-weight: 600; color: var(--text-main); letter-spacing: -0.3px;}
     .contact-phone-group { display: flex; flex-direction: column; gap: 4px; }
-    .contact-phone { font-size: 15px; color: var(--tint-blue); line-height: 1.2;}
+    .contact-phone { font-size: 15px; color: var(--text-sub); line-height: 1.2;}
     .contact-group-label { font-size: 12px; color: var(--text-muted); font-weight: 500; margin-top: 2px;}
     
     .action-buttons-card { display: flex; align-items: center; gap: 6px; flex-shrink: 0;}
-    .btn-action-circle { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; text-decoration: none; transition: 0.2s; border: none; cursor: pointer; }
+    .btn-action-circle { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; text-decoration: none; transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1); border: none; cursor: pointer; }
     .btn-zalo { background: rgba(0, 122, 255, 0.1); color: var(--tint-blue); font-family: Arial, sans-serif; font-weight: bold;}
     .btn-sms { background: var(--bg-hover); color: var(--text-main); }
     .btn-call { background: rgba(52, 199, 89, 0.15); color: var(--tint-green); }
     .btn-action-circle:active { transform: scale(0.85); opacity: 0.8;}
 
-    .drag-handle { padding: 5px; color: var(--border); font-size: 22px; font-weight: 400; cursor: grab; display: flex; align-items: center; justify-content: center; touch-action: none; width: 30px; }
-    .drag-handle:active { cursor: grabbing; color: var(--tint-blue); }
+    .drag-handle { padding: 5px; color: var(--border); font-size: 22px; font-weight: 400; cursor: grab; display: flex; align-items: center; justify-content: center; touch-action: none; width: 30px; transition: 0.2s;}
+    .drag-handle:active { cursor: grabbing; color: var(--tint-blue); transform: scale(1.1); }
     .sortable-ghost { opacity: 0.4; background: var(--bg-hover); border-radius: 14px;}
-    .sortable-chosen { transform: scale(1.05); box-shadow: var(--shadow-lg); z-index: 10;}
+    .sortable-chosen { transform: scale(1.03); box-shadow: var(--shadow-lg); z-index: 10; background: var(--bg-card);}
 
     /* ================== MODAL CƠ BẢN ================== */
-    .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); z-index: 1000; display: none; align-items: flex-end; justify-content: center; opacity: 0; transition: opacity 0.3s ease; }
+    .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 1000; display: none; align-items: flex-end; justify-content: center; opacity: 0; transition: opacity 0.3s ease; }
     .modal-overlay.show { opacity: 1; }
     
     .modal-content { 
       background: var(--bg-body); width: 100%; max-width: 600px; 
-      border-radius: 20px 20px 0 0; 
+      border-radius: 24px 24px 0 0; 
       transform: translateY(100%); transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1); 
-      box-shadow: 0 -10px 25px rgba(0,0,0,0.2); 
+      box-shadow: 0 -10px 40px rgba(0,0,0,0.25); 
     }
     .modal-overlay.show .modal-content { transform: translateY(0); }
 
-    .flex-modal {
-      display: flex; flex-direction: column; 
-      height: 85vh; 
-      max-height: 85vh; 
-      padding: 0; 
-      overflow: hidden; 
-    }
-    
-    .modal-header-fixed {
-      flex-shrink: 0; 
-      padding: 15px 20px 10px 20px;
-      background: var(--bg-body);
-      border-bottom: 1px solid var(--border-light);
-      z-index: 10;
-    }
-    
-    .modal-body-scroll {
-      flex: 1; 
-      overflow-y: auto; 
-      padding: 15px 20px 20px 20px;
-      -webkit-overflow-scrolling: touch; 
-    }
-    
-    .modal-footer-fixed {
-      flex-shrink: 0; 
-      padding: 15px 20px calc(env(safe-area-inset-bottom) + 15px) 20px;
-      background: var(--bg-body);
-      border-top: 1px solid var(--border-light);
-      z-index: 10;
-      box-shadow: 0 -4px 15px rgba(0,0,0,0.03);
-    }
+    .flex-modal { display: flex; flex-direction: column; height: 85vh; max-height: 85vh; padding: 0; overflow: hidden; }
+    .modal-header-fixed { flex-shrink: 0; padding: 15px 20px 10px 20px; background: var(--bg-body); border-bottom: 1px solid var(--border-light); z-index: 10;}
+    .modal-body-scroll { flex: 1; overflow-y: auto; padding: 15px 20px 20px 20px; -webkit-overflow-scrolling: touch; }
+    .modal-footer-fixed { flex-shrink: 0; padding: 15px 20px calc(env(safe-area-inset-bottom) + 15px) 20px; background: var(--bg-body); border-top: 1px solid var(--border-light); z-index: 10; box-shadow: 0 -4px 15px rgba(0,0,0,0.03);}
 
     .pull-bar { width: 36px; height: 5px; background: var(--text-muted); border-radius: 3px; margin: 0 auto 15px auto; opacity: 0.5;}
     .modal-head { display: flex; justify-content: space-between; align-items: center; position: relative;}
     .modal-title { font-size: 22px; font-weight: 800; margin: 0; color: var(--text-main); letter-spacing: -0.5px;}
-    .btn-close-modal { background: var(--bg-hover); border: none; width: 30px; height: 30px; border-radius: 50%; font-size: 14px; font-weight: bold; color: var(--text-muted); cursor: pointer; display: flex; align-items: center; justify-content: center;}
+    .btn-close-modal { background: var(--bg-hover); border: none; width: 30px; height: 30px; border-radius: 50%; font-size: 14px; font-weight: bold; color: var(--text-muted); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s;}
+    .btn-close-modal:active { transform: scale(0.85); background: var(--border);}
 
     .group-input-wrapper { display: flex; background: var(--bg-input); border-radius: 12px; border: none; overflow: hidden; margin-bottom: 20px; box-shadow: var(--shadow); }
     .group-input-wrapper input { border: none; padding: 14px 15px; font-size: 16px; flex: 1; outline: none; background: transparent; color: var(--text-main); }
@@ -345,27 +366,32 @@
     .custom-checkbox { appearance: none; width: 24px; height: 24px; border: 1px solid var(--border); border-radius: 6px; outline: none; cursor: pointer; position: relative; background: var(--bg-input); transition: 0.2s; margin:0; }
     .custom-checkbox:checked { background: var(--tint-blue); border-color: var(--tint-blue); }
     .custom-checkbox:checked::after { content: '✔'; position: absolute; color: white; font-size: 15px; top: 50%; left: 50%; transform: translate(-50%, -50%); font-weight: bold; }
-    .text-blue-bold { color: var(--tint-blue); font-weight: 600; font-size: 16px; cursor: pointer; }
-    .text-red-bold { color: var(--tint-red); font-weight: 600; font-size: 15px; cursor: pointer; background: none; border: none; padding:0;}
+    .text-blue-bold { color: var(--tint-blue); font-weight: 600; font-size: 16px; cursor: pointer; transition: 0.2s;}
+    .text-blue-bold:active { opacity: 0.6; }
+    .text-red-bold { color: var(--tint-red); font-weight: 600; font-size: 15px; cursor: pointer; background: none; border: none; padding:0; transition: 0.2s;}
+    .text-red-bold:active { opacity: 0.6; }
 
     .pending-list { width: 100%; }
-    .pending-card { background: var(--bg-card); border-radius: 14px; padding: 14px 16px; margin-bottom: 10px; display: flex; align-items: center; gap: 16px; border: none; box-shadow: var(--shadow); }
+    .pending-card { background: var(--bg-card); border-radius: 14px; padding: 14px 16px; margin-bottom: 10px; display: flex; align-items: center; gap: 16px; border: none; box-shadow: var(--shadow); transition: 0.2s;}
+    .pending-card:active { transform: scale(0.98); background: var(--bg-hover); }
     .p-name { font-weight: 600; color: var(--text-main); font-size: 16px; margin-bottom: 2px; display: block;}
-    .p-phone { font-weight: 500; color: var(--tint-blue); font-size: 15px; display: block;}
+    .p-phone { font-weight: 500; color: var(--text-sub); font-size: 15px; display: block;}
 
     .smart-input-container { position: relative; margin-bottom: 16px; }
     .smart-input { width: 100%; padding: 14px 16px; font-size: 16px; border: none; border-radius: 12px; outline: none; box-sizing: border-box; background: var(--bg-card); border: 1px solid var(--border); color: var(--text-main); transition: 0.2s; }
     .smart-input:focus { box-shadow: 0 0 0 2px rgba(10,132,255,0.3); border-color: var(--tint-blue);}
     
-    .smart-dropdown { position: absolute; top: 100%; left: 0; right: 0; background: var(--bg-card); border: 1px solid var(--border-light); border-radius: 12px; max-height: 180px; overflow-y: auto; z-index: 100; display: none; box-shadow: var(--shadow-lg); margin-top: 5px; }
-    .smart-dropdown.dropdown-up { top: auto; bottom: 100%; margin-top: 0; margin-bottom: 5px; border-radius: 12px 12px 0 0; box-shadow: 0 -5px 15px rgba(0,0,0,0.1); }
+    .smart-dropdown { position: absolute; top: 100%; left: 0; right: 0; background: var(--bg-card); border: 1px solid var(--border-light); border-radius: 12px; max-height: 180px; overflow-y: auto; z-index: 100; display: none; box-shadow: var(--shadow-lg); margin-top: 5px; opacity: 0; transform: translateY(-5px); transition: opacity 0.2s, transform 0.2s; }
+    .smart-dropdown.show { opacity: 1; transform: translateY(0); }
+    .smart-dropdown.dropdown-up { top: auto; bottom: 100%; margin-top: 0; margin-bottom: 5px; border-radius: 12px 12px 0 0; box-shadow: 0 -5px 15px rgba(0,0,0,0.1); transform: translateY(5px); }
+    .smart-dropdown.dropdown-up.show { transform: translateY(0); }
     
-    .smart-dropdown-item { padding: 14px 16px; border-bottom: 1px solid var(--border-light); cursor: pointer; font-size: 16px; font-weight: 500; color: var(--text-main); text-align: left; }
+    .smart-dropdown-item { padding: 14px 16px; border-bottom: 1px solid var(--border-light); cursor: pointer; font-size: 16px; font-weight: 500; color: var(--text-main); text-align: left; transition: 0.2s;}
     .smart-dropdown-item:last-child { border-bottom: none; }
     .smart-dropdown-item:active { background: var(--bg-hover); }
     
-    .btn-green-large { width: 100%; background: var(--tint-blue); color: white; padding: 16px; border: none; border-radius: 14px; font-size: 16px; font-weight: 600; cursor: pointer; transition: 0.2s; letter-spacing: -0.3px; }
-    .btn-green-large:active { opacity: 0.8; transform: scale(0.98);}
+    .btn-green-large { width: 100%; background: var(--tint-blue); color: white; padding: 16px; border: none; border-radius: 14px; font-size: 16px; font-weight: 600; cursor: pointer; transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1); letter-spacing: -0.3px; }
+    .btn-green-large:active { opacity: 0.8; transform: scale(0.96);}
     .input-label { font-size: 14px; font-weight: 600; color: var(--text-sub); margin-bottom: 8px; display: block;}
 
     .custom-dialog-box { background: var(--bg-card); width: 85%; max-width: 300px; border-radius: 18px; padding: 24px 20px 20px 20px; text-align: center; box-shadow: var(--shadow-lg); transform: scale(0.9); opacity: 0; transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1); margin: auto; border: none; }
@@ -373,10 +399,14 @@
     .dialog-title { font-size: 18px; font-weight: 600; color: var(--text-main); margin: 0 0 10px 0; letter-spacing: -0.3px;}
     .dialog-message { font-size: 14px; color: var(--text-sub); margin: 0 0 20px 0; line-height: 1.4; }
     .dialog-buttons { display: flex; gap: 10px; }
-    .btn-dialog { flex: 1; padding: 12px; border-radius: 12px; font-weight: 600; border: none; font-size: 15px; cursor: pointer; color: white;}
+    .btn-dialog { flex: 1; padding: 12px; border-radius: 12px; font-weight: 600; border: none; font-size: 15px; cursor: pointer; color: white; transition: 0.2s;}
+    .btn-dialog:active { transform: scale(0.95); }
   </style>
 </head>
 <body>
+
+  <!-- [PRO UPGRADE 2]: BONG BÓNG THÔNG BÁO (TOAST) -->
+  <div id="ios-toast" class="ios-toast">✅ Thành công</div>
 
   <datalist id="group-suggestions"></datalist>
 
@@ -500,7 +530,7 @@
   </div>
 
   <div id="qr-modal" class="modal-overlay" onclick="if(event.target === this) closeQRModal()">
-    <div class="modal-content" style="align-items:center; padding-bottom:40px; border-radius: 20px 20px 0 0;">
+    <div class="modal-content" style="align-items:center; padding-bottom:40px; border-radius: 24px 24px 0 0;">
       <div class="pull-bar"></div>
       <h3 class="modal-title" id="qr-name" style="margin-bottom:20px; text-align:center; font-size: 22px;">Tên</h3>
       <div id="qr-code-img" style="background:#fff; padding:20px; border-radius:20px; box-shadow: var(--shadow-lg);"></div>
@@ -596,13 +626,38 @@
   </div>
 
 <script>
+  // Kích hoạt tính năng rung của thiết bị khi chạm vào các nút (Native feel)
+  window.haptic = function(ms = 30) {
+      if (navigator.vibrate) {
+          try { navigator.vibrate(ms); } catch(e) {}
+      }
+  };
+
+  // Hiển thị Toast mượt mà
+  window.showToast = function(msg) {
+      haptic(20);
+      let t = document.getElementById('ios-toast'); 
+      t.innerHTML = msg;
+      t.classList.add('show'); 
+      setTimeout(() => t.classList.remove('show'), 2000);
+  }
+
   function genId() { return Date.now().toString() + Math.floor(Math.random() * 1000000).toString(); }
 
   window.getAvatarColor = function(str) {
-      const colors = ['#FF3B30', '#FF9500', '#FFCC00', '#4CD964', '#5AC8FA', '#007AFF', '#5856D6', '#AF52DE', '#FF2D55', '#8E8E93'];
+      const gradients = [
+          'linear-gradient(135deg, #FF7B72, #FF3B30)', // Red
+          'linear-gradient(135deg, #FFB340, #FF9500)', // Orange
+          'linear-gradient(135deg, #74E081, #34C759)', // Green
+          'linear-gradient(135deg, #5AC8FA, #007AFF)', // Blue
+          'linear-gradient(135deg, #8A72EB, #5856D6)', // Indigo
+          'linear-gradient(135deg, #D479E4, #AF52DE)', // Purple
+          'linear-gradient(135deg, #FF6884, #FF2D55)', // Pink
+          'linear-gradient(135deg, #A1A1A6, #8E8E93)'  // Gray
+      ];
       let hash = 0; 
       for (let i = 0; i < str.length; i++) hash = str.charCodeAt(i) + ((hash << 5) - hash);
-      return colors[Math.abs(hash) % colors.length];
+      return gradients[Math.abs(hash) % gradients.length];
   };
   
   window.getInitials = function(name) {
@@ -630,7 +685,13 @@
       return valid;
   }
 
-  // ================= TỐI ƯU HÓA TÍNH TOÁN STICKY CHO IOS =================
+  // Bôi xanh từ khóa tìm kiếm trong kết quả
+  window.highlightText = function(text, keyword) {
+      if (!keyword || !text) return text;
+      const regex = new RegExp(`(${keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, "gi");
+      return text.replace(regex, "<span class='search-highlight'>$1</span>");
+  };
+
   window.updateStickyTop = function() {
       const stickyZone = document.querySelector('.sticky-zone');
       const container = document.querySelector('.container');
@@ -644,12 +705,14 @@
   window.addEventListener('resize', updateStickyTop);
 
   window.capNhatApp = function() {
+      haptic();
       showDialog("Cập nhật", "Làm mới ứng dụng để nhận phiên bản mới nhất?<br><br><span style='font-size:12px'>(Quá trình này không làm mất dữ liệu)</span>", "confirm", () => {
           const url = new URL(window.location.href); url.searchParams.set('v', Date.now()); window.location.replace(url.toString());
       });
   }
 
   window.showDialog = function(title, message, type, confirmCallback, defaultValue = '') {
+      haptic(20);
       document.getElementById('dialog-title').innerText = title; document.getElementById('dialog-message').innerHTML = message; 
       let btnContainer = document.getElementById('dialog-buttons'); let promptInput = document.getElementById('dialog-prompt-input');
       
@@ -659,18 +722,19 @@
       window.closeDialog = function() { wrapper.classList.remove('show'); setTimeout(() => wrapper.style.display = 'none', 300); };
 
       if (type === 'alert') {
-          btnContainer.innerHTML = `<button onclick="closeDialog()" class="btn-dialog" style="background:var(--tint-blue);">Đóng</button>`;
+          btnContainer.innerHTML = `<button onclick="haptic(20); closeDialog()" class="btn-dialog" style="background:var(--tint-blue);">Đóng</button>`;
       } else if (type === 'confirm') {
-          btnContainer.innerHTML = `<button onclick="closeDialog()" class="btn-dialog" style="background:var(--bg-hover); color:var(--text-main);">Hủy</button><button id="dialog-confirm-btn" class="btn-dialog" style="background:var(--tint-red);">Đồng ý</button>`;
-          document.getElementById('dialog-confirm-btn').onclick = function() { closeDialog(); if(confirmCallback) confirmCallback(); };
+          btnContainer.innerHTML = `<button onclick="haptic(20); closeDialog()" class="btn-dialog" style="background:var(--bg-hover); color:var(--text-main);">Hủy</button><button id="dialog-confirm-btn" class="btn-dialog" style="background:var(--tint-red);">Đồng ý</button>`;
+          document.getElementById('dialog-confirm-btn').onclick = function() { haptic(30); closeDialog(); if(confirmCallback) confirmCallback(); };
       } else if (type === 'prompt') {
-          btnContainer.innerHTML = `<button onclick="closeDialog()" class="btn-dialog" style="background:var(--bg-hover); color:var(--text-main);">Hủy</button><button id="dialog-confirm-btn" class="btn-dialog" style="background:var(--tint-blue);">Lưu</button>`;
-          document.getElementById('dialog-confirm-btn').onclick = function() { let val = promptInput.value; closeDialog(); if(confirmCallback) confirmCallback(val); };
+          btnContainer.innerHTML = `<button onclick="haptic(20); closeDialog()" class="btn-dialog" style="background:var(--bg-hover); color:var(--text-main);">Hủy</button><button id="dialog-confirm-btn" class="btn-dialog" style="background:var(--tint-blue);">Lưu</button>`;
+          document.getElementById('dialog-confirm-btn').onclick = function() { haptic(30); let val = promptInput.value; closeDialog(); if(confirmCallback) confirmCallback(val); };
       }
   }
 
   window.promptMoveToBottom = function(evt, id, groupName) {
       evt.stopPropagation();
+      haptic();
       showDialog('Sắp xếp', 'Chuyển liên hệ này xuống cuối danh sách?', 'confirm', () => {
           let groupContacts = STATE.contacts.filter(c => c.group === groupName);
           let idx = groupContacts.findIndex(c => c.id.toString() === id.toString());
@@ -695,6 +759,7 @@
 
   window.promptMoveGroupToBottom = function(evt, groupName) {
       evt.stopPropagation();
+      haptic();
       showDialog('Sắp xếp', 'Chuyển nhóm này xuống cuối danh sách?', 'confirm', () => {
           let idx = STATE.groups.indexOf(groupName);
           if (idx > -1) {
@@ -731,7 +796,6 @@
     
     document.addEventListener('click', function(e) { if (!e.target.closest('.smart-input-container')) hideAllDropdowns(); });
 
-    // ================= TÍNH NĂNG VUỐT MÉP TRÁI ĐỂ QUAY LẠI =================
     let touchStartX = 0;
     let touchStartY = 0;
 
@@ -770,6 +834,7 @@
   }
   
   window.toggleContactToolbar = function() {
+      haptic(20);
       let tb = document.getElementById('contact-action-toolbar');
       if(tb.style.maxHeight === '0px' || tb.style.maxHeight === '0' || !tb.style.maxHeight) { 
           tb.style.maxHeight = '100px'; tb.style.marginBottom = '10px'; tb.style.opacity = '1'; 
@@ -779,8 +844,8 @@
       setTimeout(updateStickyTop, 310);
   }
 
-  // ================= CHUYỂN ĐỔI CHẾ ĐỘ VIEW =================
   window.changeViewMode = function(mode) {
+      haptic(20);
       STATE.viewMode = mode;
       localStorage.setItem('appViewModeStandalone', mode);
       
@@ -791,23 +856,31 @@
   }
   
   window.showGroupDropdown = function(dropdownId, inputId) {
-      hideAllDropdowns(); let dropdown = document.getElementById(dropdownId); if(!dropdown) return; dropdown.style.display = 'block'; STATE.activeDropdownId = dropdownId;
+      hideAllDropdowns(); let dropdown = document.getElementById(dropdownId); if(!dropdown) return; dropdown.style.display = 'block'; 
+      setTimeout(() => dropdown.classList.add('show'), 10);
+      STATE.activeDropdownId = dropdownId;
       let html = STATE.groups.map(g => `<div class="smart-dropdown-item" onclick="selectGroupItem('${g}', '${inputId}')">${g}</div>`).join('');
       if(STATE.groups.length === 0) html = `<div style="padding:14px; color:var(--text-muted); font-size:14px; text-align:center;">Chưa có nhóm nào</div>`;
       dropdown.innerHTML = html;
   }
   window.filterGroupDropdown = function(keyword, dropdownId, inputId) {
-      let dropdown = document.getElementById(dropdownId); if(!dropdown) return; dropdown.style.display = 'block';
+      let dropdown = document.getElementById(dropdownId); if(!dropdown) return; dropdown.style.display = 'block'; dropdown.classList.add('show');
       let filtered = STATE.groups.filter(g => g.toLowerCase().includes(keyword.toLowerCase()));
       let html = filtered.map(g => `<div class="smart-dropdown-item" onclick="selectGroupItem('${g}', '${inputId}')">${g}</div>`).join('');
       if (keyword.trim() && !STATE.groups.some(g => g.toLowerCase() === keyword.toLowerCase())) { html += `<div class="smart-dropdown-item" style="color:var(--tint-blue);" onclick="selectGroupItem('${keyword.trim()}', '${inputId}')">➕ Tạo nhóm mới: "${keyword.trim()}"</div>`; }
       if(!html) html = `<div style="padding:14px; color:var(--text-muted); font-size:14px; text-align:center;">Nhập để tạo mới...</div>`;
       dropdown.innerHTML = html;
   }
-  window.selectGroupItem = function(val, inputId) { let input = document.getElementById(inputId); if(input) input.value = val; hideAllDropdowns(); }
-  window.hideAllDropdowns = function() { document.querySelectorAll('.smart-dropdown').forEach(el => el.style.display = 'none'); STATE.activeDropdownId = null; }
+  window.selectGroupItem = function(val, inputId) { haptic(20); let input = document.getElementById(inputId); if(input) input.value = val; hideAllDropdowns(); }
+  window.hideAllDropdowns = function() { 
+      document.querySelectorAll('.smart-dropdown').forEach(el => {
+          el.classList.remove('show');
+          setTimeout(() => el.style.display = 'none', 200);
+      }); 
+      STATE.activeDropdownId = null; 
+  }
 
-  // KIẾN TRÚC MAIN (ĐÃ FIX LỖI INLINE DISPLAY BLOCK)
+  // KIẾN TRÚC MAIN
   window.renderMainView = function() {
       updateStats();
       STATE.contacts.forEach(c => { let g = c.group || 'Khác'; if (!STATE.groups.includes(g)) { STATE.groups.unshift(g); localStorage.setItem('appGroupsStandalone', JSON.stringify(STATE.groups)); updateDataLists(); } });
@@ -817,15 +890,26 @@
       viewSearch.style.display = 'none'; 
       STATE.currentFolder = null;
 
+      // [PRO UPGRADE]: Áp dụng animation trượt về lại màn chính
+      viewFolders.className = 'page-enter-left';
+
       if (STATE.groups.length === 0 && STATE.contacts.length === 0) {
-          viewFolders.style.display = 'block'; // Fallback nếu trống
-          viewFolders.innerHTML = '<div style="text-align:center; padding: 40px 20px; color:var(--text-muted); line-height: 1.5;">Chưa có liên hệ nào.<br>Thêm thủ công hoặc Tải lên từ danh bạ.</div>'; return;
+          viewFolders.style.display = 'block';
+          viewFolders.innerHTML = `
+              <div class="empty-state">
+                  <div class="empty-icon">📇</div>
+                  <h3 class="empty-title">Danh Bạ Trống</h3>
+                  <p class="empty-desc">Chưa có liên hệ hoặc nhóm nào được tạo. Hãy bắt đầu xây dựng mạng lưới của bạn.</p>
+                  <div class="empty-actions">
+                      <button class="btn-empty-primary" onclick="openContactModal()">+ Thêm Thủ Công</button>
+                      <button class="btn-empty-secondary" onclick="importFromContacts()">Lấy từ điện thoại</button>
+                  </div>
+              </div>`;
+          return;
       }
       
-      // [BẢN FIX]: Khai báo rõ display grid hoặc block bằng Javascript thay vì để class CSS bị đè
       if (STATE.viewMode === 'list') {
-          viewFolders.style.display = 'block'; // Bật 1 cột
-          viewFolders.className = '';
+          viewFolders.style.display = 'block'; 
           viewFolders.innerHTML = STATE.groups.map(g => {
               let count = STATE.contacts.filter(c => c.group === g).length;
               return `
@@ -842,21 +926,21 @@
                   </div>`;
           }).join('');
       } else {
-          viewFolders.style.display = 'grid'; // Bật tính năng Grid 3 Cột của trình duyệt
-          viewFolders.className = 'folder-grid-container';
+          viewFolders.style.display = 'grid'; 
+          viewFolders.className = 'folder-grid-container page-enter-left'; // Gắn thêm lưới
           viewFolders.innerHTML = STATE.groups.map(g => {
               let count = STATE.contacts.filter(c => c.group === g).length;
-              let badgeHtml = count > 0 ? `<div class="folder-grid-badge">${count}</div>` : '';
+              let countText = count > 0 ? `${count} người` : 'Trống';
               let bgColor = window.getAvatarColor(g);
               let initials = window.getInitials(g);
               
               return `
                   <div class="folder-grid-item drag-handle-group" data-group="${g.replace(/'/g, "\\'")}" onclick="openFolderView('${g.replace(/'/g, "\\'")}')">
-                      <div class="folder-grid-icon-wrapper" style="background-color: ${bgColor};">
-                          ${badgeHtml}
+                      <div class="folder-grid-icon-wrapper" style="background: ${bgColor};">
                           <div class="folder-grid-icon-text">${initials}</div>
                       </div>
                       <div class="folder-grid-name">${g}</div>
+                      <div class="folder-grid-count-text">${countText}</div>
                   </div>`;
           }).join('');
       }
@@ -865,17 +949,26 @@
       
       window.groupSortableMain = new Sortable(viewFolders, {
           handle: '.drag-handle-group', delay: 200, delayOnTouchOnly: true, animation: 150, ghostClass: 'sortable-ghost', chosenClass: 'sortable-chosen',
+          onStart: function() { haptic(50); },
           onEnd: function (evt) {
+              haptic(30);
               let movedItem = STATE.groups.splice(evt.oldIndex, 1)[0]; STATE.groups.splice(evt.newIndex, 0, movedItem);
               localStorage.setItem('appGroupsStandalone', JSON.stringify(STATE.groups)); updateDataLists();
           }
       });
   }
 
-  function renderContactCardHTML(c, inFolder = false) {
+  // Kết hợp HIGHLIGHT TEXT vào thẻ liên hệ
+  function renderContactCardHTML(c, inFolder = false, searchKeyword = '') {
       let avatarColor = getAvatarColor(c.name);
       let initials = getInitials(c.name);
-      let folderLabel = !inFolder ? `<span class="contact-group-label">🏢 ${c.group || 'Khác'}</span>` : '';
+      
+      // Highlight nếu có searchKeyword
+      let displayName = highlightText(c.name, searchKeyword);
+      let displayPhone = highlightText(c.phone, searchKeyword);
+      let displayPhone2 = c.phone2 ? highlightText(c.phone2, searchKeyword) : '';
+      
+      let folderLabel = !inFolder ? `<span class="contact-group-label">🏢 ${highlightText(c.group || 'Khác', searchKeyword)}</span>` : '';
       let dragHandle = inFolder ? `<div class="drag-handle" onclick="promptMoveToBottom(event, '${c.id}', '${c.group.replace(/'/g, "\\'")}')">≡</div>` : '';
       
       return `
@@ -883,34 +976,50 @@
           <div style="flex:1; display:flex; align-items:center; gap:12px; cursor:pointer;" onclick="openContactModal('${c.id}')">
               <div class="contact-avatar" style="background:${avatarColor}" onclick="showQRCode('${c.name.replace(/'/g, "\\'")}', '${c.phone}'); event.stopPropagation();" title="Quét mã QR">${initials}</div>
               <div class="contact-info">
-                  <span class="contact-name">${c.name}</span>
+                  <span class="contact-name">${displayName}</span>
                   <div class="contact-phone-group">
-                     <a href="tel:${c.phone}" class="contact-phone" style="text-decoration:none; display:block;" onclick="event.stopPropagation()">${c.phone}</a>
-                     ${c.phone2 ? `<a href="tel:${c.phone2}" class="contact-phone" style="text-decoration:none; display:block;" onclick="event.stopPropagation()">${c.phone2}</a>` : ''}
+                     <a href="tel:${c.phone}" class="contact-phone" style="text-decoration:none; display:block;" onclick="event.stopPropagation()">${displayPhone}</a>
+                     ${c.phone2 ? `<a href="tel:${c.phone2}" class="contact-phone" style="text-decoration:none; display:block;" onclick="event.stopPropagation()">${displayPhone2}</a>` : ''}
                   </div>
                   ${folderLabel}
               </div>
           </div>
           <div class="action-buttons-card">
-              <a href="https://zalo.me/${c.phone}" target="_blank" class="btn-action-circle btn-zalo" onclick="event.stopPropagation()">Z</a>
-              <a href="sms:${c.phone}" class="btn-action-circle btn-sms" onclick="event.stopPropagation()">💬</a>
-              <a href="tel:${c.phone}" class="btn-action-circle btn-call" onclick="event.stopPropagation()">📞</a>
+              <a href="https://zalo.me/${c.phone}" target="_blank" class="btn-action-circle btn-zalo" onclick="event.stopPropagation(); haptic(20);">Z</a>
+              <a href="sms:${c.phone}" class="btn-action-circle btn-sms" onclick="event.stopPropagation(); haptic(20);">💬</a>
+              <a href="tel:${c.phone}" class="btn-action-circle btn-call" onclick="event.stopPropagation(); haptic(20);">📞</a>
               ${dragHandle}
           </div>
       </div>`;
   }
 
+  // [PRO UPGRADE]: TRƯỢT TRANG CHI TIẾT
   window.openFolderView = function(groupName) {
+      haptic(20);
       STATE.currentFolder = groupName;
       document.getElementById('view-folder-list').style.display = 'none'; document.getElementById('view-search-results').style.display = 'none';
-      let viewInner = document.getElementById('view-inner-folder'); viewInner.style.display = 'block';
+      let viewInner = document.getElementById('view-inner-folder'); 
+      viewInner.style.display = 'block';
+      
+      // Áp dụng animation trượt màn hình vào từ bên phải
+      viewInner.className = 'page-enter-right';
+
       document.getElementById('inner-folder-title').innerText = groupName;
       
       let contactsInGroup = STATE.contacts.filter(c => c.group === groupName);
       let listContainer = document.getElementById('inner-contact-list');
       
       if (contactsInGroup.length === 0) { 
-          listContainer.innerHTML = `<div style="text-align:center; padding:40px; color:var(--text-muted); font-style:italic;">Nhóm trống</div>`; 
+          listContainer.innerHTML = `
+              <div class="empty-state">
+                  <div class="empty-icon">📁</div>
+                  <h3 class="empty-title">Nhóm Trống</h3>
+                  <p class="empty-desc">Chưa có ai trong nhóm <b>${groupName}</b>. Hãy chuyển họ từ Kho chờ hoặc thêm mới.</p>
+                  <div class="empty-actions">
+                      <button class="btn-empty-primary" onclick="openPendingModal()">📥 Lấy từ Kho Chờ</button>
+                      <button class="btn-empty-secondary" onclick="openContactModal()">+ Thêm Mới</button>
+                  </div>
+              </div>`; 
       } else { 
           listContainer.innerHTML = contactsInGroup.map(c => renderContactCardHTML(c, true)).join(''); 
       }
@@ -920,11 +1029,12 @@
       if (window.currentSortable) window.currentSortable.destroy();
       window.currentSortable = new Sortable(listContainer, {
           handle: '.drag-handle', delay: 200, delayOnTouchOnly: true, animation: 150, ghostClass: 'sortable-ghost', chosenClass: 'sortable-chosen',
-          onEnd: function (evt) { reorderContactsInGroup(groupName, evt.oldIndex, evt.newIndex); }
+          onStart: function() { haptic(50); },
+          onEnd: function (evt) { haptic(30); reorderContactsInGroup(groupName, evt.oldIndex, evt.newIndex); }
       });
   }
 
-  window.closeFolderView = function() { renderMainView(); }
+  window.closeFolderView = function() { haptic(20); renderMainView(); }
 
   window.reorderContactsInGroup = function(groupName, oldIndex, newIndex) {
       if (oldIndex === newIndex) return;
@@ -941,6 +1051,7 @@
   }
 
   window.sortContactsAZ = function() {
+      haptic();
       if(!STATE.currentFolder) return; let groupName = STATE.currentFolder;
       let groupContacts = STATE.contacts.filter(c => c.group === groupName);
       groupContacts.sort((a, b) => a.name.localeCompare(b.name, 'vi'));
@@ -951,8 +1062,10 @@
 
       STATE.contacts = newContacts; localStorage.setItem('appContactsStandalone', JSON.stringify(STATE.contacts));
       openFolderView(groupName); 
+      showToast("✅ Đã sắp xếp A-Z");
   }
 
+  // Cập nhật hàm Search để truyền keyword vào highlight
   window.searchContacts = function() {
       let keyword = document.getElementById('search-contact').value.toLowerCase();
       let viewFolders = document.getElementById('view-folder-list'), viewInner = document.getElementById('view-inner-folder'), viewSearch = document.getElementById('view-search-results');
@@ -972,18 +1085,31 @@
       );
 
       let listContainer = document.getElementById('search-contact-list');
-      if (filtered.length === 0) { listContainer.innerHTML = '<div style="text-align:center; padding: 40px; color:var(--text-muted);">Không tìm thấy kết quả.</div>'; } 
-      else { listContainer.innerHTML = filtered.map(c => renderContactCardHTML(c, false)).join(''); }
+      if (filtered.length === 0) { 
+          listContainer.innerHTML = `
+              <div class="empty-state">
+                  <div class="empty-icon">🔍</div>
+                  <h3 class="empty-title">Không Tìm Thấy</h3>
+                  <p class="empty-desc">Không có liên hệ nào khớp với từ khóa "<b>${keyword}</b>".</p>
+              </div>`; 
+      } 
+      else { 
+          // Truyền nguyên bản keyword gốc của input để highlight chính xác (bỏ toLowerCase đi)
+          let exactKeyword = document.getElementById('search-contact').value;
+          listContainer.innerHTML = filtered.map(c => renderContactCardHTML(c, false, exactKeyword)).join(''); 
+      }
       updateStickyTop();
   }
 
   window.cancelSearch = function() {
+      haptic(20);
       document.getElementById('search-contact').value = '';
       searchContacts();
   }
 
   // ================== CÀI ĐẶT NHÓM & XUẤT DỮ LIỆU ==================
   window.exportContactsCSV = function() {
+      haptic();
       if(STATE.contacts.length === 0) { showDialog("Lỗi", "Chưa có dữ liệu để xuất!", "alert"); return; }
       let csvContent = "data:text/csv;charset=utf-8,\uFEFF"; 
       csvContent += "Họ và Tên,Số Điện Thoại 1,Số Điện Thoại 2,Nhóm\n";
@@ -1000,6 +1126,7 @@
   }
 
   window.exportContactsBackup = function() {
+      haptic();
       if(STATE.contacts.length === 0 && STATE.groups.length === 0) { showDialog("Lỗi", "Chưa có dữ liệu để sao lưu!", "alert"); return; }
       let backupData = { type: "DanhBa_Backup_Standalone", appVersion: "2.1", timestamp: new Date().toISOString(), contacts: STATE.contacts, groups: STATE.groups };
       let dataStr = "data:application/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupData));
@@ -1008,11 +1135,13 @@
   }
 
   window.openGroupSettingsModal = function() {
+      haptic(20);
       updateStats(); renderGroupSettingsList();
       let modal = document.getElementById('group-settings-modal'); modal.style.display = 'flex'; setTimeout(() => modal.classList.add('show'), 10);
   }
 
   window.closeGroupSettingsModal = function() {
+      haptic(20);
       let modal = document.getElementById('group-settings-modal'); modal.classList.remove('show'); setTimeout(() => modal.style.display = 'none', 300);
       if(STATE.currentFolder) openFolderView(STATE.currentFolder); else renderMainView();
   }
@@ -1034,7 +1163,9 @@
       if (window.groupSortableSettings) window.groupSortableSettings.destroy();
       window.groupSortableSettings = new Sortable(listDiv, {
           handle: '.drag-handle-setting', animation: 150, ghostClass: 'sortable-ghost', chosenClass: 'sortable-chosen',
+          onStart: function() { haptic(50); },
           onEnd: function (evt) {
+              haptic(30);
               let movedItem = STATE.groups.splice(evt.oldIndex, 1)[0]; STATE.groups.splice(evt.newIndex, 0, movedItem);
               localStorage.setItem('appGroupsStandalone', JSON.stringify(STATE.groups)); updateDataLists(); renderGroupSettingsList(); 
               if (!STATE.currentFolder) renderMainView(); 
@@ -1043,11 +1174,13 @@
   }
 
   window.addNewGroup = function() {
+      haptic();
       let input = document.getElementById('new-group-input'), val = input.value.trim();
       if(!val) { showDialog("Lỗi", "Vui lòng nhập tên nhóm!", "alert"); return; }
       if(STATE.groups.includes(val)) { showDialog("Lỗi", "Nhóm này đã tồn tại!", "alert"); return; }
       STATE.groups.unshift(val); localStorage.setItem('appGroupsStandalone', JSON.stringify(STATE.groups));
       updateDataLists(); updateStats(); input.value = ''; renderGroupSettingsList();
+      showToast("✅ Đã tạo nhóm");
   }
 
   window.editGroupItem = function(idx) {
@@ -1059,6 +1192,7 @@
           if(STATE.currentFolder === oldName) STATE.currentFolder = newName;
           localStorage.setItem('appGroupsStandalone', JSON.stringify(STATE.groups)); localStorage.setItem('appContactsStandalone', JSON.stringify(STATE.contacts));
           updateDataLists(); renderGroupSettingsList();
+          showToast("✅ Đổi tên thành công");
       }, oldName);
   }
 
@@ -1076,11 +1210,13 @@
           }
           if(STATE.currentFolder === groupName) STATE.currentFolder = null;
           localStorage.setItem('appGroupsStandalone', JSON.stringify(STATE.groups)); updateDataLists(); updateStats(); renderGroupSettingsList();
+          showToast("🗑️ Đã xóa nhóm");
       });
   }
 
   // ================== MÃ QR CODE ==================
   window.showQRCode = function(name, phone) {
+      haptic(20);
       let vcard = `BEGIN:VCARD\nVERSION:3.0\nFN:${name}\nTEL:${phone}\nEND:VCARD`;
       let qr = qrcode(0, 'M');
       qr.addData(vcard); qr.make();
@@ -1089,11 +1225,13 @@
       let modal = document.getElementById('qr-modal'); modal.style.display = 'flex'; setTimeout(() => modal.classList.add('show'), 10);
   }
   window.closeQRModal = function() {
+      haptic(20);
       let modal = document.getElementById('qr-modal'); modal.classList.remove('show'); setTimeout(() => modal.style.display = 'none', 300);
   }
 
   // ================== GIẢI QUYẾT XUNG ĐỘT TÊN (CONFLICTS) ==================
   window.openConflictModal = function() {
+      haptic(50);
       let container = document.getElementById('conflict-list-container');
       container.innerHTML = STATE.conflicts.map((c, i) => `
           <div class="group-item-card" style="flex-direction: column; align-items: flex-start; gap: 10px; margin-bottom: 12px; border: 1px solid var(--border); border-radius: 12px; padding: 14px;">
@@ -1121,6 +1259,7 @@
   }
 
   window.resolveConflicts = function() {
+      haptic(30);
       let updated = 0;
       STATE.conflicts.forEach((c, i) => {
           let radios = document.getElementsByName(`conflict_${i}`);
@@ -1143,7 +1282,7 @@
       }
       
       if (updated > 0) {
-          showDialog('Hoàn tất', `Đã cập nhật tên mới cho ${updated} liên hệ trùng lặp.`, 'alert');
+          showToast(`✅ Đã giải quyết ${updated} trùng lặp`);
       }
   }
 
@@ -1154,6 +1293,7 @@
   }
 
   window.openPendingModal = function() {
+      haptic(20);
       STATE.selectedPendingIds = []; document.getElementById('search-pending').value = ''; 
       
       let groupInput = document.getElementById('pending-group-input');
@@ -1164,6 +1304,7 @@
   }
 
   window.closePendingModal = function() {
+      haptic(20);
       let modal = document.getElementById('pending-modal'); modal.classList.remove('show'); setTimeout(() => modal.style.display = 'none', 300);
       document.getElementById('chk-select-all-pending').checked = false; STATE.selectedPendingIds = []; hideAllDropdowns();
       if(STATE.currentFolder) openFolderView(STATE.currentFolder); else renderMainView();
@@ -1171,10 +1312,23 @@
 
   window.renderPendingList = function(dataArr) {
       const container = document.getElementById('pending-list-container');
-      if (dataArr.length === 0) { container.innerHTML = '<div style="text-align:center; padding:30px; color:var(--text-muted); font-style:italic;">Kho chờ trống.</div>'; document.getElementById('chk-select-all-pending').checked = false; return; }
+      if (dataArr.length === 0) { 
+          container.innerHTML = `
+              <div class="empty-state">
+                  <div class="empty-icon">✅</div>
+                  <h3 class="empty-title">Đã Xử Lý Xong</h3>
+                  <p class="empty-desc">Tất cả liên hệ đã được đưa vào các nhóm. Kho chờ hiện đang trống.</p>
+              </div>`; 
+          document.getElementById('chk-select-all-pending').checked = false; 
+          return; 
+      }
+      let searchKeyword = document.getElementById('search-pending').value;
       let html = dataArr.map(p => {
           let isChecked = STATE.selectedPendingIds.includes(p.id.toString()) ? 'checked' : '';
-          return `<label class="pending-card"><input type="checkbox" class="custom-checkbox chk-pending-item" value="${p.id}" onchange="handlePendingCheck('${p.id}', this.checked)" ${isChecked}><div style="flex:1;"><span class="p-name">${p.name}</span><div class="contact-phone-group"><span class="p-phone">${p.phone}</span>${p.phone2 ? `<span class="p-phone">${p.phone2}</span>` : ''}</div></div></label>`;
+          let dName = highlightText(p.name, searchKeyword);
+          let dPhone = highlightText(p.phone, searchKeyword);
+          let dPhone2 = p.phone2 ? highlightText(p.phone2, searchKeyword) : '';
+          return `<label class="pending-card"><input type="checkbox" class="custom-checkbox chk-pending-item" value="${p.id}" onchange="handlePendingCheck('${p.id}', this.checked)" ${isChecked}><div style="flex:1;"><span class="p-name">${dName}</span><div class="contact-phone-group"><span class="p-phone">${dPhone}</span>${dPhone2 ? `<span class="p-phone">${dPhone2}</span>` : ''}</div></div></label>`;
       }).join('');
       container.innerHTML = html;
       let allCheckedInView = dataArr.every(p => STATE.selectedPendingIds.includes(p.id.toString()));
@@ -1182,6 +1336,7 @@
   }
 
   window.handlePendingCheck = function(id, isChecked) {
+      haptic(10);
       id = id.toString();
       if (isChecked) { if (!STATE.selectedPendingIds.includes(id)) STATE.selectedPendingIds.push(id); } else { STATE.selectedPendingIds = STATE.selectedPendingIds.filter(x => x !== id); }
       let kw = document.getElementById('search-pending').value.toLowerCase();
@@ -1191,6 +1346,7 @@
   }
 
   window.toggleSelectAllPending = function() {
+      haptic(15);
       let isChecked = document.getElementById('chk-select-all-pending').checked, checkboxesInView = document.querySelectorAll('.chk-pending-item');
       checkboxesInView.forEach(chk => {
           chk.checked = isChecked; let id = chk.value.toString();
@@ -1213,25 +1369,31 @@
           localStorage.setItem('appPendingContacts', JSON.stringify(STATE.pending));
           STATE.selectedPendingIds = []; document.getElementById('search-pending').value = ''; 
           renderPendingList(STATE.pending); updatePendingSelectedCountText(); updatePendingBadge();
+          showToast("🗑️ Đã xóa các mục đã chọn");
       });
   }
 
   window.saveSelectedPendingToMain = function() {
       if (STATE.selectedPendingIds.length === 0) { showDialog('Lỗi', 'Chưa chọn liên hệ nào!', 'alert'); return; }
+      haptic(30);
       let finalGroup = document.getElementById('pending-group-input').value.trim() || 'Khác';
       if (finalGroup !== 'Khác' && !STATE.groups.includes(finalGroup)) { STATE.groups.unshift(finalGroup); localStorage.setItem('appGroupsStandalone', JSON.stringify(STATE.groups)); updateDataLists(); }
       let selectedContacts = STATE.pending.filter(p => STATE.selectedPendingIds.includes(p.id.toString()));
       selectedContacts.forEach(c => { c.group = finalGroup; STATE.contacts.push(c); });
       STATE.pending = STATE.pending.filter(p => !STATE.selectedPendingIds.includes(p.id.toString()));
       localStorage.setItem('appContactsStandalone', JSON.stringify(STATE.contacts)); localStorage.setItem('appPendingContacts', JSON.stringify(STATE.pending));
+      
+      let movedCount = STATE.selectedPendingIds.length;
       STATE.selectedPendingIds = []; document.getElementById('chk-select-all-pending').checked = false; document.getElementById('search-pending').value = ''; document.getElementById('pending-group-input').value = '';
       updatePendingSelectedCountText(); hideAllDropdowns(); updatePendingBadge();
       
       if (STATE.pending.length === 0) closePendingModal(); else renderPendingList(STATE.pending);
+      showToast(`✅ Đã chuyển ${movedCount} người vào ${finalGroup}`);
   }
 
   // ================== THÊM/SỬA LIÊN HỆ THỦ CÔNG ==================
   window.openContactModal = function(id = null) {
+      haptic(20);
       let title = document.getElementById('contact-modal-title'), inputId = document.getElementById('contact-id');
       let inputName = document.getElementById('contact-name'), inputPhone = document.getElementById('contact-phone');
       let inputPhone2 = document.getElementById('contact-phone2');
@@ -1253,10 +1415,12 @@
   }
 
   window.closeContactModal = function() {
+      haptic(20);
       let modal = document.getElementById('contact-modal'); modal.classList.remove('show'); setTimeout(() => modal.style.display = 'none', 300); hideAllDropdowns();
   }
 
   window.saveContact = function() {
+      haptic(30);
       let id = document.getElementById('contact-id').value, name = document.getElementById('contact-name').value.trim();
       let phone = document.getElementById('contact-phone').value.trim();
       let phone2 = document.getElementById('contact-phone2').value.trim();
@@ -1279,6 +1443,7 @@
       localStorage.setItem('appContactsStandalone', JSON.stringify(STATE.contacts)); closeContactModal();
       if(STATE.currentFolder) openFolderView(STATE.currentFolder); else renderMainView();
       document.getElementById('search-contact').value = '';
+      showToast("✅ Đã lưu liên hệ");
   }
 
   window.deleteContact = function() {
@@ -1295,6 +1460,7 @@
           }
           closeContactModal();
           if(STATE.currentFolder) openFolderView(STATE.currentFolder); else renderMainView();
+          showToast("📥 Đã đưa về kho chờ");
       });
   }
 
@@ -1374,7 +1540,7 @@
       if (STATE.conflicts.length > 0) {
           openConflictModal();
       } else if (addedCount > 0) {
-          showDialog('Thành công', `Đã lọc và đưa <b>${addedCount}</b> liên hệ MỚI vào Kho chờ 📥.`, 'alert');
+          showToast(`✅ Đã thêm ${addedCount} người vào kho chờ`);
       } else { 
           showDialog('Thông báo', 'Mọi số bạn vừa chọn đều đã có trong app (Cùng tên).', 'alert'); 
       }
@@ -1456,7 +1622,7 @@
           if (STATE.conflicts.length > 0) {
               openConflictModal();
           } else {
-              showDialog("Thành công", `Đã khôi phục an toàn. Thêm mới ${addedCount} liên hệ.`, "alert");
+              showToast(`✅ Đã khôi phục ${addedCount} người`);
           }
       });
   }
@@ -1512,5 +1678,3 @@
 </script>
 </body>
 </html>
-
-

@@ -34,7 +34,7 @@
     .container { max-width: 600px; margin: 0 auto; padding: calc(env(safe-area-inset-top) + 15px) 16px calc(env(safe-area-inset-bottom) + 20px) 16px; }
 
     .sticky-zone { position: sticky; top: 0; background: var(--bg-body); z-index: 100; padding-top: calc(env(safe-area-inset-top) + 15px); margin-top: calc(-1 * (env(safe-area-inset-top) + 15px)); margin-left: -16px; margin-right: -16px; padding-left: 16px; padding-right: 16px; padding-bottom: 5px; }
-    .dash-header { padding: 5px 0 20px 0; text-align: left; display: flex; align-items: center; gap: 12px;}
+    .dash-header { padding: 5px 0 20px 0; text-align: left; display: flex; align-items: center; gap: 10px;}
     .dash-header h2 { color: var(--text-main); margin: 0; font-size: 28px; font-weight: 800; letter-spacing: -0.5px;}
 
     /* NÚT HOME */
@@ -169,7 +169,6 @@
   <div class="container">
     <div class="sticky-zone">
       <div class="dash-header">
-        <!-- NÚT QUAY LẠI TRANG CHỦ -->
         <a href="index.html" class="btn-home" title="Về Màn Hình Chính">🏠</a>
         <h2>Danh Bạ</h2>
       </div>
@@ -243,14 +242,8 @@
       </div>
 
       <div style="font-size:13px; color:var(--text-muted); font-weight:600; margin-bottom:8px; text-transform: uppercase; letter-spacing:0.5px;">Quản lý danh sách</div>
-      <div class="setting-list-box">
+      <div class="setting-list-box" style="margin-bottom: 24px;">
         <div id="group-settings-list" style="max-height:30vh; overflow-y:auto;"></div>
-      </div>
-
-      <div style="font-size:13px; color:var(--text-muted); font-weight:600; margin-bottom:8px; text-transform: uppercase; letter-spacing:0.5px;">Dọn dẹp & Bảo vệ</div>
-      <div style="display: flex; gap: 10px; margin-bottom: 24px;">
-        <button onclick="cleanupContacts()" class="btn-green-large" style="margin:0; background:rgba(52,199,89,0.15); color:var(--tint-green); font-size:14px; padding:14px;">🧹 Dọn trùng lặp</button>
-        <button onclick="openTrashModal()" class="btn-green-large" style="margin:0; background:rgba(255,59,48,0.15); color:var(--tint-red); font-size:14px; padding:14px;">🗑️ Thùng rác</button>
       </div>
 
       <div style="font-size:13px; color:var(--text-muted); font-weight:600; margin-bottom:8px; text-transform: uppercase; letter-spacing:0.5px;">Dữ liệu & Cập nhật</div>
@@ -262,19 +255,17 @@
     </div>
   </div>
 
-  <!-- MODAL THÙNG RÁC -->
-  <div id="trash-modal" class="modal-overlay" onclick="if(event.target === this) closeTrashModal()">
-    <div class="modal-content">
+  <!-- MODAL GIẢI QUYẾT TRÙNG LẶP TÊN -->
+  <div id="conflict-modal" class="modal-overlay" onclick="if(event.target === this) closeConflictModal()">
+    <div class="modal-content" style="max-height: 90vh;">
       <div class="pull-bar"></div>
       <div class="modal-head">
-        <h3 class="modal-title" style="color: var(--tint-red);">Thùng Rác</h3>
-        <button class="btn-close-modal" onclick="closeTrashModal()">✕</button>
+        <h3 class="modal-title" style="color: var(--tint-orange);">⚠️ Tên trùng lặp</h3>
+        <button class="btn-close-modal" onclick="closeConflictModal()">✕</button>
       </div>
-      <div style="display:flex; justify-content:space-between; margin-bottom:15px; align-items:center;">
-         <span style="font-size:14px; color:var(--text-sub);">Đã xóa gần đây</span>
-         <button onclick="emptyTrash()" style="background:none; border:none; color:var(--tint-red); font-weight:600; font-size:15px; cursor:pointer; padding:5px;">Xóa sạch</button>
-      </div>
-      <div id="trash-list-container" style="flex:1; overflow-y:auto; padding-bottom: 10px;"></div>
+      <p style="font-size: 14px; color: var(--text-sub); margin-bottom: 15px;">Phát hiện các số điện thoại đã có nhưng lưu tên khác. Bạn muốn dùng tên nào?</p>
+      <div id="conflict-list-container" style="flex: 1; overflow-y: auto; padding-bottom: 10px;"></div>
+      <button onclick="resolveConflicts()" class="btn-green-large" style="margin-top: 15px; background: var(--tint-blue);">LƯU LỰA CHỌN</button>
     </div>
   </div>
 
@@ -395,7 +386,7 @@
   // TÁCH NHIỀU SĐT TRONG 1 Ô
   window.extractAllPhones = function(str) {
       if (!str) return [];
-      let parts = String(str).split(/[,/;|:]+/); // Tách theo các dấu phân cách phổ biến
+      let parts = String(str).split(/[,/;|:]+/); 
       let valid = [];
       parts.forEach(p => {
           let norm = window.normalizePhone(p);
@@ -469,14 +460,24 @@
   }
 
   // STATE MANAGEMENT
-  const STATE = { contacts: [], groups: [], pending: [], trash: [], selectedPendingIds: [], activeDropdownId: null, currentFolder: null };
+  const STATE = { 
+      contacts: [], 
+      groups: [], 
+      pending: [], 
+      conflicts: [], // Lọc trùng lặp khác tên
+      selectedPendingIds: [], 
+      activeDropdownId: null, 
+      currentFolder: null 
+  };
 
   window.onload = () => {
     let savedContacts = localStorage.getItem('appContactsStandalone'); STATE.contacts = savedContacts ? JSON.parse(savedContacts) : [];
     let savedGroups = localStorage.getItem('appGroupsStandalone');
     if (savedGroups) STATE.groups = JSON.parse(savedGroups); else { STATE.groups = ['Ban Chỉ Huy', 'Khẩn cấp', 'Đội Trực']; localStorage.setItem('appGroupsStandalone', JSON.stringify(STATE.groups)); }
     let savedPending = localStorage.getItem('appPendingContacts'); if (savedPending) STATE.pending = JSON.parse(savedPending);
-    let savedTrash = localStorage.getItem('appTrashStandalone'); if (savedTrash) STATE.trash = JSON.parse(savedTrash);
+
+    // Dọn dẹp thùng rác cũ (nếu còn sót từ phiên bản trước)
+    localStorage.removeItem('appTrashStandalone');
 
     updateDataLists(); renderMainView(); updatePendingBadge();
     document.addEventListener('click', function(e) { if (!e.target.closest('.smart-input-container')) hideAllDropdowns(); });
@@ -762,61 +763,6 @@
       });
   }
 
-  // ================== DỌN DẸP & THÙNG RÁC ==================
-  window.cleanupContacts = function() {
-      let unique = [], phones = new Set(), dups = 0;
-      STATE.contacts.forEach(c => {
-          let normPhone = window.normalizePhone(c.phone);
-          let normPhone2 = window.normalizePhone(c.phone2);
-          
-          if (!phones.has(normPhone) && (!normPhone2 || !phones.has(normPhone2))) { 
-              unique.push(c); 
-              if(normPhone) phones.add(normPhone); 
-              if(normPhone2) phones.add(normPhone2);
-          } 
-          else { c.deletedAt = Date.now(); STATE.trash.push(c); dups++; }
-      });
-      if (dups > 0) {
-          STATE.contacts = unique;
-          localStorage.setItem('appContactsStandalone', JSON.stringify(STATE.contacts)); localStorage.setItem('appTrashStandalone', JSON.stringify(STATE.trash));
-          renderMainView(); updateStats(); showDialog('Đã dọn dẹp', `Gộp <b>${dups}</b> liên hệ trùng SĐT.<br><br>Đã chuyển số trùng vào Thùng rác.`, 'alert');
-      } else {
-          showDialog('Hoàn tất', 'Danh bạ sạch sẽ, không có trùng lặp.', 'alert');
-      }
-  }
-
-  window.openTrashModal = function() {
-      renderTrashList(); let modal = document.getElementById('trash-modal'); modal.style.display = 'flex'; setTimeout(() => modal.classList.add('show'), 10);
-  }
-  window.closeTrashModal = function() {
-      let modal = document.getElementById('trash-modal'); modal.classList.remove('show'); setTimeout(() => modal.style.display = 'none', 300); updateStats();
-  }
-  window.renderTrashList = function() {
-      let container = document.getElementById('trash-list-container');
-      if(STATE.trash.length === 0) { container.innerHTML = '<div style="text-align:center; padding: 30px; color:var(--text-muted); font-style:italic;">Thùng rác trống</div>'; return; }
-      container.innerHTML = STATE.trash.map((c, i) => `
-          <div class="group-item-card" style="margin-bottom: 10px; border-radius: 12px; border: 1px solid var(--border);">
-              <div>
-                 <div style="font-weight:600; font-size:15px; color:var(--text-main);">${c.name}</div>
-                 <div style="font-size:14px; color:var(--text-sub);">${c.phone} ${c.phone2 ? ' - ' + c.phone2 : ''}</div>
-              </div>
-              <button onclick="restoreTrash(${i})" style="background:rgba(52,199,89,0.15); color:var(--tint-green); border:none; padding:8px 12px; border-radius:8px; font-weight:bold; cursor:pointer;">Khôi phục</button>
-          </div>
-      `).join('');
-  }
-  window.restoreTrash = function(idx) {
-      let restored = STATE.trash.splice(idx, 1)[0]; delete restored.deletedAt;
-      STATE.contacts.push(restored);
-      localStorage.setItem('appContactsStandalone', JSON.stringify(STATE.contacts)); localStorage.setItem('appTrashStandalone', JSON.stringify(STATE.trash));
-      renderTrashList(); renderMainView(); 
-  }
-  window.emptyTrash = function() {
-      if(STATE.trash.length === 0) return;
-      showDialog('Dọn thùng rác', 'Xóa vĩnh viễn mọi dữ liệu trong thùng rác?', 'confirm', () => {
-          STATE.trash = []; localStorage.setItem('appTrashStandalone', JSON.stringify(STATE.trash)); renderTrashList();
-      });
-  }
-
   // ================== MÃ QR CODE ==================
   window.showQRCode = function(name, phone) {
       let vcard = `BEGIN:VCARD\nVERSION:3.0\nFN:${name}\nTEL:${phone}\nEND:VCARD`;
@@ -830,6 +776,61 @@
       let modal = document.getElementById('qr-modal'); modal.classList.remove('show'); setTimeout(() => modal.style.display = 'none', 300);
   }
 
+  // ================== GIẢI QUYẾT XUNG ĐỘT TÊN (CONFLICTS) ==================
+  window.openConflictModal = function() {
+      let container = document.getElementById('conflict-list-container');
+      container.innerHTML = STATE.conflicts.map((c, i) => `
+          <div class="group-item-card" style="flex-direction: column; align-items: flex-start; gap: 10px; margin-bottom: 12px; border: 1px solid var(--border); border-radius: 12px; padding: 14px;">
+              <div style="font-size: 16px; font-weight: 700; color: var(--tint-orange);">📞 ${c.phone}</div>
+              <label style="display:flex; align-items:center; gap:8px; font-size:15px; cursor:pointer; width:100%;">
+                  <input type="radio" name="conflict_${i}" value="existing" checked style="transform: scale(1.3); margin:0;"> 
+                  <span style="flex:1;">Tên cũ: <b>${c.existingName}</b></span>
+              </label>
+              <label style="display:flex; align-items:center; gap:8px; font-size:15px; cursor:pointer; width:100%;">
+                  <input type="radio" name="conflict_${i}" value="new" style="transform: scale(1.3); margin:0;"> 
+                  <span style="flex:1;">Dùng tên mới: <b style="color:var(--tint-blue);">${c.newName}</b></span>
+              </label>
+          </div>
+      `).join('');
+      let modal = document.getElementById('conflict-modal');
+      modal.style.display = 'flex';
+      setTimeout(() => modal.classList.add('show'), 10);
+  }
+
+  window.closeConflictModal = function() {
+      let modal = document.getElementById('conflict-modal');
+      modal.classList.remove('show');
+      setTimeout(() => modal.style.display = 'none', 300);
+      STATE.conflicts = [];
+  }
+
+  window.resolveConflicts = function() {
+      let updated = 0;
+      STATE.conflicts.forEach((c, i) => {
+          let radios = document.getElementsByName(`conflict_${i}`);
+          let choice = 'existing';
+          for (let r of radios) { if(r.checked) choice = r.value; }
+          
+          if (choice === 'new') {
+              c.contactRef.name = c.newName;
+              updated++;
+          }
+      });
+
+      localStorage.setItem('appContactsStandalone', JSON.stringify(STATE.contacts));
+      localStorage.setItem('appPendingContacts', JSON.stringify(STATE.pending));
+      
+      closeConflictModal();
+      renderMainView();
+      if(document.getElementById('pending-modal').classList.contains('show')) {
+          renderPendingList(STATE.pending);
+      }
+      
+      if (updated > 0) {
+          showDialog('Hoàn tất', `Đã cập nhật tên mới cho ${updated} liên hệ trùng lặp.`, 'alert');
+      }
+  }
+
   // ================== KHO CHỜ DUYỆT ==================
   function updatePendingSelectedCountText() {
       let textEl = document.getElementById('selected-count-text'), count = STATE.selectedPendingIds.length;
@@ -837,7 +838,11 @@
   }
 
   window.openPendingModal = function() {
-      STATE.selectedPendingIds = []; document.getElementById('search-pending').value = ''; document.getElementById('pending-group-input').value = '';
+      STATE.selectedPendingIds = []; document.getElementById('search-pending').value = ''; 
+      
+      let groupInput = document.getElementById('pending-group-input');
+      groupInput.value = STATE.currentFolder ? STATE.currentFolder : '';
+
       renderPendingList(STATE.pending); updatePendingSelectedCountText();
       let modal = document.getElementById('pending-modal'); modal.style.display = 'flex'; setTimeout(() => modal.classList.add('show'), 10);
   }
@@ -960,15 +965,18 @@
       document.getElementById('search-contact').value = '';
   }
 
+  // Chuyển việc xóa vào Kho chờ thay vì Thùng rác
   window.deleteContact = function() {
       let id = document.getElementById('contact-id').value;
-      showDialog('Xác nhận xóa', 'Liên hệ này sẽ được đưa vào Thùng rác.', 'confirm', () => {
+      showDialog('Xác nhận xóa', 'Liên hệ này sẽ được đưa về Kho chờ duyệt 📥.', 'confirm', () => {
           let idx = STATE.contacts.findIndex(x => x.id.toString() === id.toString());
           if(idx > -1) {
               let deleted = STATE.contacts.splice(idx, 1)[0];
-              deleted.deletedAt = Date.now(); STATE.trash.push(deleted); 
-              localStorage.setItem('appTrashStandalone', JSON.stringify(STATE.trash));
+              deleted.group = ''; 
+              STATE.pending.push(deleted);
+              localStorage.setItem('appPendingContacts', JSON.stringify(STATE.pending));
               localStorage.setItem('appContactsStandalone', JSON.stringify(STATE.contacts));
+              updatePendingBadge();
           }
           closeContactModal();
           if(STATE.currentFolder) openFolderView(STATE.currentFolder); else renderMainView();
@@ -984,15 +992,19 @@
       try { const contacts = await navigator.contacts.select(['name', 'tel'], { multiple: true }); if (contacts && contacts.length > 0) pushToPending(contacts, 'device'); } catch (err) { console.log(err); }
   }
 
+  // Lọc trùng & Bắt Conflict Tên
   function pushToPending(rawContacts, source) {
-      let addedCount = 0, sessionPhones = new Set(), existingPhones = new Set();
+      let addedCount = 0;
+      STATE.conflicts = [];
+      
+      let existingMap = new Map();
       STATE.contacts.forEach(c => {
-          if(c.phone) existingPhones.add(window.normalizePhone(c.phone));
-          if(c.phone2) existingPhones.add(window.normalizePhone(c.phone2));
+          if(c.phone) existingMap.set(window.normalizePhone(c.phone), c);
+          if(c.phone2) existingMap.set(window.normalizePhone(c.phone2), c);
       });
       STATE.pending.forEach(p => {
-          if(p.phone) existingPhones.add(window.normalizePhone(p.phone));
-          if(p.phone2) existingPhones.add(window.normalizePhone(p.phone2));
+          if(p.phone) existingMap.set(window.normalizePhone(p.phone), p);
+          if(p.phone2) existingMap.set(window.normalizePhone(p.phone2), p);
       });
 
       rawContacts.forEach(c => {
@@ -1005,32 +1017,52 @@
           }
           
           let validPhones = [];
-          phones.forEach(normPhone => {
-              if (normPhone && !sessionPhones.has(normPhone)) {
-                  if (!existingPhones.has(normPhone)) {
-                      validPhones.push(normPhone);
-                      existingPhones.add(normPhone);
-                  }
-                  sessionPhones.add(normPhone);
-              }
+          phones.forEach(rawP => {
+              let norm = window.normalizePhone(rawP);
+              if (norm && !validPhones.includes(norm)) validPhones.push(norm);
           });
 
           if (validPhones.length > 0) {
-              STATE.pending.push({ 
-                  id: genId(), 
-                  name, 
-                  phone: validPhones[0], 
-                  phone2: validPhones[1] || '', 
-                  group: '' 
+              let hasConflict = false;
+              let isDuplicate = false;
+
+              validPhones.forEach(p => {
+                  if (existingMap.has(p)) {
+                      let existC = existingMap.get(p);
+                      if (existC.name.toLowerCase() !== name.toLowerCase()) {
+                          if (!STATE.conflicts.some(x => x.phone === p)) {
+                              STATE.conflicts.push({ phone: p, existingName: existC.name, newName: name, contactRef: existC });
+                          }
+                          hasConflict = true;
+                      } else {
+                          isDuplicate = true;
+                      }
+                  }
               });
-              addedCount++;
+
+              if (!hasConflict && !isDuplicate) {
+                  let newContact = { 
+                      id: genId(), name, phone: validPhones[0], phone2: validPhones[1] || '', group: '' 
+                  };
+                  STATE.pending.push(newContact);
+                  if(newContact.phone) existingMap.set(newContact.phone, newContact);
+                  if(newContact.phone2) existingMap.set(newContact.phone2, newContact);
+                  addedCount++;
+              }
           }
       });
 
       if (addedCount > 0) {
           localStorage.setItem('appPendingContacts', JSON.stringify(STATE.pending)); updatePendingBadge();
+      }
+
+      if (STATE.conflicts.length > 0) {
+          openConflictModal();
+      } else if (addedCount > 0) {
           showDialog('Thành công', `Đã lọc và đưa <b>${addedCount}</b> liên hệ MỚI vào Kho chờ 📥.`, 'alert');
-      } else { showDialog('Thông báo', 'Mọi số bạn vừa chọn đều đã có trong app.', 'alert'); }
+      } else { 
+          showDialog('Thông báo', 'Mọi số bạn vừa chọn đều đã có trong app (Cùng tên).', 'alert'); 
+      }
   }
 
   window.handleContactFileUpload = function(event) {
@@ -1055,28 +1087,62 @@
           data.groups.forEach(g => { if (!STATE.groups.includes(g)) STATE.groups.push(g); });
           localStorage.setItem('appGroupsStandalone', JSON.stringify(STATE.groups));
 
-          let existingPhones = new Set();
+          let existingMap = new Map();
           STATE.contacts.forEach(c => {
-             if(c.phone) existingPhones.add(window.normalizePhone(c.phone));
-             if(c.phone2) existingPhones.add(window.normalizePhone(c.phone2));
+             if(c.phone) existingMap.set(window.normalizePhone(c.phone), c);
+             if(c.phone2) existingMap.set(window.normalizePhone(c.phone2), c);
+          });
+          STATE.pending.forEach(p => {
+              if(p.phone) existingMap.set(window.normalizePhone(p.phone), p);
+              if(p.phone2) existingMap.set(window.normalizePhone(p.phone2), p);
           });
 
+          STATE.conflicts = [];
           let addedCount = 0;
+
           data.contacts.forEach(c => {
               let normPhone = window.normalizePhone(c.phone);
               let normPhone2 = window.normalizePhone(c.phone2);
-              if (!existingPhones.has(normPhone) && (!normPhone2 || !existingPhones.has(normPhone2))) { 
-                  c.id = genId(); 
-                  c.phone = normPhone; 
-                  c.phone2 = normPhone2;
+              let hasConflict = false;
+              let isDuplicate = false;
+
+              if (normPhone && existingMap.has(normPhone)) {
+                  let existC = existingMap.get(normPhone);
+                  if (existC.name.toLowerCase() !== c.name.toLowerCase()) {
+                      if (!STATE.conflicts.some(x => x.phone === normPhone)) {
+                          STATE.conflicts.push({ phone: normPhone, existingName: existC.name, newName: c.name, contactRef: existC });
+                      }
+                      hasConflict = true;
+                  } else { isDuplicate = true; }
+              }
+
+              if (!hasConflict && normPhone2 && existingMap.has(normPhone2)) {
+                  let existC = existingMap.get(normPhone2);
+                  if (existC.name.toLowerCase() !== c.name.toLowerCase()) {
+                      if (!STATE.conflicts.some(x => x.phone === normPhone2)) {
+                          STATE.conflicts.push({ phone: normPhone2, existingName: existC.name, newName: c.name, contactRef: existC });
+                      }
+                      hasConflict = true;
+                  } else { isDuplicate = true; }
+              }
+
+              if (!hasConflict && !isDuplicate) { 
+                  c.id = genId(); c.phone = normPhone; c.phone2 = normPhone2;
                   STATE.contacts.push(c); 
-                  if(normPhone) existingPhones.add(normPhone); 
-                  if(normPhone2) existingPhones.add(normPhone2);
+                  if(normPhone) existingMap.set(normPhone, c); 
+                  if(normPhone2) existingMap.set(normPhone2, c);
                   addedCount++; 
               }
           });
+
           localStorage.setItem('appContactsStandalone', JSON.stringify(STATE.contacts));
-          updateDataLists(); renderMainView(); showDialog("Thành công", `Đã khôi phục an toàn.`, "alert");
+          updateDataLists(); renderMainView(); 
+          
+          if (STATE.conflicts.length > 0) {
+              openConflictModal();
+          } else {
+              showDialog("Thành công", `Đã khôi phục an toàn. Thêm mới ${addedCount} liên hệ.`, "alert");
+          }
       });
   }
 
@@ -1135,5 +1201,3 @@
 </script>
 </body>
 </html>
-
-

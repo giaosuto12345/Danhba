@@ -34,8 +34,17 @@
     .container { max-width: 600px; margin: 0 auto; padding: calc(env(safe-area-inset-top) + 15px) 16px calc(env(safe-area-inset-bottom) + 20px) 16px; }
 
     .sticky-zone { position: sticky; top: 0; background: var(--bg-body); z-index: 100; padding-top: calc(env(safe-area-inset-top) + 15px); margin-top: calc(-1 * (env(safe-area-inset-top) + 15px)); margin-left: -16px; margin-right: -16px; padding-left: 16px; padding-right: 16px; padding-bottom: 5px; }
-    .dash-header { padding: 5px 0 20px 0; text-align: left; display: flex; align-items: center; gap: 10px;}
+    .dash-header { padding: 5px 0 20px 0; text-align: left; display: flex; align-items: center; gap: 12px;}
     .dash-header h2 { color: var(--text-main); margin: 0; font-size: 28px; font-weight: 800; letter-spacing: -0.5px;}
+
+    /* NÚT HOME */
+    .btn-home {
+      width: 40px; height: 40px; border-radius: 50%; border: none;
+      background: var(--search-bg); color: var(--text-main); font-size: 20px;
+      display: flex; align-items: center; justify-content: center; cursor: pointer;
+      transition: 0.2s; text-decoration: none;
+    }
+    .btn-home:active { transform: scale(0.9); opacity: 0.8; }
 
     .top-controls { margin-bottom: 10px; }
     .search-row { display: flex; gap: 8px; margin-bottom: 16px; align-items: center;}
@@ -160,6 +169,8 @@
   <div class="container">
     <div class="sticky-zone">
       <div class="dash-header">
+        <!-- NÚT QUAY LẠI TRANG CHỦ -->
+        <a href="index.html" class="btn-home" title="Về Màn Hình Chính">🏠</a>
         <h2>Danh Bạ</h2>
       </div>
 
@@ -194,7 +205,6 @@
         </div>
         <h3 id="inner-folder-title" class="inner-folder-title">Tên Nhóm</h3>
         <div style="display: flex; gap: 8px;">
-            <!-- NÚT THÊM NGAY TỪ TRONG NHÓM -->
             <button class="btn-sort-az" style="background: rgba(52, 199, 89, 0.15); color: var(--tint-green);" onclick="openPendingModal()">📥 Thêm</button>
             <button id="btn-sort-az" class="btn-sort-az" onclick="sortContactsAZ()">A-Z ↓</button>
         </div>
@@ -382,9 +392,10 @@
       return cleaned;
   }
   
+  // TÁCH NHIỀU SĐT TRONG 1 Ô
   window.extractAllPhones = function(str) {
       if (!str) return [];
-      let parts = String(str).split(/[,/;|:]+/);
+      let parts = String(str).split(/[,/;|:]+/); // Tách theo các dấu phân cách phổ biến
       let valid = [];
       parts.forEach(p => {
           let norm = window.normalizePhone(p);
@@ -419,6 +430,7 @@
       }
   }
 
+  // HỎI CHUYỂN XUỐNG CUỐI
   window.promptMoveToBottom = function(evt, id, groupName) {
       evt.stopPropagation();
       showDialog('Sắp xếp', 'Chuyển liên hệ này xuống cuối danh sách?', 'confirm', () => {
@@ -472,7 +484,6 @@
 
   window.updateDataLists = function() { const datalist = document.getElementById('group-suggestions'); if(datalist) datalist.innerHTML = STATE.groups.map(g => `<option value="${g}">`).join(''); }
   
-  // TỐI ƯU: HIỆN CHÍNH XÁC SỐ LƯỢNG
   window.updatePendingBadge = function() { 
       let badge = document.getElementById('pending-badge'); 
       if (STATE.pending.length > 0) { 
@@ -734,7 +745,6 @@
       }, oldName);
   }
 
-  // XÓA NHÓM LÀ CHO TOÀN BỘ NGƯỜI VÀO KHO CHỜ
   window.deleteGroupItem = function(idx) {
       idx = parseInt(idx); let groupName = STATE.groups[idx]; if(!groupName) return;
       let orphanedContacts = STATE.contacts.filter(c => c.group === groupName), count = orphanedContacts.length, msg = `Xóa nhóm "<b>${groupName}</b>"?`;
@@ -743,22 +753,12 @@
           STATE.groups.splice(idx, 1);
           if(count > 0) {
               let remainingContacts = [];
-              STATE.contacts.forEach(c => { 
-                  if(c.group === groupName) { 
-                      c.group = ''; 
-                      STATE.pending.push(c); 
-                  } else { 
-                      remainingContacts.push(c); 
-                  } 
-              });
+              STATE.contacts.forEach(c => { if(c.group === groupName) { c.group = ''; STATE.pending.push(c); } else { remainingContacts.push(c); } });
               STATE.contacts = remainingContacts;
-              localStorage.setItem('appContactsStandalone', JSON.stringify(STATE.contacts)); 
-              localStorage.setItem('appPendingContacts', JSON.stringify(STATE.pending)); 
-              updatePendingBadge();
+              localStorage.setItem('appContactsStandalone', JSON.stringify(STATE.contacts)); localStorage.setItem('appPendingContacts', JSON.stringify(STATE.pending)); updatePendingBadge();
           }
           if(STATE.currentFolder === groupName) STATE.currentFolder = null;
-          localStorage.setItem('appGroupsStandalone', JSON.stringify(STATE.groups)); 
-          updateDataLists(); updateStats(); renderGroupSettingsList();
+          localStorage.setItem('appGroupsStandalone', JSON.stringify(STATE.groups)); updateDataLists(); updateStats(); renderGroupSettingsList();
       });
   }
 
@@ -837,14 +837,8 @@
   }
 
   window.openPendingModal = function() {
-      STATE.selectedPendingIds = []; 
-      document.getElementById('search-pending').value = ''; 
-      
-      let groupInput = document.getElementById('pending-group-input');
-      groupInput.value = STATE.currentFolder ? STATE.currentFolder : '';
-
-      renderPendingList(STATE.pending); 
-      updatePendingSelectedCountText();
+      STATE.selectedPendingIds = []; document.getElementById('search-pending').value = ''; document.getElementById('pending-group-input').value = '';
+      renderPendingList(STATE.pending); updatePendingSelectedCountText();
       let modal = document.getElementById('pending-modal'); modal.style.display = 'flex'; setTimeout(() => modal.classList.add('show'), 10);
   }
 
@@ -966,18 +960,15 @@
       document.getElementById('search-contact').value = '';
   }
 
-  // TỐI ƯU: ĐƯA VỀ KHO CHỜ THAY VÌ THÙNG RÁC
   window.deleteContact = function() {
       let id = document.getElementById('contact-id').value;
-      showDialog('Xác nhận xóa', 'Liên hệ này sẽ được đưa về Kho chờ duyệt.', 'confirm', () => {
+      showDialog('Xác nhận xóa', 'Liên hệ này sẽ được đưa vào Thùng rác.', 'confirm', () => {
           let idx = STATE.contacts.findIndex(x => x.id.toString() === id.toString());
           if(idx > -1) {
               let deleted = STATE.contacts.splice(idx, 1)[0];
-              deleted.group = ''; 
-              STATE.pending.push(deleted); 
-              localStorage.setItem('appPendingContacts', JSON.stringify(STATE.pending));
+              deleted.deletedAt = Date.now(); STATE.trash.push(deleted); 
+              localStorage.setItem('appTrashStandalone', JSON.stringify(STATE.trash));
               localStorage.setItem('appContactsStandalone', JSON.stringify(STATE.contacts));
-              updatePendingBadge();
           }
           closeContactModal();
           if(STATE.currentFolder) openFolderView(STATE.currentFolder); else renderMainView();

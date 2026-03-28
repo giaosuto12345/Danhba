@@ -14,7 +14,7 @@
   <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
 
   <style>
-    /* ================== BIẾN MÀU SẮC CHUẨN IOS (LIGHT/DARK) ================== */
+    /* ================== BIẾN MÀU SẮC CHUẨN IOS ================== */
     :root {
       --bg-body: #F2F2F7;
       --bg-body-alpha: rgba(242, 242, 247, 0.9);
@@ -150,44 +150,81 @@
     .unit-count { font-size: 15px; color: var(--text-muted); font-weight: 500; text-align: center; }
     .unit-chevron { color: var(--border); font-weight: 700; font-size: 15px;}
 
-    /* ================== DẠNG HIỂN THỊ 2: LƯỚI 3 CỘT (GRID) ================== */
+    /* ================== DẠNG HIỂN THỊ 2: LƯỚI 3 CỘT ================== */
     .folder-grid-container {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 15px;
-      padding-top: 5px;
+      row-gap: 24px;
+      column-gap: 15px;
+      padding: 20px 10px;
     }
     .folder-grid-item {
-      background: var(--bg-card);
-      border-radius: 18px;
-      padding: 18px 8px;
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      box-shadow: var(--shadow);
-      position: relative;
       cursor: pointer;
-      transition: 0.2s;
-      /* Ngăn chặn text selection khi người dùng nhấn giữ để kéo thả */
+      position: relative;
       user-select: none;
       -webkit-user-select: none;
+      transition: 0.2s;
     }
-    .folder-grid-item:active { transform: scale(0.95); background: var(--bg-hover); }
-    .folder-grid-icon { font-size: 34px; margin-bottom: 10px; line-height: 1; }
-    .folder-grid-name { font-size: 13px; font-weight: 600; text-align: center; color: var(--text-main); line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; padding: 0 4px;}
+    .folder-grid-item:active { opacity: 0.6; transform: scale(0.95); }
+    
+    /* [ĐÃ FIX]: Ô Vuông Bo Tròn (Squircle) */
+    .folder-grid-icon-wrapper {
+      position: relative;
+      width: 64px; 
+      height: 64px;
+      border-radius: 16px; /* Vuông bo tròn chuẩn iOS */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.15); 
+      margin-bottom: 8px; 
+    }
+    
+    /* Text chữ cái bên trong hình vuông */
+    .folder-grid-icon-text { 
+      color: #FFFFFF; 
+      font-size: 22px; 
+      font-weight: 700; 
+      letter-spacing: 0.5px;
+    }
+    
+    /* Chấm đỏ báo số lượng */
     .folder-grid-badge { 
-      position: absolute; top: -6px; right: -6px; 
-      background: var(--tint-red); color: white; 
-      font-size: 12px; font-weight: 700; 
-      min-width: 24px; height: 24px; padding: 0 6px;
+      position: absolute; 
+      top: -6px; 
+      right: -6px; 
+      background: var(--tint-red); 
+      color: white; 
+      font-size: 13px; 
+      font-weight: 700; 
+      min-width: 24px; 
+      height: 24px; 
+      padding: 0 6px;
       display: flex; align-items: center; justify-content: center; 
-      border-radius: 12px; border: 2px solid var(--bg-body); 
-      box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+      border-radius: 12px; 
+      border: 2px solid var(--bg-body); 
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
       z-index: 2;
     }
 
-    /* NÚT CHUYỂN ĐỔI CHẾ ĐỘ XEM (SEGMENTED CONTROL) */
+    /* Tên nhóm bên dưới ô vuông */
+    .folder-grid-name { 
+      font-size: 13px; 
+      font-weight: 500; 
+      color: var(--text-main); 
+      text-align: center; 
+      width: 100%;
+      max-width: 90px; 
+      white-space: nowrap; 
+      overflow: hidden; 
+      text-overflow: ellipsis; 
+      letter-spacing: -0.2px;
+    }
+
+    /* NÚT CHUYỂN ĐỔI CHẾ ĐỘ XEM */
     .segmented-control { display: flex; background: var(--bg-input); border-radius: 10px; padding: 3px; margin-bottom: 24px;}
     .segment-btn { flex: 1; padding: 10px 0; text-align: center; font-size: 14px; font-weight: 600; color: var(--text-main); border-radius: 8px; border: none; background: transparent; cursor: pointer; transition: 0.2s;}
     .segment-btn.active { background: var(--bg-card); box-shadow: 0 1px 3px rgba(0,0,0,0.12); color: var(--tint-blue);}
@@ -238,9 +275,9 @@
     .drag-handle { padding: 5px; color: var(--border); font-size: 22px; font-weight: 400; cursor: grab; display: flex; align-items: center; justify-content: center; touch-action: none; width: 30px; }
     .drag-handle:active { cursor: grabbing; color: var(--tint-blue); }
     .sortable-ghost { opacity: 0.4; background: var(--bg-hover); border-radius: 14px;}
-    .sortable-chosen { transform: scale(1.03); box-shadow: var(--shadow-lg); z-index: 10; background: var(--bg-card); }
+    .sortable-chosen { transform: scale(1.05); box-shadow: var(--shadow-lg); z-index: 10;}
 
-    /* ================== MODAL & KHÁC CƠ BẢN ================== */
+    /* ================== MODAL CƠ BẢN ================== */
     .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); z-index: 1000; display: none; align-items: flex-end; justify-content: center; opacity: 0; transition: opacity 0.3s ease; }
     .modal-overlay.show { opacity: 1; }
     
@@ -414,11 +451,10 @@
             📊 Đang quản lý <b style="color:var(--tint-blue); font-size:16px;" id="stat-contacts">0</b> liên hệ / <b style="color:var(--tint-orange); font-size:16px;" id="stat-groups">0</b> nhóm.
         </div>
 
-        <!-- CHẾ ĐỘ HIỂN THỊ CHÍNH -->
         <div style="font-size:13px; color:var(--text-muted); font-weight:600; margin-bottom:8px; text-transform: uppercase; letter-spacing:0.5px;">Giao diện màn hình chính</div>
         <div class="segmented-control">
             <button id="btn-view-list" class="segment-btn" onclick="changeViewMode('list')">🔠 Danh sách</button>
-            <button id="btn-view-grid" class="segment-btn" onclick="changeViewMode('grid')">📱 Ứng dụng</button>
+            <button id="btn-view-grid" class="segment-btn" onclick="changeViewMode('grid')">📱 Icon Mạng Lưới</button>
         </div>
 
         <div style="font-size:13px; color:var(--text-muted); font-weight:600; margin-bottom:8px; text-transform: uppercase; letter-spacing:0.5px;">Tạo nhóm mới</div>
@@ -475,7 +511,6 @@
 
   <div id="pending-modal" class="modal-overlay" onclick="if(event.target === this) closePendingModal()">
     <div class="modal-content flex-modal">
-      
       <div class="modal-header-fixed">
         <div class="pull-bar"></div>
         <div class="modal-head" style="margin-bottom: 15px;">
@@ -509,7 +544,6 @@
         </div>
         <button onclick="saveSelectedPendingToMain()" class="btn-green-large">Xác nhận</button>
       </div>
-
     </div>
   </div>
 
@@ -565,8 +599,10 @@
   function genId() { return Date.now().toString() + Math.floor(Math.random() * 1000000).toString(); }
 
   window.getAvatarColor = function(str) {
-      let hash = 0; for (let i = 0; i < str.length; i++) hash = str.charCodeAt(i) + ((hash << 5) - hash);
-      let c = (hash & 0x00FFFFFF).toString(16).toUpperCase(); return '#' + '00000'.substring(0, 6 - c.length) + c;
+      const colors = ['#FF3B30', '#FF9500', '#FFCC00', '#4CD964', '#5AC8FA', '#007AFF', '#5856D6', '#AF52DE', '#FF2D55', '#8E8E93'];
+      let hash = 0; 
+      for (let i = 0; i < str.length; i++) hash = str.charCodeAt(i) + ((hash << 5) - hash);
+      return colors[Math.abs(hash) % colors.length];
   };
   
   window.getInitials = function(name) {
@@ -674,7 +710,7 @@
   const STATE = { 
       contacts: [], groups: [], pending: [], conflicts: [], 
       selectedPendingIds: [], activeDropdownId: null, currentFolder: null,
-      viewMode: 'list' // Thêm state cho chế độ hiển thị
+      viewMode: 'list'
   };
 
   document.addEventListener('DOMContentLoaded', () => {
@@ -683,7 +719,6 @@
     if (savedGroups) STATE.groups = JSON.parse(savedGroups); else { STATE.groups = ['Ban Chỉ Huy', 'Khẩn cấp', 'Đội Trực']; localStorage.setItem('appGroupsStandalone', JSON.stringify(STATE.groups)); }
     let savedPending = localStorage.getItem('appPendingContacts'); if (savedPending) STATE.pending = JSON.parse(savedPending);
     
-    // Tải cấu hình viewMode (Mặc định là dạng danh sách)
     let savedViewMode = localStorage.getItem('appViewModeStandalone');
     if (savedViewMode) STATE.viewMode = savedViewMode;
     document.getElementById('btn-view-list').classList.toggle('active', STATE.viewMode === 'list');
@@ -696,7 +731,7 @@
     
     document.addEventListener('click', function(e) { if (!e.target.closest('.smart-input-container')) hideAllDropdowns(); });
 
-    // ================= TÍNH NĂNG VUỐT MÉP TRÁI ĐỂ QUAY LẠI (EDGE SWIPE) =================
+    // ================= TÍNH NĂNG VUỐT MÉP TRÁI ĐỂ QUAY LẠI =================
     let touchStartX = 0;
     let touchStartY = 0;
 
@@ -744,7 +779,7 @@
       setTimeout(updateStickyTop, 310);
   }
 
-  // ================= CHUYỂN ĐỔI CHẾ ĐỘ VIEW (LIST / GRID) =================
+  // ================= CHUYỂN ĐỔI CHẾ ĐỘ VIEW =================
   window.changeViewMode = function(mode) {
       STATE.viewMode = mode;
       localStorage.setItem('appViewModeStandalone', mode);
@@ -772,19 +807,24 @@
   window.selectGroupItem = function(val, inputId) { let input = document.getElementById(inputId); if(input) input.value = val; hideAllDropdowns(); }
   window.hideAllDropdowns = function() { document.querySelectorAll('.smart-dropdown').forEach(el => el.style.display = 'none'); STATE.activeDropdownId = null; }
 
-  // KIẾN TRÚC MAIN (ĐÃ HỖ TRỢ 2 CHẾ ĐỘ XEM)
+  // KIẾN TRÚC MAIN (ĐÃ FIX LỖI INLINE DISPLAY BLOCK)
   window.renderMainView = function() {
       updateStats();
       STATE.contacts.forEach(c => { let g = c.group || 'Khác'; if (!STATE.groups.includes(g)) { STATE.groups.unshift(g); localStorage.setItem('appGroupsStandalone', JSON.stringify(STATE.groups)); updateDataLists(); } });
       let viewFolders = document.getElementById('view-folder-list'), viewInner = document.getElementById('view-inner-folder'), viewSearch = document.getElementById('view-search-results');
-      viewInner.style.display = 'none'; viewSearch.style.display = 'none'; viewFolders.style.display = 'block'; STATE.currentFolder = null;
+      
+      viewInner.style.display = 'none'; 
+      viewSearch.style.display = 'none'; 
+      STATE.currentFolder = null;
 
       if (STATE.groups.length === 0 && STATE.contacts.length === 0) {
+          viewFolders.style.display = 'block'; // Fallback nếu trống
           viewFolders.innerHTML = '<div style="text-align:center; padding: 40px 20px; color:var(--text-muted); line-height: 1.5;">Chưa có liên hệ nào.<br>Thêm thủ công hoặc Tải lên từ danh bạ.</div>'; return;
       }
       
+      // [BẢN FIX]: Khai báo rõ display grid hoặc block bằng Javascript thay vì để class CSS bị đè
       if (STATE.viewMode === 'list') {
-          // Render kiểu Danh sách (Mặc định)
+          viewFolders.style.display = 'block'; // Bật 1 cột
           viewFolders.className = '';
           viewFolders.innerHTML = STATE.groups.map(g => {
               let count = STATE.contacts.filter(c => c.group === g).length;
@@ -802,15 +842,20 @@
                   </div>`;
           }).join('');
       } else {
-          // Render kiểu Lưới 3 cột (Giống Home Screen)
+          viewFolders.style.display = 'grid'; // Bật tính năng Grid 3 Cột của trình duyệt
           viewFolders.className = 'folder-grid-container';
           viewFolders.innerHTML = STATE.groups.map(g => {
               let count = STATE.contacts.filter(c => c.group === g).length;
               let badgeHtml = count > 0 ? `<div class="folder-grid-badge">${count}</div>` : '';
+              let bgColor = window.getAvatarColor(g);
+              let initials = window.getInitials(g);
+              
               return `
                   <div class="folder-grid-item drag-handle-group" data-group="${g.replace(/'/g, "\\'")}" onclick="openFolderView('${g.replace(/'/g, "\\'")}')">
-                      ${badgeHtml}
-                      <div class="folder-grid-icon">🏢</div>
+                      <div class="folder-grid-icon-wrapper" style="background-color: ${bgColor};">
+                          ${badgeHtml}
+                          <div class="folder-grid-icon-text">${initials}</div>
+                      </div>
                       <div class="folder-grid-name">${g}</div>
                   </div>`;
           }).join('');
@@ -818,7 +863,6 @@
 
       if (window.groupSortableMain) window.groupSortableMain.destroy();
       
-      // Ở dạng Grid, nắm vào cả ô để kéo. Ở dạng List, nắm vào biểu tượng ≡
       window.groupSortableMain = new Sortable(viewFolders, {
           handle: '.drag-handle-group', delay: 200, delayOnTouchOnly: true, animation: 150, ghostClass: 'sortable-ghost', chosenClass: 'sortable-chosen',
           onEnd: function (evt) {
@@ -1468,3 +1512,5 @@
 </script>
 </body>
 </html>
+
+
